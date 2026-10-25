@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>پنل اختصاصی من</title>
+<style>
+body{background:#0b1020;color:#f1f5f9;font-family:Tahoma,Arial,sans-serif;padding:20px;max-width:600px;margin:auto}
+h2{text-align:center;color:#a5b4fc}
+.card{background:#151c2e;padding:18px;border-radius:16px;margin-top:20px}
+textarea{width:100%;height:150px;box-sizing:border-box;background:#080d19;color:white;padding:12px;border:1px solid #46516b;border-radius:10px;direction:ltr}
+button{padding:12px;margin:8px 3px 0 0;border:0;border-radius:8px;background:#6366f1;color:white;font-size:14px}
+#status{color:#a5b4fc;margin-top:15px;overflow-wrap:anywhere}
+p{line-height:1.9}
+</style>
+</head>
+<body>
+<h2>پنل اختصاصی من</h2>
+<p style="text-align:center">مدیریت کانفیگ‌های V2Ray</p>
+<div class="card">
+<p>کانفیگ خود را وارد کنید:</p>
+<textarea id="cfg" placeholder="vless:// یا vmess:// یا trojan://"></textarea>
+<br>
+<button onclick="check()">بررسی نوع</button>
+<button onclick="copyCfg()">کپی کانفیگ</button>
+<button onclick="clearCfg()">پاک کردن</button>
+<p id="status">آماده</p>
+</div>
+<script>
+function check(){
+let s=document.getElementById('cfg').value.trim();
+let t=s.match(/^(vless|vmess|trojan):\/\//i);
+document.getElementById('status').textContent=
+!s?'ابتدا کانفیگ وارد کن':
+t?'نوع کانفیگ: '+t[1].toUpperCase():
+'نوع لینک شناسایی نشد';
+}
+async function copyCfg(){
+let s=document.getElementById('cfg').value.trim();
+if(!s){document.getElementById('status').textContent='کانفیگ خالی است';return}
+try{
+await navigator.clipboard.writeText(s);
+document.getElementById('status').textContent='کپی شد!';
+}catch(e){
+document.getElementById('cfg').select();
+document.getElementById('status').textContent='متن را انتخاب کن و Copy بزن';
+}
+}
+function clearCfg(){
+document.getElementById('cfg').value='';
+document.getElementById('status').textContent='پاک شد';
+}
+</script>
+</body>
+</html>
