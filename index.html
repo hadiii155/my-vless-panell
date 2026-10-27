@@ -1,104 +1,224 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>پنل MHA</title>
-<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<title>MHA.NET | Control Panel</title>
 <style>
-  :root{
-    --bg:#0b0f1a; --card:#141a2b; --card2:#1b2238; --text:#e8ecf8; --muted:#8b95b5;
-    --g1:#ff3d77; --g2:#ff9f1c; --g3:#2ee6a6; --g4:#4d7cff; --g5:#b44dff;
-    --line:rgba(255,255,255,.07);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Vazirmatn,Tahoma,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
-    background-image:radial-gradient(circle at 15% 0%,rgba(77,124,255,.18),transparent 40%),
-                     radial-gradient(circle at 90% 20%,rgba(180,77,255,.15),transparent 40%);}
-  .layout{display:flex;min-height:100vh}
-  aside{width:250px;background:var(--card);border-left:1px solid var(--line);padding:24px 16px;position:sticky;top:0;height:100vh}
-  .logo{font-size:34px;font-weight:900;text-align:center;letter-spacing:3px;margin-bottom:30px;direction:ltr;
-    background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g5));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    background-size:200% auto;animation:flow 5s linear infinite}
-  @keyframes flow{to{background-position:200% center}}
-  nav a{display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:6px;border-radius:12px;
-    color:var(--muted);text-decoration:none;cursor:pointer;transition:.25s}
-  nav a:hover,nav a.active{background:var(--card2);color:var(--text)}
-  nav a.active{box-shadow:inset -3px 0 0 var(--g4)}
-  main{flex:1;padding:28px}
-  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;flex-wrap:wrap;gap:12px}
-  header h1{font-size:22px}
-  .badge{background:var(--card2);padding:8px 14px;border-radius:30px;font-size:13px;color:var(--g3);border:1px solid var(--line)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:24px}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;position:relative;overflow:hidden;transition:.3s}
-  .stat:hover{transform:translateY(-4px)}
-  .stat::before{content:"";position:absolute;top:0;right:0;left:0;height:3px;background:var(--c)}
-  .stat small{color:var(--muted)}
-  .stat b{display:block;font-size:30px;margin-top:8px}
-  .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:20px}
-  .box h2{font-size:17px;margin-bottom:16px}
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  th,td{padding:12px;text-align:right;border-bottom:1px solid var(--line)}
-  th{color:var(--muted);font-weight:500}
-  .ok{color:var(--g3)} .off{color:var(--g1)}
-  .btn{background:linear-gradient(90deg,var(--g4),var(--g5));border:0;color:#fff;padding:11px 22px;
-    border-radius:12px;font-family:inherit;font-size:14px;cursor:pointer;transition:.25s}
-  .btn:hover{filter:brightness(1.15);transform:translateY(-2px)}
-  input{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);
-    padding:12px;border-radius:12px;font-family:inherit;margin-bottom:12px}
-  input:focus{outline:2px solid var(--g4)}
-  @media(max-width:760px){
-    .layout{flex-direction:column}
-    aside{width:100%;height:auto;position:static;display:flex;flex-direction:column}
-    nav{display:flex;overflow-x:auto;gap:6px} nav a{white-space:nowrap}
-    .logo{margin-bottom:14px}
-  }
+:root{--bg:#020817;--card:#06152c;--line:#0759b8;--blue:#087cff;--cyan:#00d7ff;--text:#eaf5ff;--muted:#82afd9;--green:#00e5b0}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#08275b,transparent 55%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);background:#020b1c}
+.logo{font-size:27px;font-weight:900;direction:ltr;color:white}
+.logo span{color:var(--cyan);text-shadow:0 0 18px var(--blue)}
+.logo small{display:block;font-size:9px;letter-spacing:2px;color:#54baff}
+.top{display:flex;align-items:center;gap:10px}
+.search{width:220px;max-width:40vw;background:#071a35;border:1px solid #124a87;border-radius:20px;padding:10px;color:white}
+button{background:#062553;color:#bceaff;border:1px solid #104c8b;border-radius:9px;padding:10px}
+button:hover{background:#0755b7;color:white}
+.app{display:grid;grid-template-columns:215px minmax(0,1fr);gap:18px;padding:18px}
+aside,.card{background:linear-gradient(145deg,#071a35,#030c1c);border:1px solid #094b91;border-radius:13px;box-shadow:0 8px 30px #0003}
+aside{padding:13px;height:max-content}
+.nav{display:grid;gap:6px}
+.nav button{text-align:right;background:transparent;border-color:transparent;padding:12px}
+.nav button.active,.nav button:hover{background:linear-gradient(90deg,#063c9c,#071e46);border-color:#087cff}
+.nav span{color:var(--cyan);margin-left:9px}
+.asidebrand{text-align:center;padding:25px 5px 12px;color:var(--muted);font-size:12px}
+.asidebrand b{display:block;color:white;font-size:16px;margin:8px}
+main{min-width:0;display:grid;gap:15px;align-content:start}
+.hero{padding:24px;position:relative;overflow:hidden;background:radial-gradient(circle at 75% 50%,#073e9c,transparent 38%),linear-gradient(120deg,#041a39,#020b1b)}
+.hero h1{font-size:36px;margin:0 0 10px;direction:ltr;text-align:right}
+.hero h1 span{color:var(--cyan)}
+.hero p{color:var(--cyan);margin:8px 0}
+.hero .fa{color:white;font-size:15px}
+.hero .globe{position:absolute;left:10%;top:12px;font-size:115px;opacity:.55;text-shadow:0 0 40px #087cff;pointer-events:none}
+.hero .features{position:relative;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.features span{font-size:11px;padding:8px;background:#03132c;border:1px solid #104782;border-radius:8px;color:#bceaff}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.card{padding:15px;min-width:0}
+.stat small{color:var(--muted);font-size:11px}
+.stat strong{display:block;font-size:24px;margin:10px 0}
+.up{color:var(--green);font-size:11px}
+.charts{display:grid;grid-template-columns:1.7fr 1fr;gap:14px}
+h3{font-size:14px;margin:0 0 14px}
+.chart{height:175px;display:flex;align-items:end;gap:8px;padding:12px 5px 4px;border-bottom:1px solid #104276;background:repeating-linear-gradient(0deg,transparent 0 38px,#0a2a4c 39px 40px)}
+.chart i{display:block;flex:1;min-width:4px;border-radius:5px 5px 0 0;background:linear-gradient(#00d7ff,#0754ff);box-shadow:0 0 12px #087cff55}
+.donut{width:125px;height:125px;border-radius:50%;margin:15px auto;background:conic-gradient(#087cff 0 42%,#00d7ff 42% 70%,#9c4dff 70% 85%,#ff4eae 85% 93%,#3b54a8 93%);display:grid;place-items:center}
+.donut:after{content:"18.7 TB";display:grid;place-items:center;width:83px;height:83px;border-radius:50%;background:#041329;font-size:15px;font-weight:bold}
+.legend{display:grid;gap:9px;color:var(--muted);font-size:11px}
+.legend span{display:flex;justify-content:space-between}
+.bottom{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
+.item{padding:11px 0;border-bottom:1px solid #102b4d;font-size:12px;display:flex;justify-content:space-between;gap:8px}
+.item:last-child{border:0}
+table{width:100%;border-collapse:collapse;font-size:11px;text-align:right}
+th,td{padding:11px 6px;border-bottom:1px solid #102b4d}
+th{color:var(--muted);background:#06152c}
+.online{color:var(--green)}
+.rightgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.resource{margin:17px 0;font-size:11px;color:var(--muted)}
+.track{height:8px;background:#10294b;border-radius:10px;margin-top:8px;overflow:hidden}
+.track i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,#00d7ff,#087cff)}
+.actions{display:grid;gap:8px}
+.actions button{text-align:right}
+.users{display:grid;gap:12px}
+.user{display:flex;align-items:center;gap:10px;font-size:12px}
+.avatar{width:35px;height:35px;display:grid;place-items:center;background:#082e64;border:1px solid #087cff;border-radius:50%;color:var(--cyan)}
+.userinfo{flex:1}.userinfo small{display:block;color:var(--muted);margin-top:5px}
+.badge{background:#064b45;color:#00e5b0;border-radius:7px;padding:5px;font-size:10px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+.toast{position:fixed;bottom:18px;left:18px;right:18px;text-align:center;background:#062553;border:1px solid var(--cyan);border-radius:10px;padding:14px;display:none}
+@media(max-width:850px){.app{grid-template-columns:1fr;padding:10px}.nav{grid-template-columns:repeat(3,minmax(0,1fr))}.nav button{font-size:11px;text-align:center;padding:10px 3px}.asidebrand{display:none}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.charts,.bottom{grid-template-columns:1fr}.rightgrid{grid-template-columns:1fr}.hero .globe{left:2%;font-size:90px}.hero h1{font-size:29px}}
+@media(max-width:390px){header{padding:13px}.logo{font-size:22px}.search{width:110px}.hero{padding:17px}.features span{font-size:10px}.nav button{font-size:10px}}
 </style>
 </head>
 <body>
-<div class="layout">
-  <aside>
-    <div class="logo">MHA</div>
-    <nav>
-      <a class="active">🏠 داشبورد</a>
-      <a>👥 کاربران</a>
-      <a>⚙️ کانفیگ‌ها</a>
-      <a>📊 آمار</a>
-      <a>🔧 تنظیمات</a>
-    </nav>
-  </aside>
+<header>
+  <div class="logo">MHA<span>.NET</span><small>CONNECTING YOUR WORLD</small></div>
+  <div class="top">
+    <input class="search" id="search" placeholder="جستجو...">
+    <button onclick="notify('خوش آمدید به MHA.NET')">♧</button>
+  </div>
+</header>
 
-  <main>
-    <header>
-      <h1>خوش آمدید 👋</h1>
-      <span class="badge">● سیستم فعال</span>
-    </header>
+<div class="app">
+<aside>
+  <nav class="nav" id="nav">
+    <button class="active" onclick="section(this,'داشبورد')"><span>⌂</span> داشبورد</button>
+    <button onclick="section(this,'کاربران')"><span>♟</span> کاربران</button>
+    <button onclick="section(this,'پلن‌ها')"><span>▣</span> پلن‌ها</button>
+    <button onclick="section(this,'نودها')"><span>✥</span> نودها</button>
+    <button onclick="section(this,'ترافیک')"><span>↗</span> ترافیک</button>
+    <button onclick="section(this,'لاگ‌ها')"><span>▤</span> لاگ‌ها</button>
+    <button onclick="section(this,'پرداخت‌ها')"><span>＄</span> پرداخت‌ها</button>
+    <button onclick="section(this,'تیکت‌ها')"><span>✉</span> تیکت‌ها</button>
+    <button onclick="section(this,'زیرادمین‌ها')"><span>♙</span> زیرادمین‌ها</button>
+    <button onclick="section(this,'API')"><span>⌘</span> API</button>
+    <button onclick="section(this,'امنیت')"><span>⬡</span> امنیت</button>
+    <button onclick="section(this,'تنظیمات')"><span>⚙</span> تنظیمات</button>
+  </nav>
+  <div class="asidebrand"><div style="font-size:38px;color:#00d7ff">Ⓜ</div><b>MHA.NET</b>More Than a Panel<br>Fast · Secure · Reliable</div>
+</aside>
 
-    <section class="grid">
-      <div class="stat" style="--c:var(--g4)"><small>کل کاربران</small><b>128</b></div>
-      <div class="stat" style="--c:var(--g3)"><small>کاربران فعال</small><b>93</b></div>
-      <div class="stat" style="--c:var(--g2)"><small>حجم مصرفی</small><b>412 GB</b></div>
-      <div class="stat" style="--c:var(--g1)"><small>منقضی شده</small><b>7</b></div>
-    </section>
+<main>
+  <section class="card hero">
+    <div class="globe">🌐</div>
+    <h1>Welcome to<br>MHA<span>.NET</span></h1>
+    <p>Powerful · Flexible · All in One</p>
+    <div class="fa">پنل مدیریت حرفه‌ای با امکانات کامل</div>
+    <div class="features">
+      <span>✦ Multi Protocol</span><span>◉ Real-time Monitoring</span>
+      <span>♧ Advanced Security</span><span>↻ Auto Billing</span>
+      <span>✥ Multi-Node</span><span>⚙ Customization</span>
+    </div>
+  </section>
 
-    <section class="box">
-      <h2>آخرین کاربران</h2>
+  <section class="stats">
+    <div class="card stat"><small>کل کاربران</small><strong>2,548</strong><div class="up">↑ 12% افزایش</div></div>
+    <div class="card stat"><small>کاربران فعال</small><strong>1,892</strong><div class="up">↑ 18% افزایش</div></div>
+    <div class="card stat"><small>کل ترافیک</small><strong>18.7 TB</strong><div class="up">↑ 32% افزایش</div></div>
+    <div class="card stat"><small>نودهای فعال</small><strong>6</strong><div class="up">● وضعیت پایدار</div></div>
+  </section>
+
+  <section class="charts">
+    <div class="card">
+      <h3>📊 نمای کلی ترافیک</h3>
+      <div class="chart" id="chart"></div>
+      <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:9px"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+    </div>
+    <div class="card">
+      <h3>🌐 مصرف پروتکل‌ها</h3>
+      <div class="donut"></div>
+      <div class="legend">
+        <span>🔵 V2Ray <b>42%</b></span>
+        <span>🟦 Xray <b>28%</b></span>
+        <span>🟣 Shadowsocks <b>15%</b></span>
+        <span>🟥 OpenVPN <b>5%</b></span>
+        <span>⚪ سایر <b>10%</b></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="bottom">
+    <div class="card">
+      <h3>⚡ فعالیت‌های اخیر</h3>
+      <div class="item">ثبت‌نام کاربر جدید <span>۲ ساعت قبل</span></div>
+      <div class="item">به‌روزرسانی پلن Premium <span>۳ ساعت قبل</span></div>
+      <div class="item">اضافه‌شدن نود آلمان <span>۴ ساعت قبل</span></div>
+      <div class="item">ثبت پرداخت جدید <span>۵ ساعت قبل</span></div>
+      <div class="item">بررسی امنیتی <span>۶ ساعت قبل</span></div>
+    </div>
+    <div class="card">
+      <h3>🌍 وضعیت نودها</h3>
       <table>
-        <tr><th>نام</th><th>وضعیت</th><th>حجم</th></tr>
-        <tr><td>کاربر ۱</td><td class="ok">فعال</td><td>12 GB</td></tr>
-        <tr><td>کاربر ۲</td><td class="ok">فعال</td><td>5 GB</td></tr>
-        <tr><td>کاربر ۳</td><td class="off">منقضی</td><td>30 GB</td></tr>
+        <thead><tr><th>نود</th><th>وضعیت</th><th>بار</th><th>کاربر</th></tr></thead>
+        <tbody>
+          <tr><td>🇮🇷 ایران</td><td class="online">● آنلاین</td><td>23%</td><td>432</td></tr>
+          <tr><td>🇩🇪 آلمان</td><td class="online">● آنلاین</td><td>18%</td><td>387</td></tr>
+          <tr><td>🇺🇸 آمریکا</td><td class="online">● آنلاین</td><td>35%</td><td>298</td></tr>
+          <tr><td>🇳🇱 هلند</td><td class="online">● آنلاین</td><td>27%</td><td>254</td></tr>
+          <tr><td>🇸🇬 سنگاپور</td><td class="online">● آنلاین</td><td>41%</td><td>221</td></tr>
+        </tbody>
       </table>
-    </section>
+    </div>
+  </section>
 
-    <section class="box">
-      <h2>افزودن کاربر جدید</h2>
-      <input placeholder="نام کاربر">
-      <input placeholder="حجم (گیگابایت)">
-      <button class="btn">ثبت</button>
-    </section>
-  </main>
+  <section class="rightgrid">
+    <div class="card">
+      <h3>🖥 سرور اصلی</h3>
+      <div class="online">● آنلاین</div>
+      <p style="color:var(--muted);font-size:12px">Main Server · نمونه نمایشی</p>
+      <div class="resource">CPU — 20%<div class="track"><i style="width:20%"></i></div></div>
+      <div class="resource">RAM — 38%<div class="track"><i style="width:38%"></i></div></div>
+      <div class="resource">Disk — 52%<div class="track"><i style="width:52%"></i></div></div>
+    </div>
+    <div class="card">
+      <h3>⚡ عملیات سریع</h3>
+      <div class="actions">
+        <button onclick="notify('برای افزودن کاربر باید بک‌اند وصل شود')">＋ افزودن کاربر</button>
+        <button onclick="notify('ساخت پلن نیازمند بک‌اند است')">▣ ساخت پلن</button>
+        <button onclick="notify('افزودن نود نیازمند سرور است')">✥ افزودن نود</button>
+        <button onclick="uuid()">♧ تولید UUID آزمایشی</button>
+        <button onclick="notify('لاگ زنده هنوز متصل نیست')">▤ مشاهده لاگ‌ها</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>👥 آخرین کاربران</h3>
+    <div class="users">
+      <div class="user"><div class="avatar">♟</div><div class="userinfo"><b>mahdi_123</b><small>۱.۲ ترابایت مصرف</small></div><span class="badge">آنلاین</span></div>
+      <div class="user"><div class="avatar">♟</div><div class="userinfo"><b>sara-v2ray</b><small>۸۵۶ گیگابایت مصرف</small></div><span class="badge">آنلاین</span></div>
+      <div class="user"><div class="avatar">♟</div><div class="userinfo"><b>amir2024</b><small>۳۵۰ گیگابایت مصرف</small></div><span class="badge">آنلاین</span></div>
+    </div>
+  </section>
+  <footer>MHA.NET · Powerful Network Panel · v2.0.0</footer>
+</main>
 </div>
+<div class="toast" id="toast"></div>
+<script>
+const chart=document.getElementById('chart');
+[32,25,43,36,55,42,66,48,60,79,63,91,72,57,82,68].forEach(h=>{
+ const bar=document.createElement('i');bar.style.height=h+'%';chart.appendChild(bar);
+});
+let timer;
+function notify(msg){
+ const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';
+ clearTimeout(timer);timer=setTimeout(()=>t.style.display='none',3000);
+}
+function section(btn,name){
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');notify('بخش '+name+' انتخاب شد؛ برای عملکرد واقعی اتصال بک‌اند لازم است.');
+}
+function uuid(){
+ if(crypto.randomUUID)notify('UUID آزمایشی: '+crypto.randomUUID());
+ else notify('برای تولید UUID واقعی از بک‌اند استفاده کن.');
+}
+document.getElementById('search').addEventListener('keydown',e=>{
+ if(e.key==='Enter'&&e.target.value.trim())notify('جستجو: '+e.target.value);
+});
+</script>
 </body>
 </html>
