@@ -6,60 +6,8 @@
 <meta name="theme-color" content="#140d20">
 <title>MHA.NET | VPN Manager</title>
 <style>
-:root{--bg:#100b19;--bg2:#180f26;--panel:#1d142b;--panel-2:#20172f;--border:#3c2b4b;--orange:#ff702b;--red:#ef345e;--purple:#823cff;--purple-2:#9d6af8;--text:#f7f1ff;--muted:#b9a9c9;--green:#1fbf8f;--shadow:0 18px 45px rgba(0,0,0,.28)}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;background:radial-gradient(circle at top, rgba(130,60,255,.18), transparent 30%), linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:Tahoma,Arial,sans-serif}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;background:linear-gradient(135deg,var(--purple),var(--purple-2));color:#fff;box-shadow:var(--shadow);transition:.2s ease}
-button:hover{filter:brightness(1.08);transform:translateY(-1px)}
-header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(21,15,31,.94);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;backdrop-filter:blur(14px)}
-.logo{font-size:23px;font-weight:bold;color:var(--orange)}
-.logo small{display:block;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1.2px}
-.menu{background:rgba(80,42,99,.9);font-size:22px;padding:7px 12px}
-.shell{display:flex;min-height:calc(100vh - 72px)}
-nav{width:235px;padding:15px;background:rgba(15,10,22,.82);flex-shrink:0;border-left:1px solid rgba(255,255,255,.03)}
-nav button{display:block;width:100%;text-align:right;background:transparent;color:#d2c4e1;margin:5px 0;border:1px solid transparent;padding:12px 14px}
-nav button.active,nav button:hover{background:linear-gradient(135deg,rgba(93,63,123,.9),rgba(52,34,75,.95));color:#ff9a65;border-color:rgba(255,255,255,.05)}
-main{flex:1;min-width:0;padding:22px}
-.page{display:none}.page.active{display:block}
-h2{font-size:21px;margin-top:0}
-h3{font-size:16px}
-.muted{color:var(--muted);font-size:12px;line-height:2}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin:18px 0}
-.card,.panel{background:rgba(29,20,43,.92);border:1px solid var(--border);border-radius:18px;padding:17px;margin-bottom:14px;box-shadow:var(--shadow)}
-.metric{font-size:27px;color:var(--orange);font-weight:bold;margin-top:12px}
-.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
-label{display:block;color:#d7c8e6;font-size:12px;margin:12px 0 7px}
-input,select,textarea{width:100%;padding:12px 13px;color:white;background:rgba(18,12,27,.9);border:1px solid #493354;border-radius:12px;outline:none;transition:.2s ease}
-input::placeholder{color:#9d8aae}
-input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(130,60,255,.15)}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
-.orange{background:linear-gradient(135deg,#ef6d29,#ff8b4d)}.red{background:linear-gradient(135deg,#b72f4e,#eb4975)}.green{background:linear-gradient(135deg,#1e8a6b,#27c491)}.gray{background:linear-gradient(135deg,#49364e,#62506d)}
-.tablewrap{overflow-x:auto}
-table{width:100%;min-width:480px;border-collapse:collapse}
-th,td{padding:12px 9px;border-bottom:1px solid var(--border);text-align:right;font-size:12px;overflow-wrap:anywhere}
-th{color:#ff9d6a}
-.tag{display:inline-block;background:#184936;color:#9ef0c9;padding:5px 9px;border-radius:20px;font-size:11px}
-.warning{border:1px solid #714b2c;background:linear-gradient(135deg,#2d1d12,#362517);color:#ffd1a8;padding:13px;border-radius:12px;font-size:12px;line-height:2}
-#toast{display:none;position:fixed;bottom:18px;left:15px;right:15px;margin:auto;max-width:420px;background:rgba(57,36,73,.96);padding:14px;border-radius:12px;z-index:10;border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow)}
-#auth{max-width:520px;margin:45px auto}
-#auth .panel{padding:24px;border:1px solid rgba(255,255,255,.04);background:linear-gradient(180deg,rgba(29,20,43,.94),rgba(22,15,34,.95));}
-#auth .logo{font-size:30px;text-align:center;margin-bottom:10px}
-#auth .auth-shell{display:grid;gap:18px}
-#auth .auth-header{display:flex;justify-content:center;margin-bottom:8px}
-#auth .tab-toggle{display:flex;gap:8px;background:rgba(255,255,255,.02);padding:6px;border-radius:14px;border:1px solid rgba(255,255,255,.05)}
-#auth .tab-toggle button{background:transparent;box-shadow:none;padding:10px 18px;color:#d7c8e6;border:1px solid transparent}
-#auth .tab-toggle button.active{background:linear-gradient(135deg,rgba(130,60,255,.28),rgba(157,106,248,.18));border-color:rgba(255,255,255,.08);color:white}
-#auth button{width:100%;margin-top:12px}
-#auth .mini{font-size:12px;color:var(--muted);padding-top:5px}
-.support{position:fixed;bottom:18px;left:18px;width:49px;height:49px;border-radius:50%;background:linear-gradient(135deg,#168ed0,#25a7eb);font-size:22px;z-index:4;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
-footer{text-align:center;color:#786a88;font-size:11px;padding:25px}
-@media(max-width:680px){
-.shell{display:block}nav{display:none;width:100%}nav.open{display:block}
-main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
-#auth{margin-top:30px}
-}
+:root{--bg:#100b19;--bg2:#180f26;--panel:#1d142b;--panel-2:#20172f;--border:#3c2b4b;--orange:#ff702b;--red:#ef345e;--purple:#823cff;--purple-2:#9d6af8;--text:#f7f1ff;--muted:#b9a9c9;--green:#1fbf8f;--shadow:0 18px 34px rgba(12,7,18,.45)}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:radial-gradient(circle at top, rgba(130,60,255,.18), transparent 30%), linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:Tahoma,Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;background:linear-gradient(135deg,var(--purple),var(--purple-2));color:#fff;box-shadow:var(--shadow);transition:.2s ease}button:hover{filter:brightness(1.08);transform:translateY(-1px)}header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(21,15,31,.94);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}.logo{font-size:23px;font-weight:bold;color:var(--orange)}.logo small{display:block;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1.2px}.menu{background:rgba(80,42,99,.9);font-size:22px;padding:7px 12px}.shell{display:flex;min-height:calc(100vh - 72px)}nav{width:235px;padding:15px;background:rgba(15,10,22,.82);flex-shrink:0;border-left:1px solid rgba(255,255,255,.03)}nav button{display:block;width:100%;text-align:right;background:transparent;color:#d2c4e1;margin:5px 0;border:1px solid transparent;padding:12px 14px}nav button.active,nav button:hover{background:linear-gradient(135deg,rgba(93,63,123,.9),rgba(52,34,75,.95));color:#ff9a65;border-color:rgba(255,255,255,.05)}main{flex:1;min-width:0;padding:22px}.page{display:none}.page.active{display:block}h2{font-size:21px;margin-top:0}h3{font-size:16px}.muted{color:var(--muted);font-size:12px;line-height:2}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin:18px 0}.card,.panel{background:rgba(29,20,43,.92);border:1px solid var(--border);border-radius:18px;padding:17px;margin-bottom:14px;box-shadow:var(--shadow)}.metric{font-size:27px;color:var(--orange);font-weight:bold;margin-top:12px}.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}label{display:block;color:#d7c8e6;font-size:12px;margin:12px 0 7px}input,select,textarea{width:100%;padding:12px 13px;color:white;background:rgba(18,12,27,.9);border:1px solid #493354;border-radius:12px;outline:none;transition:.2s ease}input::placeholder{color:#9d8aae}input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(130,60,255,.15)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.orange{background:linear-gradient(135deg,#ef6d29,#ff8b4d)}.red{background:linear-gradient(135deg,#b72f4e,#eb4975)}.green{background:linear-gradient(135deg,#1e8a6b,#27c491)}.gray{background:linear-gradient(135deg,#4c4f6b,#656b82)}.tablewrap{overflow-x:auto}table{width:100%;min-width:480px;border-collapse:collapse}th,td{padding:12px 9px;border-bottom:1px solid var(--border);text-align:right;font-size:12px;overflow-wrap:anywhere}th{color:#ff9d6a}.tag{display:inline-block;background:#184936;color:#9ef0c9;padding:5px 9px;border-radius:20px;font-size:11px}.warning{border:1px solid #714b2c;background:linear-gradient(135deg,#2d1d12,#362517);color:#ffd1a8;padding:13px;border-radius:12px;font-size:12px;line-height:2}#toast{display:none;position:fixed;bottom:18px;left:15px;right:15px;margin:auto;max-width:420px;background:rgba(57,36,73,.96);padding:14px;border-radius:12px;z-index:10;border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow)}#auth{max-width:520px;margin:45px auto}#auth .panel{padding:24px;border:1px solid rgba(255,255,255,.04);background:linear-gradient(180deg,rgba(29,20,43,.94),rgba(22,15,34,.95));}#auth .logo{font-size:30px;text-align:center;margin-bottom:10px}#auth .auth-shell{display:grid;gap:18px}#auth .auth-header{display:flex;justify-content:center;margin-bottom:8px}#auth .tab-toggle{display:flex;gap:8px;background:rgba(255,255,255,.02);padding:6px;border-radius:14px;border:1px solid rgba(255,255,255,.05)}#auth .tab-toggle button{background:transparent;box-shadow:none;padding:10px 18px;color:#d7c8e6;border:1px solid transparent}#auth .tab-toggle button.active{background:linear-gradient(135deg,rgba(130,60,255,.28),rgba(157,106,248,.18));border-color:rgba(255,255,255,.08);color:white}#auth button{width:100%;margin-top:12px}#auth .mini{font-size:12px;color:var(--muted);padding-top:5px}.support{position:fixed;bottom:18px;left:18px;width:49px;height:49px;border-radius:50%;background:linear-gradient(135deg,#168ed0,#25a7eb);font-size:22px;z-index:4;display:flex;align-items:center;justify-content:center}footer{text-align:center;color:#786a88;font-size:11px;padding:25px}@media(max-width:680px){.shell{display:block}nav{display:none;width:100%}nav.open{display:block}main{padding:13px}header{padding:0 13px}.logo{font-size:20px}#auth{margin-top:30px}}
 </style>
 </head>
 <body>
@@ -99,7 +47,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <p class="muted">به پنل مدیریت MHA.NET خوش آمدی.</p>
 <label>نام کاربری</label>
 <input id="loginUser" autocomplete="username" placeholder="نام کاربری">
-<label>رم�� عبور</label>
+<label>رمز عبور</label>
 <input id="loginPass" type="password" autocomplete="current-password" placeholder="رمز عبور">
 <div class="actions">
 <button onclick="login()">ورود</button>
@@ -134,11 +82,11 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div class="panel">
 <h3>وضعیت اتصال</h3>
 <p id="connectionStatus" class="muted">API هنوز تنظیم نشده است.</p>
-<div class="warning">برای ساخت واقعی کاربر، ایجاد کانفیگ VLESS، مدیریت ترافیک و اتصال Xray باید بک‌اند و سرور پیکربندی شوند.</div>
+<div class="warning">برای ساخت واقعی کاربر، ایجاد کانفیگ VLESS، مدیریت ترافیک و اتصال Xray باید بک‌اند و سرور پیکربندی شوند. این پنل فقط رابط کاربری است و بدون API واقعی پاسخ نمی‌دهد.</div>
+</div>
 <div class="panel">
 <h3>پشتیبانی MHA.NET</h3>
 <button class="green" onclick="support()">✈️ پشتیبانی تلگرام</button>
-</div>
 </div>
 </section>
 
@@ -208,7 +156,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div class="panel">
 <label>آدرس API بک‌اند</label>
 <input id="apiBase" placeholder="https://your-worker.workers.dev">
-<p class="muted">اگر بک‌اند روی localhost:3000 اجرا شود، آدرس به‌صورت خودکار تنظیم می‌شود.</p>
+<p class="muted">اگر بک‌اند روی localhost:3000 اجرا شود، آدرس به‌صورت خودکار تنظیم می‌شود. اگر سرور شما روی دامنه واقعی است، آدرس آن را اینجا وارد کنید.</p>
 <div class="actions"><button onclick="saveApi()">ذخیره آدرس API</button><button class="gray" onclick="testApi()">بررسی اتصال</button></div>
 </div>
 </section>
@@ -231,12 +179,31 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 const API_KEY = 'mha_api_base';
 const AUTH_KEY = 'mha_net_token';
 const USER_KEY = 'mha_net_user';
+const DEFAULT_LOCAL_API = 'http://localhost:3000';
 let API_BASE = '';
 let CURRENT_USER = null;
 let authMode = 'login';
 
+function normalizeApiBase(value) {
+  if (!value || typeof value !== 'string') return '';
+  return value.trim().replace(/\/+$/, '');
+}
+
 function getDefaultApiBase() {
-  return 'http://localhost:3000';
+  const fromQuery = new URLSearchParams(window.location.search).get('api');
+  if (fromQuery) return normalizeApiBase(fromQuery);
+
+  try {
+    const saved = localStorage.getItem(API_KEY);
+    if (saved) return normalizeApiBase(saved);
+  } catch (e) {}
+
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
+    return DEFAULT_LOCAL_API;
+  }
+
+  return DEFAULT_LOCAL_API;
 }
 
 function val(id){return document.getElementById(id).value.trim()}
@@ -295,13 +262,18 @@ function support(){
 }
 
 function saveApi(){
- API_BASE=val('apiBase').replace(/\/+$/,'');
+ API_BASE = normalizeApiBase(val('apiBase'));
+ if (!API_BASE) {
+   notify('آدرس API را وارد کن.');
+   return false;
+ }
  if(!API_BASE.startsWith('http://') && !API_BASE.startsWith('https://')){
    notify('آدرس API باید با http:// یا https:// شروع شود.');
-   return;
+   return false;
  }
  try{localStorage.setItem(API_KEY,API_BASE)}catch(e){}
  notify('آدرس API ذخیره شد.');
+ return true;
 }
 
 function saveAuth(token, user){
@@ -333,15 +305,20 @@ function renderAuthState(forcePage = null){
   if (accountText) {
     accountText.textContent = loggedIn
       ? `وضعیت: وارد شده‌اید | نام کاربری: ${CURRENT_USER.username}`
-      : 'وضعیت ور��د و حساب کاربری از API دریافت خواهد شد.';
+      : 'وضعیت ورود و حساب کاربری از API دریافت خواهد شد.';
   }
 }
 
 async function request(path,method='GET',body=null){
  if(!API_BASE){
+   API_BASE = getDefaultApiBase();
+ }
+
+ if(!API_BASE){
    notify('ابتدا آدرس API را در تنظیمات وارد کن.');
    throw new Error('API_NOT_CONFIGURED');
  }
+
  const token = localStorage.getItem(AUTH_KEY);
  const options={
    method,
@@ -350,10 +327,31 @@ async function request(path,method='GET',body=null){
  };
  if(token) options.headers.Authorization = 'Bearer ' + token;
  if(body!==null)options.body=JSON.stringify(body);
- const response=await fetch(API_BASE+path,options);
- const data=await response.json().catch(()=>({}));
- if(!response.ok)throw new Error(data.message||('HTTP '+response.status));
- return data;
+
+ const controller = new AbortController();
+ const timeout = setTimeout(()=>controller.abort(),15000);
+
+ try {
+   const response=await fetch(API_BASE + path, { ...options, signal: controller.signal });
+   const isJson = response.headers.get('content-type')?.includes('application/json');
+   const data = isJson ? await response.json().catch(()=>({})) : {};
+
+   if(!response.ok) {
+     throw new Error(data.message || (`HTTP ${response.status}`));
+   }
+
+   return data;
+ } catch (e) {
+   if (e.name === 'AbortError') {
+     throw new Error('سرور API پاسخ نداد. آدرس بک‌اند را بررسی کن.');
+   }
+   if (e.message && e.message.includes('Failed to fetch')) {
+     throw new Error('اتصال به بک‌اند برقرار نشد. آدرس API را در تنظیمات بررسی کن.');
+   }
+   throw e;
+ } finally {
+   clearTimeout(timeout);
+ }
 }
 
 async function testApi(){
@@ -362,7 +360,8 @@ async function testApi(){
    document.getElementById('connectionStatus').textContent='پاسخ API: '+JSON.stringify(result);
    notify('پاسخ از API دریافت شد.');
  }catch(e){
-   if(e.message!=='API_NOT_CONFIGURED')notify('اتصال برقرار نشد: '+e.message);
+   document.getElementById('connectionStatus').textContent='ارتباط با API برقرار نشد. آدرس فعلی: ' + API_BASE;
+   notify(e.message || 'اتصال برقرار نشد.');
  }
 }
 
@@ -472,7 +471,7 @@ async function logout(){
 
 async function initApp(){
  try{
-   API_BASE = localStorage.getItem(API_KEY) || getDefaultApiBase();
+   API_BASE = normalizeApiBase(localStorage.getItem(API_KEY) || getDefaultApiBase());
    document.getElementById('apiBase').value = API_BASE;
  }catch(e){
    API_BASE = getDefaultApiBase();
