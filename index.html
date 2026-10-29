@@ -6,50 +6,59 @@
 <meta name="theme-color" content="#140d20">
 <title>MHA.NET | VPN Manager</title>
 <style>
-:root{--bg:#100b19;--panel:#1d142b;--border:#382546;--orange:#ff702b;--red:#ef345e;--purple:#823cff;--text:#f7f1ff;--muted:#b9a9c9}
+:root{--bg:#100b19;--bg2:#180f26;--panel:#1d142b;--panel-2:#20172f;--border:#3c2b4b;--orange:#ff702b;--red:#ef345e;--purple:#823cff;--purple-2:#9d6af8;--text:#f7f1ff;--muted:#b9a9c9;--green:#1fbf8f;--shadow:0 18px 45px rgba(0,0,0,.28)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(circle at top, rgba(130,60,255,.18), transparent 30%), linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:Tahoma,Arial,sans-serif}
 button,input,select,textarea{font:inherit}
-button{cursor:pointer;border:0;border-radius:10px;padding:11px 15px;background:var(--purple);color:#fff}
-button:hover{filter:brightness(1.12)}
-header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#1b1228;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;background:linear-gradient(135deg,var(--purple),var(--purple-2));color:#fff;box-shadow:var(--shadow);transition:.2s ease}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(21,15,31,.94);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;backdrop-filter:blur(14px)}
 .logo{font-size:23px;font-weight:bold;color:var(--orange)}
-.logo small{display:block;font-size:10px;color:var(--muted);margin-top:4px}
-.menu{background:#30213e;font-size:22px;padding:7px 12px}
+.logo small{display:block;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1.2px}
+.menu{background:rgba(80,42,99,.9);font-size:22px;padding:7px 12px}
 .shell{display:flex;min-height:calc(100vh - 72px)}
-nav{width:235px;padding:15px;background:#181021;flex-shrink:0}
-nav button{display:block;width:100%;text-align:right;background:transparent;color:#d2c4e1;margin:5px 0}
-nav button.active,nav button:hover{background:#352047;color:#ff9a65}
+nav{width:235px;padding:15px;background:rgba(15,10,22,.82);flex-shrink:0;border-left:1px solid rgba(255,255,255,.03)}
+nav button{display:block;width:100%;text-align:right;background:transparent;color:#d2c4e1;margin:5px 0;border:1px solid transparent;padding:12px 14px}
+nav button.active,nav button:hover{background:linear-gradient(135deg,rgba(93,63,123,.9),rgba(52,34,75,.95));color:#ff9a65;border-color:rgba(255,255,255,.05)}
 main{flex:1;min-width:0;padding:22px}
 .page{display:none}.page.active{display:block}
 h2{font-size:21px;margin-top:0}
 h3{font-size:16px}
 .muted{color:var(--muted);font-size:12px;line-height:2}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin:18px 0}
-.card,.panel{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:17px;margin-bottom:14px}
+.card,.panel{background:rgba(29,20,43,.92);border:1px solid var(--border);border-radius:18px;padding:17px;margin-bottom:14px;box-shadow:var(--shadow)}
 .metric{font-size:27px;color:var(--orange);font-weight:bold;margin-top:12px}
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
 label{display:block;color:#d7c8e6;font-size:12px;margin:12px 0 7px}
-input,select,textarea{width:100%;padding:12px;color:white;background:#120c1b;border:1px solid #493354;border-radius:9px;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--purple)}
+input,select,textarea{width:100%;padding:12px 13px;color:white;background:rgba(18,12,27,.9);border:1px solid #493354;border-radius:12px;outline:none;transition:.2s ease}
+input::placeholder{color:#9d8aae}
+input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(130,60,255,.15)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
-.orange{background:#e96729}.red{background:#a62c48}.green{background:#167758}.gray{background:#392943}
+.orange{background:linear-gradient(135deg,#ef6d29,#ff8b4d)}.red{background:linear-gradient(135deg,#b72f4e,#eb4975)}.green{background:linear-gradient(135deg,#1e8a6b,#27c491)}.gray{background:linear-gradient(135deg,#49364e,#62506d)}
 .tablewrap{overflow-x:auto}
 table{width:100%;min-width:480px;border-collapse:collapse}
 th,td{padding:12px 9px;border-bottom:1px solid var(--border);text-align:right;font-size:12px;overflow-wrap:anywhere}
 th{color:#ff9d6a}
 .tag{display:inline-block;background:#184936;color:#9ef0c9;padding:5px 9px;border-radius:20px;font-size:11px}
-.warning{border:1px solid #714b2c;background:#302116;color:#ffd1a8;padding:13px;border-radius:10px;font-size:12px;line-height:2}
-#toast{display:none;position:fixed;bottom:18px;left:15px;right:15px;margin:auto;max-width:420px;background:#392449;padding:14px;border-radius:10px;z-index:10}
-#auth{max-width:430px;margin:45px auto}
-#auth .logo{font-size:28px;text-align:center;margin-bottom:20px}
-#auth .panel{padding:23px}
+.warning{border:1px solid #714b2c;background:linear-gradient(135deg,#2d1d12,#362517);color:#ffd1a8;padding:13px;border-radius:12px;font-size:12px;line-height:2}
+#toast{display:none;position:fixed;bottom:18px;left:15px;right:15px;margin:auto;max-width:420px;background:rgba(57,36,73,.96);padding:14px;border-radius:12px;z-index:10;border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow)}
+#auth{max-width:520px;margin:45px auto}
+#auth .panel{padding:24px;border:1px solid rgba(255,255,255,.04);background:linear-gradient(180deg,rgba(29,20,43,.94),rgba(22,15,34,.95));}
+#auth .logo{font-size:30px;text-align:center;margin-bottom:10px}
+#auth .auth-shell{display:grid;gap:18px}
+#auth .auth-header{display:flex;justify-content:center;margin-bottom:8px}
+#auth .tab-toggle{display:flex;gap:8px;background:rgba(255,255,255,.02);padding:6px;border-radius:14px;border:1px solid rgba(255,255,255,.05)}
+#auth .tab-toggle button{background:transparent;box-shadow:none;padding:10px 18px;color:#d7c8e6;border:1px solid transparent}
+#auth .tab-toggle button.active{background:linear-gradient(135deg,rgba(130,60,255,.28),rgba(157,106,248,.18));border-color:rgba(255,255,255,.08);color:white}
 #auth button{width:100%;margin-top:12px}
-.support{position:fixed;bottom:18px;left:18px;width:49px;height:49px;border-radius:50%;background:#168ed0;font-size:22px;z-index:4}
+#auth .mini{font-size:12px;color:var(--muted);padding-top:5px}
+.support{position:fixed;bottom:18px;left:18px;width:49px;height:49px;border-radius:50%;background:linear-gradient(135deg,#168ed0,#25a7eb);font-size:22px;z-index:4;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
 footer{text-align:center;color:#786a88;font-size:11px;padding:25px}
 @media(max-width:680px){
 .shell{display:block}nav{display:none;width:100%}nav.open{display:block}
 main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
+#auth{margin-top:30px}
 }
 </style>
 </head>
@@ -77,20 +86,30 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <section id="auth" class="page">
 <div class="logo">🦁 MHA.NET</div>
 <div class="panel">
-<h2 id="authTitle">ورود به پنل</h2>
-<p class="muted">به پنل مدیریت MHA.NET خوش آمدی.</p>
+<div class="auth-shell">
+<div class="auth-header">
+<div class="tab-toggle">
+<button id="loginTabBtn" class="active" onclick="switchAuthMode('login')">ورود</button>
+<button id="registerTabBtn" onclick="switchAuthMode('register')">ثبت‌نام</button>
+</div>
+</div>
 
 <div id="loginForm">
+<h2 id="authTitle">ورود به پنل</h2>
+<p class="muted">به پنل مدیریت MHA.NET خوش آمدی.</p>
 <label>نام کاربری</label>
 <input id="loginUser" autocomplete="username" placeholder="نام کاربری">
-<label>رمز عبور</label>
+<label>رم�� عبور</label>
 <input id="loginPass" type="password" autocomplete="current-password" placeholder="رمز عبور">
 <div class="actions">
 <button onclick="login()">ورود</button>
 </div>
+<p class="mini">نام کاربری پیش‌فرض: admin | رمز عبور: 123456</p>
 </div>
 
 <div id="registerForm" style="display:none;">
+<h2>ثبت‌نام در پنل</h2>
+<p class="muted">حساب جدید بساز و به داشبورد دسترسی پیدا کن.</p>
 <label>نام کاربری</label>
 <input id="regUser" autocomplete="username" placeholder="نام کاربری جدید">
 <label>رمز عبور</label>
@@ -99,12 +118,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <button onclick="register()">ثبت‌نام</button>
 </div>
 </div>
-
-<div class="actions" style="margin-top:8px;">
-<button class="gray" id="toggleAuthButton" onclick="toggleAuthMode()">ثبت‌نام</button>
 </div>
-
-<p class="muted">نام کاربری پیش‌فرض: admin | رمز عبور: 123456</p>
 </div>
 </section>
 
@@ -235,23 +249,26 @@ function notify(message){
  window.noticeTimer=setTimeout(()=>el.style.display='none',3000);
 }
 
-function toggleAuthMode(){
-  authMode = authMode === 'login' ? 'register' : 'login';
+function switchAuthMode(mode){
+  authMode = mode;
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
+  const loginTab = document.getElementById('loginTabBtn');
+  const regTab = document.getElementById('registerTabBtn');
   const title = document.getElementById('authTitle');
-  const toggleBtn = document.getElementById('toggleAuthButton');
 
-  if(authMode === 'register'){
+  if(mode === 'register'){
     loginForm.style.display = 'none';
     registerForm.style.display = 'block';
     title.textContent = 'ثبت‌نام در پنل';
-    toggleBtn.textContent = 'ورود';
-  }else{
+    loginTab.classList.remove('active');
+    regTab.classList.add('active');
+  } else {
     loginForm.style.display = 'block';
     registerForm.style.display = 'none';
     title.textContent = 'ورود به پنل';
-    toggleBtn.textContent = 'ثبت‌نام';
+    regTab.classList.remove('active');
+    loginTab.classList.add('active');
   }
 }
 
@@ -316,7 +333,7 @@ function renderAuthState(forcePage = null){
   if (accountText) {
     accountText.textContent = loggedIn
       ? `وضعیت: وارد شده‌اید | نام کاربری: ${CURRENT_USER.username}`
-      : 'وضعیت ورود و حساب کاربری از API دریافت خواهد شد.';
+      : 'وضعیت ور��د و حساب کاربری از API دریافت خواهد شد.';
   }
 }
 
@@ -448,6 +465,7 @@ async function logout(){
    await request('/api/auth/logout','POST',{});
  }catch(e){}
  clearAuth();
+ switchAuthMode('login');
  renderAuthState('auth');
  notify('خارج شدید.');
 }
