@@ -333,8 +333,14 @@ async function request(path,method='GET',body=null){
 
  try {
    const response=await fetch(API_BASE + path, { ...options, signal: controller.signal });
-   const isJson = response.headers.get('content-type')?.includes('application/json');
-   const data = isJson ? await response.json().catch(()=>({})) : {};
+   const contentType = response.headers.get('content-type') || '';
+   let data = {};
+   if (contentType.includes('application/json')) {
+     data = await response.json().catch(() => ({}));
+   } else {
+     const text = await response.text().catch(() => '');
+     data = { message: text || 'Request completed.' };
+   }
 
    if(!response.ok) {
      throw new Error(data.message || (`HTTP ${response.status}`));
@@ -374,7 +380,8 @@ async function apiAction(method,path,data){
  }
  try{
    const result=await request(path,method,data);
-   notify(result.message||'درخواست توسط بک‌اند پردازش شد.');
+   const msg = result && result.message ? result.message : 'درخواست توسط بک‌اند پردازش شد.';
+   notify(msg);
    if(path === '/api/users' || path === '/api/servers' || path === '/api/subscriptions' || path === '/api/configs'){
      const key = path.replace('/api/','').replace(/s$/, '');
      await loadResource(key.toLowerCase());
@@ -432,6 +439,8 @@ async function register(){
       await loadResource('servers');
       await loadResource('subscriptions');
       await loadResource('configs');
+    } else {
+      notify(result.message || 'ثبت‌نام ناموفق بود.');
     }
   }catch(e){
     notify(e.message || 'ثبت‌نام ناموفق بود.');
@@ -453,6 +462,8 @@ async function login(){
      await loadResource('servers');
      await loadResource('subscriptions');
      await loadResource('configs');
+   } else {
+     notify(result.message || 'ورود ناموفق بود.');
    }
  }catch(e){
    notify(e.message || 'ورود ناموفق بود.');
