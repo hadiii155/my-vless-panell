@@ -1,225 +1,371 @@
 
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MHA.NET | Control Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MHA.NET | پنل مدیریت VPN</title>
 <style>
-:root{--bg:#020817;--card:#06152c;--line:#0759b8;--blue:#087cff;--cyan:#00d7ff;--text:#eaf5ff;--muted:#82afd9;--green:#00e5b0}
+:root {
+  --bg:#0b0714;
+  --panel:#171025;
+  --purple:#a855f7;
+  --red:#ff2859;
+  --text:#f7f0ff;
+  --muted:#a99bbd;
+  --border:#342344;
+}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at top,#08275b,transparent 55%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
-button,input{font:inherit}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Tahoma,Arial,sans-serif;font-size:14px;
+}
+button,input,select{font:inherit}
 button{cursor:pointer}
-header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);background:#020b1c}
-.logo{font-size:27px;font-weight:900;direction:ltr;color:white}
-.logo span{color:var(--cyan);text-shadow:0 0 18px var(--blue)}
-.logo small{display:block;font-size:9px;letter-spacing:2px;color:#54baff}
-.top{display:flex;align-items:center;gap:10px}
-.search{width:220px;max-width:40vw;background:#071a35;border:1px solid #124a87;border-radius:20px;padding:10px;color:white}
-button{background:#062553;color:#bceaff;border:1px solid #104c8b;border-radius:9px;padding:10px}
-button:hover{background:#0755b7;color:white}
-.app{display:grid;grid-template-columns:215px minmax(0,1fr);gap:18px;padding:18px}
-aside,.card{background:linear-gradient(145deg,#071a35,#030c1c);border:1px solid #094b91;border-radius:13px;box-shadow:0 8px 30px #0003}
-aside{padding:13px;height:max-content}
-.nav{display:grid;gap:6px}
-.nav button{text-align:right;background:transparent;border-color:transparent;padding:12px}
-.nav button.active,.nav button:hover{background:linear-gradient(90deg,#063c9c,#071e46);border-color:#087cff}
-.nav span{color:var(--cyan);margin-left:9px}
-.asidebrand{text-align:center;padding:25px 5px 12px;color:var(--muted);font-size:12px}
-.asidebrand b{display:block;color:white;font-size:16px;margin:8px}
-main{min-width:0;display:grid;gap:15px;align-content:start}
-.hero{padding:24px;position:relative;overflow:hidden;background:radial-gradient(circle at 75% 50%,#073e9c,transparent 38%),linear-gradient(120deg,#041a39,#020b1b)}
-.hero h1{font-size:36px;margin:0 0 10px;direction:ltr;text-align:right}
-.hero h1 span{color:var(--cyan)}
-.hero p{color:var(--cyan);margin:8px 0}
-.hero .fa{color:white;font-size:15px}
-.hero .globe{position:absolute;left:10%;top:12px;font-size:115px;opacity:.55;text-shadow:0 0 40px #087cff;pointer-events:none}
-.hero .features{position:relative;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.features span{font-size:11px;padding:8px;background:#03132c;border:1px solid #104782;border-radius:8px;color:#bceaff}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.card{padding:15px;min-width:0}
-.stat small{color:var(--muted);font-size:11px}
-.stat strong{display:block;font-size:24px;margin:10px 0}
-.up{color:var(--green);font-size:11px}
-.charts{display:grid;grid-template-columns:1.7fr 1fr;gap:14px}
-h3{font-size:14px;margin:0 0 14px}
-.chart{height:175px;display:flex;align-items:end;gap:8px;padding:12px 5px 4px;border-bottom:1px solid #104276;background:repeating-linear-gradient(0deg,transparent 0 38px,#0a2a4c 39px 40px)}
-.chart i{display:block;flex:1;min-width:4px;border-radius:5px 5px 0 0;background:linear-gradient(#00d7ff,#0754ff);box-shadow:0 0 12px #087cff55}
-.donut{width:125px;height:125px;border-radius:50%;margin:15px auto;background:conic-gradient(#087cff 0 42%,#00d7ff 42% 70%,#9c4dff 70% 85%,#ff4eae 85% 93%,#3b54a8 93%);display:grid;place-items:center}
-.donut:after{content:"18.7 TB";display:grid;place-items:center;width:83px;height:83px;border-radius:50%;background:#041329;font-size:15px;font-weight:bold}
-.legend{display:grid;gap:9px;color:var(--muted);font-size:11px}
-.legend span{display:flex;justify-content:space-between}
-.bottom{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
-.item{padding:11px 0;border-bottom:1px solid #102b4d;font-size:12px;display:flex;justify-content:space-between;gap:8px}
-.item:last-child{border:0}
-table{width:100%;border-collapse:collapse;font-size:11px;text-align:right}
-th,td{padding:11px 6px;border-bottom:1px solid #102b4d}
-th{color:var(--muted);background:#06152c}
-.online{color:var(--green)}
-.rightgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.resource{margin:17px 0;font-size:11px;color:var(--muted)}
-.track{height:8px;background:#10294b;border-radius:10px;margin-top:8px;overflow:hidden}
-.track i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,#00d7ff,#087cff)}
-.actions{display:grid;gap:8px}
-.actions button{text-align:right}
-.users{display:grid;gap:12px}
-.user{display:flex;align-items:center;gap:10px;font-size:12px}
-.avatar{width:35px;height:35px;display:grid;place-items:center;background:#082e64;border:1px solid #087cff;border-radius:50%;color:var(--cyan)}
-.userinfo{flex:1}.userinfo small{display:block;color:var(--muted);margin-top:5px}
-.badge{background:#064b45;color:#00e5b0;border-radius:7px;padding:5px;font-size:10px}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
-.toast{position:fixed;bottom:18px;left:18px;right:18px;text-align:center;background:#062553;border:1px solid var(--cyan);border-radius:10px;padding:14px;display:none}
-@media(max-width:850px){.app{grid-template-columns:1fr;padding:10px}.nav{grid-template-columns:repeat(3,minmax(0,1fr))}.nav button{font-size:11px;text-align:center;padding:10px 3px}.asidebrand{display:none}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.charts,.bottom{grid-template-columns:1fr}.rightgrid{grid-template-columns:1fr}.hero .globe{left:2%;font-size:90px}.hero h1{font-size:29px}}
-@media(max-width:390px){header{padding:13px}.logo{font-size:22px}.search{width:110px}.hero{padding:17px}.features span{font-size:10px}.nav button{font-size:10px}}
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:255px;flex-shrink:0;background:#110b1c;
+  border-left:1px solid var(--border);padding:22px 14px;
+}
+.brand{text-align:center;padding:10px 0 24px}
+.lion{
+  width:85px;height:85px;margin:auto auto 12px;
+  border-radius:50%;display:grid;place-items:center;
+  font-size:48px;background:linear-gradient(135deg,#6d28d9,#ff2859);
+  box-shadow:0 0 30px #a855f755;
+}
+.brand h2{margin:8px 0;color:#ffb44b;font-size:24px}
+.brand p{color:var(--muted);font-size:12px}
+.nav-title{color:#8f7ca6;font-size:11px;padding:16px 12px 8px}
+.nav{
+  width:100%;padding:13px 12px;margin:3px 0;
+  color:#d8cbe8;background:transparent;border:1px solid transparent;
+  border-radius:11px;text-align:right;display:flex;gap:12px;
+  align-items:center;
+}
+.nav:hover,.nav.active{
+  background:linear-gradient(100deg,#8b32e733,#ff28591c);
+  border-color:#7836a5;color:white;
+}
+.nav span:first-child{width:22px;text-align:center;font-size:17px}
+.main{flex:1;min-width:0;padding:24px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px}
+.menu-btn{display:none}
+h1{font-size:23px;margin:0 0 8px}
+.subtitle{color:var(--muted);font-size:12px}
+.btn{
+  border:0;border-radius:10px;padding:11px 16px;
+  color:white;background:linear-gradient(110deg,#922cf4,#ff2859);
+}
+.btn.secondary{background:#261835;border:1px solid var(--border)}
+.btn.danger{background:#70172f}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{
+  min-width:0;background:linear-gradient(145deg,#1c1329,#100b19);
+  border:1px solid var(--border);border-radius:16px;padding:19px;
+}
+.stat-label{color:var(--muted);font-size:12px}
+.stat-value{font-size:27px;font-weight:bold;margin:15px 0 8px}
+.purple{color:#c084fc}.red{color:#ff6482}
+.green{color:#4ade80}.gold{color:#fbbf24}
+.section{margin-top:22px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+h3{margin:0;font-size:16px}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tile{
+  padding:17px;background:#160f22;border:1px solid var(--border);
+  border-radius:13px;color:var(--text);text-align:right;
+}
+.tile b{display:block;margin-bottom:8px}
+.tile small{color:var(--muted)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+input,select{
+  color:white;background:#100b19;border:1px solid var(--border);
+  border-radius:9px;padding:11px;max-width:100%;
+}
+input::placeholder{color:#8f819d}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th,td{text-align:right;padding:14px 10px;border-bottom:1px solid var(--border)}
+th{font-size:12px;color:#bba6ce}
+td{font-size:12px}
+.badge{padding:5px 9px;border-radius:20px;font-size:11px}
+.badge.ok{background:#14532d;color:#86efac}
+.badge.warn{background:#713f12;color:#fde68a}
+.badge.off{background:#57152b;color:#fda4af}
+.panel{display:none}
+.panel.active{display:block}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field label{color:#cbbbdc;font-size:12px}
+.field input,.field select{width:100%}
+.full{grid-column:1/-1}
+.notice{padding:13px;border:1px solid #7048a1;background:#321b4b55;border-radius:10px;color:#d8c4f5;line-height:1.9}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+footer{text-align:center;color:#766783;font-size:11px;padding:30px 0 10px}
+.mobile-support{display:none}
+@media(max-width:1050px){
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:720px){
+ .sidebar{position:fixed;z-index:10;right:-270px;top:0;bottom:0;overflow:auto;transition:right .25s}
+ .sidebar.open{right:0}
+ .main{padding:15px}
+ .menu-btn{display:inline-block}
+ .topbar{align-items:flex-start}
+ h1{font-size:19px}
+ .grid{gap:9px}
+ .card{padding:13px}
+ .stat-value{font-size:22px}
+ .tiles{grid-template-columns:1fr 1fr}
+ .form-grid{grid-template-columns:1fr}
+ .full{grid-column:auto}
+ .mobile-support{display:block}
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">MHA<span>.NET</span><small>CONNECTING YOUR WORLD</small></div>
-  <div class="top">
-    <input class="search" id="search" placeholder="جستجو...">
-    <button onclick="notify('خوش آمدید به MHA.NET')">♧</button>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="lion">🦁</div>
+    <h2>MHA.NET</h2>
+    <p>پنل مدیریت حرفه‌ای VPN</p>
   </div>
-</header>
 
-<div class="app">
-<aside>
-  <nav class="nav" id="nav">
-    <button class="active" onclick="section(this,'داشبورد')"><span>⌂</span> داشبورد</button>
-    <button onclick="section(this,'کاربران')"><span>♟</span> کاربران</button>
-    <button onclick="section(this,'پلن‌ها')"><span>▣</span> پلن‌ها</button>
-    <button onclick="section(this,'نودها')"><span>✥</span> نودها</button>
-    <button onclick="section(this,'ترافیک')"><span>↗</span> ترافیک</button>
-    <button onclick="section(this,'لاگ‌ها')"><span>▤</span> لاگ‌ها</button>
-    <button onclick="section(this,'پرداخت‌ها')"><span>＄</span> پرداخت‌ها</button>
-    <button onclick="section(this,'تیکت‌ها')"><span>✉</span> تیکت‌ها</button>
-    <button onclick="section(this,'زیرادمین‌ها')"><span>♙</span> زیرادمین‌ها</button>
-    <button onclick="section(this,'API')"><span>⌘</span> API</button>
-    <button onclick="section(this,'امنیت')"><span>⬡</span> امنیت</button>
-    <button onclick="section(this,'تنظیمات')"><span>⚙</span> تنظیمات</button>
-  </nav>
-  <div class="asidebrand"><div style="font-size:38px;color:#00d7ff">Ⓜ</div><b>MHA.NET</b>More Than a Panel<br>Fast · Secure · Reliable</div>
+  <div class="nav-title">منوی اصلی</div>
+  <button class="nav active" data-page="dashboard"><span>⌂</span> داشبورد</button>
+  <button class="nav" data-page="create"><span>＋</span> ساخت کانفیگ</button>
+  <button class="nav" data-page="configs"><span>◈</span> مدیریت کانفیگ‌ها</button>
+  <button class="nav" data-page="users"><span>♙</span> مدیریت کاربران</button>
+  <button class="nav" data-page="servers"><span>▤</span> مدیریت سرورها</button>
+  <button class="nav" data-page="subs"><span>🔗</span> لینک‌های ساب</button>
+  <button class="nav" data-page="plans"><span>♧</span> اشتراک‌ها و تمدید</button>
+  <button class="nav" data-page="traffic"><span>▥</span> آمار مصرف</button>
+
+  <div class="nav-title">سیستم</div>
+  <button class="nav" data-page="security"><span>♢</span> امنیت و گزارش‌ها</button>
+  <button class="nav" data-page="settings"><span>⚙</span> تنظیمات پنل</button>
+  <a class="nav mobile-support" href="https://t.me/m_hadiii46333" target="_blank" rel="noopener"><span>✈</span> پشتیبانی تلگرام</a>
+  <a class="nav" href="https://t.me/m_hadiii46333" target="_blank" rel="noopener"><span>◉</span> پشتیبانی ۲۴ ساعته</a>
+  <button class="nav" id="logout"><span>⇥</span> خروج از حساب</button>
 </aside>
 
-<main>
-  <section class="card hero">
-    <div class="globe">🌐</div>
-    <h1>Welcome to<br>MHA<span>.NET</span></h1>
-    <p>Powerful · Flexible · All in One</p>
-    <div class="fa">پنل مدیریت حرفه‌ای با امکانات کامل</div>
-    <div class="features">
-      <span>✦ Multi Protocol</span><span>◉ Real-time Monitoring</span>
-      <span>♧ Advanced Security</span><span>↻ Auto Billing</span>
-      <span>✥ Multi-Node</span><span>⚙ Customization</span>
+<main class="main">
+  <header class="topbar">
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn secondary menu-btn" id="menu">☰</button>
+      <div>
+        <h1 id="page-title">داشبورد مدیریت</h1>
+        <div class="subtitle">به پنل مدیریت MHA.NET خوش آمدید</div>
+      </div>
+    </div>
+    <span class="badge ok">● رابط کاربری آزمایشی</span>
+  </header>
+
+  <section class="panel active" id="dashboard">
+    <div class="grid">
+      <div class="card"><div class="stat-label">کل کاربران</div><div class="stat-value purple" id="stat-users">۰</div><span class="subtitle">ثبت‌شده در این پیش‌نمایش</span></div>
+      <div class="card"><div class="stat-label">کانفیگ‌ها</div><div class="stat-value red" id="stat-configs">۰</div><span class="subtitle">نمونه‌های ایجادشده</span></div>
+      <div class="card"><div class="stat-label">سرورها</div><div class="stat-value gold" id="stat-servers">۰</div><span class="subtitle">سرورهای ثبت‌شده</span></div>
+      <div class="card"><div class="stat-label">مصرف ثبت‌شده</div><div class="stat-value green">۰ GB</div><span class="subtitle">تا اتصال بک‌اند محاسبه نمی‌شود</span></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h3>مدیریت سریع</h3></div>
+      <div class="tiles">
+        <button class="tile" data-go="create"><b>＋ ساخت کانفیگ</b><small>ایجاد مشخصات کانفیگ جدید</small></button>
+        <button class="tile" data-go="users"><b>♙ کاربران</b><small>مشاهده و مدیریت حساب‌ها</small></button>
+        <button class="tile" data-go="servers"><b>▤ سرورها</b><small>افزودن و مدیریت سرورها</small></button>
+        <button class="tile" data-go="subs"><b>🔗 لینک ساب</b><small>مدیریت اشتراک‌های اتصال</small></button>
+        <button class="tile" data-go="traffic"><b>▥ آمار مصرف</b><small>گزارش ترافیک کاربران</small></button>
+        <button class="tile" data-go="security"><b>♢ امنیت</b><small>گزارش‌ها و کنترل دسترسی</small></button>
+      </div>
+    </div>
+    <div class="section card">
+      <h3>وضعیت اتصال سرور</h3>
+      <p class="subtitle">هنوز هیچ سرور واقعی به بک‌اند متصل نشده است.</p>
+      <div class="notice">برای فعال شدن ساخت VLESS، تولید لینک واقعی، کنترل حجم و نمایش وضعیت اتصال، باید سرویس بک‌اند به سرور Xray متصل شود.</div>
     </div>
   </section>
 
-  <section class="stats">
-    <div class="card stat"><small>کل کاربران</small><strong>2,548</strong><div class="up">↑ 12% افزایش</div></div>
-    <div class="card stat"><small>کاربران فعال</small><strong>1,892</strong><div class="up">↑ 18% افزایش</div></div>
-    <div class="card stat"><small>کل ترافیک</small><strong>18.7 TB</strong><div class="up">↑ 32% افزایش</div></div>
-    <div class="card stat"><small>نودهای فعال</small><strong>6</strong><div class="up">● وضعیت پایدار</div></div>
+  <section class="panel" id="create">
+    <div class="card">
+      <div class="section-head"><h3>ساخت کانفیگ VLESS</h3></div>
+      <div class="notice">این فرم فعلاً پیش‌نمایش رابط کاربری است. ذخیره آن کانفیگ واقعی روی سرور ایجاد نمی‌کند.</div>
+      <form id="config-form" class="form-grid" style="margin-top:18px">
+        <div class="field"><label>نام کانفیگ</label><input name="name" required placeholder="مثلاً User-001"></div>
+        <div class="field"><label>انتخاب سرور</label><select name="server" id="config-server" required><option value="">انتخاب سرور</option></select></div>
+        <div class="field"><label>پروتکل</label><select name="protocol"><option>VLESS</option></select></div>
+        <div class="field"><label>حجم مجاز (GB)</label><input name="limit" type="number" min="1" required placeholder="مثلاً 50"></div>
+        <div class="field"><label>مدت اعتبار (روز)</label><input name="days" type="number" min="1" required placeholder="مثلاً 30"></div>
+        <div class="field"><label>حداکثر اتصال هم‌زمان</label><input name="connections" type="number" min="1" value="1" required></div>
+        <div class="full"><button class="btn" type="submit">＋ ثبت نمونه کانفیگ</button></div>
+      </form>
+      <div id="config-message" class="notice" style="display:none;margin-top:16px"></div>
+    </div>
   </section>
 
-  <section class="charts">
+  <section class="panel" id="configs">
     <div class="card">
-      <h3>📊 نمای کلی ترافیک</h3>
-      <div class="chart" id="chart"></div>
-      <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:9px"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+      <div class="section-head"><h3>مدیریت کانفیگ‌ها</h3><button class="btn" data-go="create">＋ ساخت کانفیگ</button></div>
+      <div class="toolbar"><input id="config-search" placeholder="جست‌وجوی نام کانفیگ..."></div>
+      <div class="table-wrap"><table><thead><tr><th>نام</th><th>پروتکل</th><th>سرور</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="config-table"></tbody></table></div>
     </div>
+  </section>
+
+  <section class="panel" id="users">
     <div class="card">
-      <h3>🌐 مصرف پروتکل‌ها</h3>
-      <div class="donut"></div>
-      <div class="legend">
-        <span>🔵 V2Ray <b>42%</b></span>
-        <span>🟦 Xray <b>28%</b></span>
-        <span>🟣 Shadowsocks <b>15%</b></span>
-        <span>🟥 OpenVPN <b>5%</b></span>
-        <span>⚪ سایر <b>10%</b></span>
+      <div class="section-head"><h3>مدیریت کاربران</h3></div>
+      <div class="toolbar"><input id="user-search" placeholder="جست‌وجوی کاربر..."><button class="btn secondary" id="add-user">＋ افزودن کاربر آزمایشی</button></div>
+      <div class="table-wrap"><table><thead><tr><th>نام کاربر</th><th>اشتراک</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="user-table"></tbody></table></div>
+      <p class="subtitle">کاربران این نسخه نمونه هستند و به حساب‌های واقعی متصل نیستند.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="servers">
+    <div class="card">
+      <div class="section-head"><h3>مدیریت سرورها</h3></div>
+      <form id="server-form" class="form-grid">
+        <div class="field"><label>نام سرور</label><input name="name" required placeholder="Server-01"></div>
+        <div class="field"><label>آدرس دامنه یا IP</label><input name="host" required placeholder="vpn.example.com"></div>
+        <div class="field"><label>پورت سرویس</label><input name="port" type="number" min="1" max="65535" required placeholder="443"></div>
+        <div class="field"><label>نوع سرویس</label><select name="type"><option>Xray / VLESS</option></select></div>
+        <div class="full"><button class="btn">＋ ثبت مشخصات سرور</button></div>
+      </form>
+      <div class="notice" style="margin-top:15px">ثبت این فرم فقط مشخصات را در پیش‌نمایش نگه می‌دارد؛ اتصال واقعی نیازمند تنظیم امن بک‌اند است.</div>
+      <div class="table-wrap" style="margin-top:18px"><table><thead><tr><th>نام</th><th>آدرس</th><th>پورت</th><th>وضعیت اتصال</th><th>عملیات</th></tr></thead><tbody id="server-table"></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="panel" id="subs">
+    <div class="card"><h3>لینک‌های ساب</h3><p class="subtitle">لینک‌های واقعی پس از اتصال سرویس اشتراک به بک‌اند ساخته می‌شوند.</p><div class="notice">هر کاربر باید لینک اشتراک اختصاصی و قابل لغو داشته باشد. توکن‌ها نباید عمومی یا قابل حدس باشند.</div></div>
+  </section>
+
+  <section class="panel" id="plans">
+    <div class="card"><h3>اشتراک‌ها و تمدید</h3><p class="subtitle">مدیریت مدت اعتبار، حجم مجاز و وضعیت اشتراک کاربران.</p><div class="notice">تمدید و قطع دسترسی واقعی بعد از اتصال به دیتابیس و Xray پیاده‌سازی می‌شود.</div></div>
+  </section>
+
+  <section class="panel" id="traffic">
+    <div class="card"><h3>آمار مصرف کاربران</h3><p class="subtitle">آمار مصرف واقعی باید از سرور Xray دریافت شود.</p><div class="notice">در این نسخه اطلاعات ترافیک واقعی در دسترس نیست و عدد ساختگی نمایش داده نمی‌شود.</div></div>
+  </section>
+
+  <section class="panel" id="security">
+    <div class="card"><h3>امنیت و گزارش‌ها</h3><div class="notice">نسخه نهایی باید ورود امن، سطح دسترسی مدیر، گزارش رویدادها، محدودیت تلاش ورود، محافظت API و مدیریت امن کلیدها را داشته باشد.</div></div>
+  </section>
+
+  <section class="panel" id="settings">
+    <div class="card"><h3>تنظیمات پنل</h3>
+      <div class="form-grid" style="margin-top:18px">
+        <div class="field"><label>نام پنل</label><input value="MHA.NET" readonly></div>
+        <div class="field"><label>پروتکل اصلی</label><input value="VLESS / Xray" readonly></div>
+        <div class="field"><label>رنگ اصلی</label><input value="بنفش نئونی و قرمز" readonly></div>
       </div>
     </div>
   </section>
 
-  <section class="bottom">
-    <div class="card">
-      <h3>⚡ فعالیت‌های اخیر</h3>
-      <div class="item">ثبت‌نام کاربر جدید <span>۲ ساعت قبل</span></div>
-      <div class="item">به‌روزرسانی پلن Premium <span>۳ ساعت قبل</span></div>
-      <div class="item">اضافه‌شدن نود آلمان <span>۴ ساعت قبل</span></div>
-      <div class="item">ثبت پرداخت جدید <span>۵ ساعت قبل</span></div>
-      <div class="item">بررسی امنیتی <span>۶ ساعت قبل</span></div>
-    </div>
-    <div class="card">
-      <h3>🌍 وضعیت نودها</h3>
-      <table>
-        <thead><tr><th>نود</th><th>وضعیت</th><th>بار</th><th>کاربر</th></tr></thead>
-        <tbody>
-          <tr><td>🇮🇷 ایران</td><td class="online">● آنلاین</td><td>23%</td><td>432</td></tr>
-          <tr><td>🇩🇪 آلمان</td><td class="online">● آنلاین</td><td>18%</td><td>387</td></tr>
-          <tr><td>🇺🇸 آمریکا</td><td class="online">● آنلاین</td><td>35%</td><td>298</td></tr>
-          <tr><td>🇳🇱 هلند</td><td class="online">● آنلاین</td><td>27%</td><td>254</td></tr>
-          <tr><td>🇸🇬 سنگاپور</td><td class="online">● آنلاین</td><td>41%</td><td>221</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="rightgrid">
-    <div class="card">
-      <h3>🖥 سرور اصلی</h3>
-      <div class="online">● آنلاین</div>
-      <p style="color:var(--muted);font-size:12px">Main Server · نمونه نمایشی</p>
-      <div class="resource">CPU — 20%<div class="track"><i style="width:20%"></i></div></div>
-      <div class="resource">RAM — 38%<div class="track"><i style="width:38%"></i></div></div>
-      <div class="resource">Disk — 52%<div class="track"><i style="width:52%"></i></div></div>
-    </div>
-    <div class="card">
-      <h3>⚡ عملیات سریع</h3>
-      <div class="actions">
-        <button onclick="notify('برای افزودن کاربر باید بک‌اند وصل شود')">＋ افزودن کاربر</button>
-        <button onclick="notify('ساخت پلن نیازمند بک‌اند است')">▣ ساخت پلن</button>
-        <button onclick="notify('افزودن نود نیازمند سرور است')">✥ افزودن نود</button>
-        <button onclick="uuid()">♧ تولید UUID آزمایشی</button>
-        <button onclick="notify('لاگ زنده هنوز متصل نیست')">▤ مشاهده لاگ‌ها</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h3>👥 آخرین کاربران</h3>
-    <div class="users">
-      <div class="user"><div class="avatar">♟</div><div class="userinfo"><b>mahdi_123</b><small>۱.۲ ترابایت مصرف</small></div><span class="badge">آنلاین</span></div>
-      <div class="user"><div class="avatar">♟</div><div class="userinfo"><b>sara-v2ray</b><small>۸۵۶ گیگابایت مصرف</small></div><span class="badge">آنلاین</span></div>
-      <div class="user"><div class="avatar">♟</div><div class="userinfo"><b>amir2024</b><small>۳۵۰ گیگابایت مصرف</small></div><span class="badge">آنلاین</span></div>
-    </div>
-  </section>
-  <footer>MHA.NET · Powerful Network Panel · v2.0.0</footer>
+  <footer>MHA.NET · VPN MANAGEMENT PANEL · UI PREVIEW</footer>
 </main>
 </div>
-<div class="toast" id="toast"></div>
+
 <script>
-const chart=document.getElementById('chart');
-[32,25,43,36,55,42,66,48,60,79,63,91,72,57,82,68].forEach(h=>{
- const bar=document.createElement('i');bar.style.height=h+'%';chart.appendChild(bar);
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const titles = {
+ dashboard:"داشبورد مدیریت",create:"ساخت کانفیگ",
+ configs:"مدیریت کانفیگ‌ها",users:"مدیریت کاربران",
+ servers:"مدیریت سرورها",subs:"لینک‌های ساب",
+ plans:"اشتراک‌ها و تمدید",traffic:"آمار مصرف",
+ security:"امنیت و گزارش‌ها",settings:"تنظیمات پنل"
+};
+let configs=[], users=[], servers=[];
+let uid=0,cid=0,sid=0;
+
+function go(page){
+ if(!titles[page]) return;
+ $$(".panel").forEach(p=>p.classList.toggle("active",p.id===page));
+ $$(".nav[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+ $("#page-title").textContent=titles[page];
+ $("#sidebar").classList.remove("open");
+}
+$$("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
+$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
+$("#menu").onclick=()=>$("#sidebar").classList.toggle("open");
+
+function escapeHTML(v){
+ return String(v).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+function updateStats(){
+ $("#stat-users").textContent=users.length;
+ $("#stat-configs").textContent=configs.length;
+ $("#stat-servers").textContent=servers.length;
+}
+function renderConfigs(){
+ const q=$("#config-search").value.toLowerCase();
+ $("#config-table").innerHTML=configs.filter(c=>c.name.toLowerCase().includes(q)).map(c=>`
+ <tr><td>${escapeHTML(c.name)}</td><td>VLESS</td>
+ <td>${escapeHTML(c.server)}</td><td><span class="badge warn">آزمایشی</span></td>
+ <td><button class="btn danger" onclick="deleteConfig(${c.id})">حذف</button></td></tr>`).join("")
+ ||'<tr><td colspan="5">کانفیگی ثبت نشده است.</td></tr>';
+}
+function deleteConfig(id){
+ configs=configs.filter(c=>c.id!==id);
+ renderConfigs();updateStats();
+}
+$("#config-search").addEventListener("input",renderConfigs);
+$("#config-form").addEventListener("submit",e=>{
+ e.preventDefault();
+ const f=new FormData(e.target);
+ const name=f.get("name").trim(),server=f.get("server");
+ if(!name||!server)return;
+ configs.push({id:++cid,name,server});
+ renderConfigs();updateStats();
+ $("#config-message").style.display="block";
+ $("#config-message").textContent="نمونه کانفیگ ثبت شد؛ هنوز کانفیگ واقعی روی سرور ساخته نشده است.";
+ e.target.reset();go("configs");
 });
-let timer;
-function notify(msg){
- const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';
- clearTimeout(timer);timer=setTimeout(()=>t.style.display='none',3000);
-}
-function section(btn,name){
- document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
- btn.classList.add('active');notify('بخش '+name+' انتخاب شد؛ برای عملکرد واقعی اتصال بک‌اند لازم است.');
-}
-function uuid(){
- if(crypto.randomUUID)notify('UUID آزمایشی: '+crypto.randomUUID());
- else notify('برای تولید UUID واقعی از بک‌اند استفاده کن.');
-}
-document.getElementById('search').addEventListener('keydown',e=>{
- if(e.key==='Enter'&&e.target.value.trim())notify('جستجو: '+e.target.value);
+$("#server-form").addEventListener("submit",e=>{
+ e.preventDefault();
+ const f=new FormData(e.target);
+ servers.push({id:++sid,name:f.get("name").trim(),host:f.get("host").trim(),port:f.get("port")});
+ renderServers();updateStats();e.target.reset();
 });
+function renderServers(){
+ $("#server-table").innerHTML=servers.map(s=>`
+ <tr><td>${escapeHTML(s.name)}</td><td>${escapeHTML(s.host)}</td>
+ <td>${escapeHTML(s.port)}</td><td><span class="badge warn">اتصال بررسی نشده</span></td>
+ <td><button class="btn danger" onclick="deleteServer(${s.id})">حذف</button></td></tr>`).join("")
+ ||'<tr><td colspan="5">هنوز سروری ثبت نشده است.</td></tr>';
+ $("#config-server").innerHTML='<option value="">انتخاب سرور</option>'+
+ servers.map(s=>`<option>${escapeHTML(s.name)}</option>`).join("");
+}
+function deleteServer(id){
+ servers=servers.filter(s=>s.id!==id);
+ renderServers();updateStats();
+}
+$("#add-user").onclick=()=>{
+ users.push({id:++uid,name:"User-"+String(uid).padStart(3,"0")});
+ renderUsers();updateStats();
+};
+$("#user-search").addEventListener("input",renderUsers);
+function renderUsers(){
+ const q=$("#user-search").value.toLowerCase();
+ $("#user-table").innerHTML=users.filter(u=>u.name.toLowerCase().includes(q)).map(u=>`
+ <tr><td>${escapeHTML(u.name)}</td><td>تنظیم نشده</td>
+ <td><span class="badge warn">آزمایشی</span></td>
+ <td><button class="btn danger" onclick="deleteUser(${u.id})">حذف</button></td></tr>`).join("")
+ ||'<tr><td colspan="4">کاربری ثبت نشده است.</td></tr>';
+}
+function deleteUser(id){
+ users=users.filter(u=>u.id!==id);renderUsers();updateStats();
+}
+$("#logout").onclick=()=>{
+ alert("ورود واقعی هنوز پیاده‌سازی نشده است؛ دکمه خروج نمایشی است.");
+};
+renderConfigs();renderUsers();renderServers();updateStats();
 </script>
 </body>
-                                      </html>
+</html>
