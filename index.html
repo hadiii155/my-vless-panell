@@ -58,7 +58,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <header>
 <button class="menu" onclick="toggleMenu()" aria-label="منو">☰</button>
 <div class="logo">🦁 MHA.NET<small>VPN MANAGEMENT PANEL</small></div>
-<button class="gray" onclick="logout()">خروج</button>
+<button class="gray logout-btn" onclick="logout()">خروج</button>
 </header>
 
 <div class="shell">
@@ -79,14 +79,31 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div class="panel">
 <h2 id="authTitle">ورود به پنل</h2>
 <p class="muted">به پنل مدیریت MHA.NET خوش آمدی.</p>
+
+<div id="loginForm">
 <label>نام کاربری</label>
 <input id="loginUser" autocomplete="username" placeholder="نام کاربری">
 <label>رمز عبور</label>
 <input id="loginPass" type="password" autocomplete="current-password" placeholder="رمز عبور">
 <div class="actions">
 <button onclick="login()">ورود</button>
-<button class="gray" onclick="notify('ثبت‌نام واقعی پس از اتصال بک‌اند فعال می‌شود.')">ثبت‌نام</button>
 </div>
+</div>
+
+<div id="registerForm" style="display:none;">
+<label>نام کاربری</label>
+<input id="regUser" autocomplete="username" placeholder="نام کاربری جدید">
+<label>رمز عبور</label>
+<input id="regPass" type="password" autocomplete="new-password" placeholder="رمز عبور جدید">
+<div class="actions">
+<button onclick="register()">ثبت‌نام</button>
+</div>
+</div>
+
+<div class="actions" style="margin-top:8px;">
+<button class="gray" id="toggleAuthButton" onclick="toggleAuthMode()">ثبت‌نام</button>
+</div>
+
 <p class="muted">نام کاربری پیش‌فرض: admin | رمز عبور: 123456</p>
 </div>
 </section>
@@ -202,6 +219,7 @@ const AUTH_KEY = 'mha_net_token';
 const USER_KEY = 'mha_net_user';
 let API_BASE = '';
 let CURRENT_USER = null;
+let authMode = 'login';
 
 function getDefaultApiBase() {
   return 'http://localhost:3000';
@@ -215,6 +233,26 @@ function notify(message){
  el.style.display='block';
  clearTimeout(window.noticeTimer);
  window.noticeTimer=setTimeout(()=>el.style.display='none',3000);
+}
+
+function toggleAuthMode(){
+  authMode = authMode === 'login' ? 'register' : 'login';
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const title = document.getElementById('authTitle');
+  const toggleBtn = document.getElementById('toggleAuthButton');
+
+  if(authMode === 'register'){
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    title.textContent = 'ثبت‌نام در پنل';
+    toggleBtn.textContent = 'ورود';
+  }else{
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+    title.textContent = 'ورود به پنل';
+    toggleBtn.textContent = 'ثبت‌نام';
+  }
 }
 
 function toggleMenu(){
@@ -265,7 +303,9 @@ function renderAuthState(forcePage = null){
   const loggedIn = !!CURRENT_USER;
   const authPage = document.getElementById('auth');
   const dashboardPage = document.getElementById('dashboard');
+  const logoutBtn = document.querySelector('.logout-btn');
 
+  if (logoutBtn) logoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
   if (authPage) authPage.style.display = loggedIn ? 'none' : 'block';
   if (dashboardPage) dashboardPage.style.display = loggedIn ? 'block' : 'none';
 
@@ -320,7 +360,8 @@ async function apiAction(method,path,data){
    const result=await request(path,method,data);
    notify(result.message||'درخواست توسط بک‌اند پردازش شد.');
    if(path === '/api/users' || path === '/api/servers' || path === '/api/subscriptions' || path === '/api/configs'){
-     await loadResource(path.replace('/api/','').replace(/s$/, ''));
+     const key = path.replace('/api/','').replace(/s$/, '');
+     await loadResource(key.toLowerCase());
    }
  }catch(e){
    if(e.message!=='API_NOT_CONFIGURED')notify('عملیات انجام نشد: '+e.message);
@@ -354,6 +395,31 @@ async function loadResource(resource){
  }catch(e){
    if(e.message!=='API_NOT_CONFIGURED')notify('دریافت اطلاعات ناموفق بود: '+e.message);
  }
+}
+
+async function register(){
+  const username = val('regUser');
+  const password = val('regPass');
+
+  if(!username || !password){
+    notify('نام کاربری و رمز عبور را وارد کن.');
+    return;
+  }
+
+  try{
+    const result = await request('/api/auth/register','POST',{ username, password });
+    if(result && result.token && result.user){
+      saveAuth(result.token, result.user);
+      notify('ثبت‌نام موفق بود.');
+      renderAuthState('dashboard');
+      await loadResource('users');
+      await loadResource('servers');
+      await loadResource('subscriptions');
+      await loadResource('configs');
+    }
+  }catch(e){
+    notify(e.message || 'ثبت‌نام ناموفق بود.');
+  }
 }
 
 async function login(){

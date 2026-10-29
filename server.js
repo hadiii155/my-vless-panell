@@ -61,6 +61,43 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'mha-net-panel' });
 });
 
+app.post('/api/auth/register', (req, res) => {
+  const { username, password } = req.body || {};
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'نام کاربری و رمز عبور لازم است.' });
+  }
+
+  if (username.length < 3) {
+    return res.status(400).json({ message: 'نام کاربری باید حداقل 3 حرف باشد.' });
+  }
+
+  if (password.length < 4) {
+    return res.status(400).json({ message: 'رمز عبور باید حداقل 4 کاراکتر باشد.' });
+  }
+
+  if (users.some(item => item.username === username)) {
+    return res.status(409).json({ message: 'این نام کاربری قبلاً ثبت شده است.' });
+  }
+
+  const newUser = {
+    id: users.length + 1,
+    username,
+    password,
+    status: 'active'
+  };
+
+  users.push(newUser);
+  const safeUser = { id: newUser.id, username: newUser.username, status: newUser.status };
+  const token = jwt.sign(safeUser, JWT_SECRET, { expiresIn: '7d' });
+
+  return res.status(201).json({
+    message: 'ثبت‌نام موفق بود.',
+    token,
+    user: safeUser
+  });
+});
+
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body || {};
 
