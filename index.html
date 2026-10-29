@@ -1,327 +1,331 @@
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization"
-};
 
-const json = (data, status = 200) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: { ...cors, "Content-Type": "application/json; charset=utf-8" }
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MHA.NET | پنل مدیریت</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#100c1d;color:#f5f2ff;font-family:Tahoma,Arial,sans-serif}
+header{background:#1d1530;padding:18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #382750;position:sticky;top:0;z-index:5}
+.brand{color:#ff792d;font-size:23px;font-weight:bold}
+.brand small{display:block;color:#b9aaca;font-size:11px;margin-top:5px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:10px;padding:11px 14px;color:white;background:#773cff}
+.menu{font-size:23px;background:#302144;padding:7px 12px}
+.layout{display:flex;min-height:calc(100vh - 70px)}
+aside{width:230px;background:#191226;padding:15px;flex-shrink:0}
+aside button{display:block;width:100%;text-align:right;margin:5px 0;background:transparent;color:#cfc3df}
+aside button.active,aside button:hover{background:#35204e;color:#ff995e}
+main{padding:20px;width:100%;min-width:0}
+h2{font-size:20px;margin-top:0}
+.muted{color:#b6a8c8;font-size:13px;line-height:1.9}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:20px 0}
+.card,.panel{background:#1d1630;border:1px solid #35264b;border-radius:15px;padding:17px;margin-bottom:14px}
+.number{font-size:25px;color:#ff8a48;font-weight:bold;margin-top:12px}
+label{display:block;color:#d9cce8;font-size:13px;margin:13px 0 7px}
+input,select,textarea{width:100%;padding:12px;background:#110c1e;color:white;border:1px solid #49345f;border-radius:9px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:#a06bff}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.primary{background:#793dff}
+.orange{background:#e96d2c}
+.red{background:#a52b49}
+.green{background:#187b60}
+.secondary{background:#39294d}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:480px}
+th,td{padding:12px 9px;border-bottom:1px solid #38294a;text-align:right;font-size:13px}
+th{color:#ffac79}
+.badge{background:#174d3d;color:#8df0c7;border-radius:20px;padding:5px 9px;font-size:11px}
+.page{display:none}
+.page.active{display:block}
+.notice{background:#33251c;border:1px solid #70482e;padding:13px;border-radius:10px;color:#ffcc9f;font-size:13px;line-height:1.9}
+#toast{position:fixed;bottom:20px;left:15px;right:15px;max-width:450px;margin:auto;background:#3a2852;padding:13px;border-radius:10px;display:none;z-index:10}
+footer{text-align:center;color:#857693;font-size:11px;padding:25px}
+@media(max-width:650px){
+.layout{display:block}
+aside{display:none;width:100%}
+aside.open{display:block}
+main{padding:13px}
+header{padding:13px}
+.brand{font-size:20px}
+}
+</style>
+</head>
+<body>
+<header>
+  <button class="menu" onclick="toggleMenu()" aria-label="منو">☰</button>
+  <div class="brand">🦁 MHA.NET<small>پنل مدیریت سرویس</small></div>
+  <span class="badge">نسخه نمایشی</span>
+</header>
+
+<div class="layout">
+<aside id="sidebar">
+  <button class="active" onclick="showPage('dashboard',this)">🏠 داشبورد</button>
+  <button onclick="showPage('configs',this)">🔗 کانفیگ‌ها</button>
+  <button onclick="showPage('users',this)">👥 کاربران</button>
+  <button onclick="showPage('servers',this)">🌐 سرورها</button>
+  <button onclick="showPage('subscriptions',this)">📦 اشتراک‌ها</button>
+  <button onclick="showPage('security',this)">🛡️ امنیت</button>
+  <button onclick="showPage('settings',this)">⚙️ تنظیمات</button>
+</aside>
+
+<main>
+<section id="dashboard" class="page active">
+  <h2>داشبورد مدیریت</h2>
+  <p class="muted">به پنل مدیریت MHA.NET خوش آمدی.</p>
+  <div class="cards">
+    <div class="card">👥 کاربران<div class="number" id="userCount">0</div></div>
+    <div class="card">🔗 کانفیگ‌ها<div class="number" id="configCount">0</div></div>
+    <div class="card">🌐 سرورها<div class="number" id="serverCount">0</div></div>
+    <div class="card">📦 اشتراک‌ها<div class="number" id="subCount">0</div></div>
+  </div>
+  <div class="panel">
+    <h3>وضعیت پنل</h3>
+    <p class="muted">رابط کاربری فعال است. اطلاعات این نسخه فقط در حافظه مرورگر ذخیره می‌شود.</p>
+    <div class="notice">توجه: این نسخه فرانت‌اند است؛ اتصال واقعی به سرور، ساخت کاربر VLESS و مدیریت ترافیک نیازمند بک‌اند و API امن است.</div>
+  </div>
+  <div class="panel">
+    <h3>پشتیبانی</h3>
+    <p class="muted">برای ارتباط با پشتیبانی روی دکمه زیر بزن.</p>
+    <button class="orange" onclick="openSupport()">ارتباط با پشتیبانی تلگرام</button>
+  </div>
+</section>
+
+<section id="configs" class="page">
+  <h2>مدیریت کانفیگ‌ها</h2>
+  <div class="panel">
+    <div class="form">
+      <div><label>نام کانفیگ</label><input id="configName" placeholder="مثلاً کانفیگ شماره ۱"></div>
+      <div><label>نوع پروتکل</label><select id="configType"><option>VLESS</option><option>VMess</option><option>Trojan</option><option>Shadowsocks</option></select></div>
+      <div><label>آدرس کانفیگ یا لینک اتصال</label><textarea id="configValue" rows="2" placeholder="لینک کانفیگ خود را وارد کنید"></textarea></div>
+    </div>
+    <div class="actions"><button onclick="addConfig()">افزودن کانفیگ</button></div>
+  </div>
+  <div class="panel table-wrap">
+    <table><thead><tr><th>نام</th><th>پروتکل</th><th>لینک</th><th>عملیات</th></tr></thead><tbody id="configTable"></tbody></table>
+  </div>
+</section>
+
+<section id="users" class="page">
+  <h2>مدیریت کاربران</h2>
+  <div class="panel">
+    <div class="form">
+      <div><label>نام کاربر</label><input id="userName" placeholder="نام کاربر"></div>
+      <div><label>شناسه یا نام کاربری</label><input id="userId" placeholder="username"></div>
+    </div>
+    <div class="actions"><button onclick="addUser()">افزودن کاربر</button></div>
+  </div>
+  <div class="panel table-wrap">
+    <table><thead><tr><th>نام</th><th>شناسه</th><th>عملیات</th></tr></thead><tbody id="userTable"></tbody></table>
+  </div>
+</section>
+
+<section id="servers" class="page">
+  <h2>مدیریت سرورها</h2>
+  <div class="panel">
+    <div class="form">
+      <div><label>نام سرور</label><input id="serverName" placeholder="سرور اصلی"></div>
+      <div><label>آدرس یا IP</label><input id="serverAddress" placeholder="example.com"></div>
+      <div><label>پورت</label><input id="serverPort" type="number" placeholder="443"></div>
+    </div>
+    <div class="actions"><button onclick="addServer()">افزودن سرور</button></div>
+  </div>
+  <div class="panel table-wrap">
+    <table><thead><tr><th>نام سرور</th><th>آدرس</th><th>پورت</th><th>عملیات</th></tr></thead><tbody id="serverTable"></tbody></table>
+  </div>
+</section>
+
+<section id="subscriptions" class="page">
+  <h2>مدیریت اشتراک‌ها</h2>
+  <div class="panel">
+    <div class="form">
+      <div><label>نام اشتراک</label><input id="subName" placeholder="اشتراک یک‌ماهه"></div>
+      <div><label>حجم (گیگابایت)</label><input id="subVolume" type="number" min="1" placeholder="50"></div>
+      <div><label>مدت (روز)</label><input id="subDays" type="number" min="1" placeholder="30"></div>
+    </div>
+    <div class="actions"><button onclick="addSubscription()">افزودن اشتراک</button></div>
+  </div>
+  <div class="panel table-wrap">
+    <table><thead><tr><th>نام</th><th>حجم</th><th>مدت</th><th>عملیات</th></tr></thead><tbody id="subTable"></tbody></table>
+  </div>
+</section>
+
+<section id="security" class="page">
+  <h2>امنیت پنل</h2>
+  <div class="panel">
+    <p>🔒 برای استفاده واقعی، ورود امن و احراز هویت باید سمت سرور پیاده‌سازی شود.</p>
+    <p class="muted">رمز عبور، توکن API یا اطلاعات حساس سرور را داخل این فایل قرار نده.</p>
+    <button class="red" onclick="clearAll()">پاک کردن تمام اطلاعات محلی</button>
+  </div>
+</section>
+
+<section id="settings" class="page">
+  <h2>تنظیمات</h2>
+  <div class="panel">
+    <label>نام نمایشی پنل</label>
+    <input id="panelName" value="MHA.NET">
+    <label>متن زیر لوگو</label>
+    <input id="panelSubtitle" value="پنل مدیریت سرویس">
+    <div class="actions"><button onclick="saveSettings()">ذخیره تنظیمات</button><button class="secondary" onclick="resetSettings()">بازنشانی</button></div>
+  </div>
+</section>
+
+<footer>MHA.NET · پنل نمایشی مدیریت سرویس</footer>
+</main>
+</div>
+<div id="toast"></div>
+
+<script>
+const state = {configs:[],users:[],servers:[],subscriptions:[]};
+
+function notify(message){
+  const toast=document.getElementById('toast');
+  toast.textContent=message;
+  toast.style.display='block';
+  clearTimeout(window.toastTimer);
+  window.toastTimer=setTimeout(()=>toast.style.display='none',2500);
+}
+
+function toggleMenu(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function showPage(id,button){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('aside button').forEach(b=>b.classList.remove('active'));
+  if(button)button.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function safe(value){
+  return String(value).replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function renderTable(type,bodyId,fields){
+  const body=document.getElementById(bodyId);
+  body.innerHTML='';
+  state[type].forEach((item,index)=>{
+    const tr=document.createElement('tr');
+    fields.forEach(field=>{
+      const td=document.createElement('td');
+      td.textContent=item[field]||'—';
+      tr.appendChild(td);
+    });
+    const td=document.createElement('td');
+    const del=document.createElement('button');
+    del.className='red';
+    del.textContent='حذف';
+    del.onclick=()=>removeItem(type,index);
+    td.appendChild(del);
+    tr.appendChild(td);
+    body.appendChild(tr);
   });
-
-async function hashPassword(password) {
-  const data = new TextEncoder().encode(password);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return [...new Uint8Array(hash)]
-    .map(b => b.toString(16).padStart(2, "0")).join("");
+  updateCounts();
 }
 
-async function sign(payload, secret) {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const body = btoa(JSON.stringify(payload))
-    .replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-  const sig = await crypto.subtle.sign(
-    "HMAC", key, new TextEncoder().encode(body)
-  );
-  const signature = btoa(String.fromCharCode(...new Uint8Array(sig)))
-    .replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-  return `${body}.${signature}`;
+function updateCounts(){
+  document.getElementById('userCount').textContent=state.users.length;
+  document.getElementById('configCount').textContent=state.configs.length;
+  document.getElementById('serverCount').textContent=state.servers.length;
+  document.getElementById('subCount').textContent=state.subscriptions.length;
 }
 
-async function verifyToken(token, secret) {
-  try {
-    const [body, signature] = token.split(".");
-    const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(secret),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["verify"]
-    );
-    const sig = Uint8Array.from(
-      atob(signature.replace(/-/g, "+").replace(/_/g, "/")),
-      c => c.charCodeAt(0)
-    );
-    const valid = await crypto.subtle.verify(
-      "HMAC", key, sig,
-      new TextEncoder().encode(body)
-    );
-    if (!valid) return null;
-
-    const payload = JSON.parse(
-      atob(body.replace(/-/g, "+").replace(/_/g, "/"))
-    );
-    if (payload.exp < Date.now()) return null;
-    return payload;
-  } catch {
-    return null;
-  }
+function addConfig(){
+  const name=document.getElementById('configName').value.trim();
+  const type=document.getElementById('configType').value;
+  const value=document.getElementById('configValue').value.trim();
+  if(!name||!value)return notify('نام و لینک کانفیگ را وارد کن.');
+  state.configs.push({name,type,value:value.length>35?value.slice(0,35)+'…':value});
+  renderTable('configs','configTable',['name','type','value']);
+  document.getElementById('configName').value='';
+  document.getElementById('configValue').value='';
+  notify('کانفیگ به فهرست نمایشی اضافه شد.');
 }
 
-function clean(value, max = 200) {
-  return String(value ?? "").trim().slice(0, max);
+function addUser(){
+  const name=document.getElementById('userName').value.trim();
+  const id=document.getElementById('userId').value.trim();
+  if(!name||!id)return notify('نام و شناسه را وارد کن.');
+  state.users.push({name,id});
+  renderTable('users','userTable',['name','id']);
+  document.getElementById('userName').value='';
+  document.getElementById('userId').value='';
+  notify('کاربر اضافه شد.');
 }
 
-async function readBody(request) {
-  try {
-    return await request.json();
-  } catch {
-    return null;
-  }
+function addServer(){
+  const name=document.getElementById('serverName').value.trim();
+  const address=document.getElementById('serverAddress').value.trim();
+  const port=document.getElementById('serverPort').value.trim();
+  if(!name||!address||!port)return notify('اطلاعات سرور را کامل کن.');
+  state.servers.push({name,address,port});
+  renderTable('servers','serverTable',['name','address','port']);
+  document.getElementById('serverName').value='';
+  document.getElementById('serverAddress').value='';
+  document.getElementById('serverPort').value='';
+  notify('سرور به فهرست نمایشی اضافه شد.');
 }
 
-export default {
-  async fetch(request, env) {
-    if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: cors });
-    }
+function addSubscription(){
+  const name=document.getElementById('subName').value.trim();
+  const volume=document.getElementById('subVolume').value.trim();
+  const days=document.getElementById('subDays').value.trim();
+  if(!name||!volume||!days||Number(volume)<1||Number(days)<1)
+    return notify('اطلاعات اشتراک را درست وارد کن.');
+  state.subscriptions.push({name,volume:volume+' گیگ',days:days+' روز'});
+  renderTable('subscriptions','subTable',['name','volume','days']);
+  document.getElementById('subName').value='';
+  document.getElementById('subVolume').value='';
+  document.getElementById('subDays').value='';
+  notify('اشتراک اضافه شد.');
+}
 
-    try {
-      if (!env.DB) {
-        return json({ error: "D1_DATABASE_NOT_CONFIGURED" }, 500);
-      }
+function removeItem(type,index){
+  state[type].splice(index,1);
+  const config={
+    configs:['configTable',['name','type','value']],
+    users:['userTable',['name','id']],
+    servers:['serverTable',['name','address','port']],
+    subscriptions:['subTable',['name','volume','days']]
+  };
+  renderTable(type,config[type][0],config[type][1]);
+  notify('مورد حذف شد.');
+}
 
-      const url = new URL(request.url);
-      const path = url.pathname.replace(/\/+$/, "") || "/";
-      const method = request.method;
+function clearAll(){
+  if(!confirm('تمام فهرست‌های این صفحه پاک شوند؟'))return;
+  Object.keys(state).forEach(key=>state[key].length=0);
+  renderTable('configs','configTable',['name','type','value']);
+  renderTable('users','userTable',['name','id']);
+  renderTable('servers','serverTable',['name','address','port']);
+  renderTable('subscriptions','subTable',['name','volume','days']);
+  notify('اطلاعات نمایشی پاک شد.');
+}
 
-      // بررسی اتصال
-      if (path === "/api/test" && method === "GET") {
-        await env.DB.prepare("SELECT 1").first();
-        return json({ ok: true, service: "MHA.NET API" });
-      }
+function saveSettings(){
+  const name=document.getElementById('panelName').value.trim()||'MHA.NET';
+  const subtitle=document.getElementById('panelSubtitle').value.trim()||'پنل مدیریت سرویس';
+  document.querySelector('.brand').innerHTML=safe(name)+'<small>'+safe(subtitle)+'</small>';
+  notify('تنظیمات نمایشی اعمال شد.');
+}
 
-      // ورود مدیر
-      if (path === "/api/login" && method === "POST") {
-        const body = await readBody(request);
-        if (!body) return json({ error: "INVALID_JSON" }, 400);
+function resetSettings(){
+  document.getElementById('panelName').value='MHA.NET';
+  document.getElementById('panelSubtitle').value='پنل مدیریت سرویس';
+  saveSettings();
+}
 
-        if (!env.ADMIN_PASSWORD || !env.JWT_SECRET) {
-          return json({ error: "ADMIN_SECRETS_NOT_CONFIGURED" }, 500);
-        }
+function openSupport(){
+  window.open('https://t.me/m_hadiii46333','_blank','noopener');
+}
 
-        const supplied = await hashPassword(
-          String(body.password ?? "")
-        );
-        const expected = await hashPassword(env.ADMIN_PASSWORD);
-
-        if (supplied !== expected) {
-          return json({ error: "نام کاربری یا رمز عبور اشتباه است" }, 401);
-        }
-
-        const token = await sign({
-          role: "admin",
-          exp: Date.now() + 8 * 60 * 60 * 1000
-        }, env.JWT_SECRET);
-
-        return json({ ok: true, token, expiresIn: 28800 });
-      }
-
-      // همه مسیرهای بعدی نیازمند ورود هستند
-      const auth = request.headers.get("Authorization") || "";
-      const token = auth.startsWith("Bearer ")
-        ? auth.slice(7)
-        : "";
-      const user = token
-        ? await verifyToken(token, env.JWT_SECRET || "")
-        : null;
-
-      if (!user || user.role !== "admin") {
-        return json({ error: "UNAUTHORIZED" }, 401);
-      }
-
-      // فهرست منابع مجاز برای مدیریت
-      const resources = {
-        configs: {
-          table: "configs",
-          fields: ["name", "protocol", "server_id", "config_text",
-                   "enabled", "traffic_limit", "expires_at"]
-        },
-        users: {
-          table: "users",
-          fields: ["username", "email", "traffic_limit",
-                   "expires_at", "enabled"]
-        },
-        servers: {
-          table: "servers",
-          fields: ["name", "host", "port", "protocol",
-                   "capacity", "enabled"]
-        },
-        subscriptions: {
-          table: "subscriptions",
-          fields: ["user_id", "config_id", "sub_url",
-                   "traffic_limit", "expires_at", "enabled"]
-        }
-      };
-
-      // آمار کلی
-      if (path === "/api/stats" && method === "GET") {
-        const queries = await Promise.all([
-          env.DB.prepare("SELECT COUNT(*) AS n FROM users").first(),
-          env.DB.prepare("SELECT COUNT(*) AS n FROM configs").first(),
-          env.DB.prepare("SELECT COUNT(*) AS n FROM servers").first(),
-          env.DB.prepare(
-            "SELECT COUNT(*) AS n FROM subscriptions WHERE enabled = 1"
-          ).first()
-        ]);
-
-        return json({
-          users: queries[0]?.n ?? 0,
-          configs: queries[1]?.n ?? 0,
-          servers: queries[2]?.n ?? 0,
-          activeSubscriptions: queries[3]?.n ?? 0
-        });
-      }
-
-      // مدیریت کاربران، کانفیگ‌ها، سرورها و اشتراک‌ها
-      const match = path.match(
-        /^\/api\/(configs|users|servers|subscriptions)(?:\/([0-9]+))?$/
-      );
-
-      if (!match) return json({ error: "NOT_FOUND" }, 404);
-
-      const [, resourceName, id] = match;
-      const resource = resources[resourceName];
-      const table = resource.table;
-
-      if (method === "GET" && !id) {
-        const result = await env.DB.prepare(
-          `SELECT * FROM ${table} ORDER BY id DESC LIMIT 500`
-        ).all();
-        return json({ items: result.results || [] });
-      }
-
-      if (method === "GET" && id) {
-        const item = await env.DB.prepare(
-          `SELECT * FROM ${table} WHERE id = ?`
-        ).bind(id).first();
-
-        return item
-          ? json(item)
-          : json({ error: "NOT_FOUND" }, 404);
-      }
-
-      if (method === "POST" && !id) {
-        const body = await readBody(request);
-        if (!body) return json({ error: "INVALID_JSON" }, 400);
-
-        const fields = resource.fields.filter(
-          key => body[key] !== undefined
-        );
-
-        if (!fields.length) {
-          return json({ error: "NO_VALID_FIELDS" }, 400);
-        }
-
-        const values = fields.map(key => {
-          const value = body[key];
-
-          if (["enabled"].includes(key)) {
-            return value ? 1 : 0;
-          }
-
-          if (["server_id", "traffic_limit", "expires_at",
-               "capacity", "port", "user_id", "config_id"].includes(key)) {
-            return value === null || value === ""
-              ? null
-              : Number(value);
-          }
-
-          return typeof value === "string"
-            ? clean(value, key === "config_text" ? 20000 : 1000)
-            : value;
-        });
-
-        const placeholders = fields.map(() => "?").join(", ");
-        const sql = `INSERT INTO ${table} (${fields.join(", ")}) VALUES (${placeholders})`;
-
-        const result = await env.DB.prepare(sql).bind(...values).run();
-
-        return json({
-          ok: true,
-          id: result.meta?.last_row_id
-        }, 201);
-      }
-
-      if (method === "PUT" && id) {
-        const body = await readBody(request);
-        if (!body) return json({ error: "INVALID_JSON" }, 400);
-
-        const fields = resource.fields.filter(
-          key => body[key] !== undefined
-        );
-
-        if (!fields.length) {
-          return json({ error: "NO_VALID_FIELDS" }, 400);
-        }
-
-        const values = fields.map(key => {
-          const value = body[key];
-
-          if (key === "enabled") return value ? 1 : 0;
-
-          if (["server_id", "traffic_limit", "expires_at",
-               "capacity", "port", "user_id", "config_id"].includes(key)) {
-            return value === null || value === ""
-              ? null
-              : Number(value);
-          }
-
-          return typeof value === "string"
-            ? clean(value, key === "config_text" ? 20000 : 1000)
-            : value;
-        });
-
-        const assignments = fields.map(key => `${key} = ?`).join(", ");
-        const result = await env.DB.prepare(
-          `UPDATE ${table} SET ${assignments} WHERE id = ?`
-        ).bind(...values, id).run();
-
-        return json({
-          ok: true,
-          changes: result.meta?.changes ?? 0
-        });
-      }
-
-      if (method === "PATCH" && id) {
-        const body = await readBody(request);
-        if (!body || typeof body.enabled !== "boolean") {
-          return json({ error: "ENABLED_BOOLEAN_REQUIRED" }, 400);
-        }
-
-        const result = await env.DB.prepare(
-          `UPDATE ${table} SET enabled = ? WHERE id = ?`
-        ).bind(body.enabled ? 1 : 0, id).run();
-
-        return json({
-          ok: true,
-          changes: result.meta?.changes ?? 0
-        });
-      }
-
-      if (method === "DELETE" && id) {
-        const result = await env.DB.prepare(
-          `DELETE FROM ${table} WHERE id = ?`
-        ).bind(id).run();
-
-        return json({
-          ok: true,
-          changes: result.meta?.changes ?? 0
-        });
-      }
-
-      return json({ error: "METHOD_NOT_ALLOWED" }, 405);
-    } catch (error) {
-      // جزئیات داخلی خطا به کاربر نمایش داده نمی‌شود
-      console.error("MHA.NET API error:", error);
-      return json({ error: "INTERNAL_SERVER_ERROR" }, 500);
-    }
-  }
-};
+updateCounts();
+</script>
+</body>
+</html>
