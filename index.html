@@ -87,7 +87,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <button onclick="login()">ورود</button>
 <button class="gray" onclick="notify('ثبت‌نام واقعی پس از اتصال بک‌اند فعال می‌شود.')">ثبت‌نام</button>
 </div>
-<p class="muted">ورود واقعی نیازمند API احراز هویت است.</p>
+<p class="muted">نام کاربری پیش‌فرض: admin | رمز عبور: 123456</p>
 </div>
 </section>
 
@@ -122,7 +122,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 </div>
 <div class="actions"><button onclick="apiAction('POST','/api/configs',{name:val('cName'),userId:val('cUser'),host:val('cHost'),port:Number(val('cPort')),protocol:'vless'})">ایجاد کانفیگ</button><button class="gray" onclick="loadResource('configs')">بارگذاری</button></div>
 </div>
-<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>پروتокол</th><th>وضعیت</th></tr></thead><tbody id="configRows"><tr><td colspan="3">برای نمایش اطلاعات، API باید متصل باشد.</td></tr></tbody></table></div>
+<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>پروتکل</th><th>وضعیت</th></tr></thead><tbody id="configRows"><tr><td colspan="3">برای نمایش اطلاعات، API باید متصل باشد.</td></tr></tbody></table></div>
 </section>
 
 <section id="users" class="page">
@@ -166,7 +166,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <section id="security" class="page">
 <h2>امنیت</h2>
 <div class="panel">
-<p>🔐 احراز هویت باید سمت بک‌اند انجام شود.</p>
+<p>🔐 احراز هویت سمت بک‌اند انجام می‌شود.</p>
 <p class="muted">کلید API، رمز عبور مدیر و اطلاعات حساس سرور را در HTML قرار نده.</p>
 <p class="muted">در نسخه نهایی باید سطح دسترسی مدیر و کاربر، اعتبارسنجی ورودی و ثبت رخدادها در سمت سرور پیاده‌سازی شود.</p>
 </div>
@@ -185,7 +185,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <section id="account" class="page">
 <h2>حساب کاربری</h2>
 <div class="panel">
-<p class="muted">وضعیت ورود و حساب کاربری از API دریافت خواهد شد.</p>
+<p class="muted" id="accountInfo">وضعیت ورود و حساب کاربری از API دریافت خواهد شد.</p>
 <button class="red" onclick="logout()">خروج از پنل</button>
 </div>
 </section>
@@ -198,15 +198,14 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 
 <script>
 const API_KEY = 'mha_api_base';
+const AUTH_KEY = 'mha_net_token';
+const USER_KEY = 'mha_net_user';
+let API_BASE = '';
+let CURRENT_USER = null;
 
 function getDefaultApiBase() {
-  if (window.location.protocol === 'http:' && window.location.hostname) {
-    return `${window.location.protocol}//${window.location.host}`;
-  }
   return 'http://localhost:3000';
 }
-
-let API_BASE = '';
 
 function val(id){return document.getElementById(id).value.trim()}
 
@@ -223,6 +222,12 @@ function toggleMenu(){
 }
 
 function page(id,button){
+ const loggedIn = !!CURRENT_USER;
+ if(!loggedIn && id !== 'auth'){
+   notify('لطفاً ابتدا وارد شوید.');
+   renderAuthState('auth');
+   return;
+ }
  document.querySelectorAll('main .page').forEach(x=>x.classList.remove('active'));
  document.getElementById(id).classList.add('active');
  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
@@ -244,16 +249,49 @@ function saveApi(){
  notify('آدرس API ذخیره شد.');
 }
 
+function saveAuth(token, user){
+  CURRENT_USER = user;
+  localStorage.setItem(AUTH_KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+function clearAuth(){
+  CURRENT_USER = null;
+  localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(USER_KEY);
+}
+
+function renderAuthState(forcePage = null){
+  const loggedIn = !!CURRENT_USER;
+  const authPage = document.getElementById('auth');
+  const dashboardPage = document.getElementById('dashboard');
+
+  if (authPage) authPage.style.display = loggedIn ? 'none' : 'block';
+  if (dashboardPage) dashboardPage.style.display = loggedIn ? 'block' : 'none';
+
+  const activePage = forcePage || (loggedIn ? 'dashboard' : 'auth');
+  page(activePage);
+
+  const accountText = document.getElementById('accountInfo');
+  if (accountText) {
+    accountText.textContent = loggedIn
+      ? `وضعیت: وارد شده‌اید | نام کاربری: ${CURRENT_USER.username}`
+      : 'وضعیت ورود و حساب کاربری از API دریافت خواهد شد.';
+  }
+}
+
 async function request(path,method='GET',body=null){
  if(!API_BASE){
    notify('ابتدا آدرس API را در تنظیمات وارد کن.');
    throw new Error('API_NOT_CONFIGURED');
  }
+ const token = localStorage.getItem(AUTH_KEY);
  const options={
    method,
    headers:{'Content-Type':'application/json'},
    credentials:'include'
  };
+ if(token) options.headers.Authorization = 'Bearer ' + token;
  if(body!==null)options.body=JSON.stringify(body);
  const response=await fetch(API_BASE+path,options);
  const data=await response.json().catch(()=>({}));
@@ -281,6 +319,9 @@ async function apiAction(method,path,data){
  try{
    const result=await request(path,method,data);
    notify(result.message||'درخواست توسط بک‌اند پردازش شد.');
+   if(path === '/api/users' || path === '/api/servers' || path === '/api/subscriptions' || path === '/api/configs'){
+     await loadResource(path.replace('/api/','').replace(/s$/, ''));
+   }
  }catch(e){
    if(e.message!=='API_NOT_CONFIGURED')notify('عملیات انجام نشد: '+e.message);
  }
@@ -320,24 +361,59 @@ async function login(){
    notify('نام کاربری و رمز عبور را وارد کن.');
    return;
  }
- await apiAction('POST','/api/auth/login',{ username:val('loginUser'), password:val('loginPass') });
-}
-
-function logout(){
- if(!API_BASE){
-   notify('برای خروج واقعی، ابتدا API را متصل کن.');
-   return;
+ try{
+   const result=await request('/api/auth/login','POST',{ username:val('loginUser'), password:val('loginPass') });
+   if(result && result.token && result.user){
+     saveAuth(result.token, result.user);
+     notify('ورود موفق بود.');
+     renderAuthState('dashboard');
+     await loadResource('users');
+     await loadResource('servers');
+     await loadResource('subscriptions');
+     await loadResource('configs');
+   }
+ }catch(e){
+   notify(e.message || 'ورود ناموفق بود.');
  }
- apiAction('POST','/api/auth/logout',{});
 }
 
-try{
-  API_BASE = localStorage.getItem(API_KEY) || getDefaultApiBase();
-  document.getElementById('apiBase').value = API_BASE;
-}catch(e){
-  API_BASE = getDefaultApiBase();
-  try { document.getElementById('apiBase').value = API_BASE; } catch (err) {}
+async function logout(){
+ try{
+   await request('/api/auth/logout','POST',{});
+ }catch(e){}
+ clearAuth();
+ renderAuthState('auth');
+ notify('خارج شدید.');
 }
+
+async function initApp(){
+ try{
+   API_BASE = localStorage.getItem(API_KEY) || getDefaultApiBase();
+   document.getElementById('apiBase').value = API_BASE;
+ }catch(e){
+   API_BASE = getDefaultApiBase();
+ }
+
+ try{
+   const savedUser = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+   if(savedUser) CURRENT_USER = savedUser;
+   if(CURRENT_USER){
+     await request('/api/me');
+     renderAuthState('dashboard');
+     await loadResource('users');
+     await loadResource('servers');
+     await loadResource('subscriptions');
+     await loadResource('configs');
+   }else{
+     renderAuthState('auth');
+   }
+ }catch(e){
+   clearAuth();
+   renderAuthState('auth');
+ }
+}
+
+initApp();
 </script>
 </body>
 </html>
