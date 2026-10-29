@@ -7,7 +7,7 @@
 <title>MHA.NET | VPN Manager</title>
 <style>
 :root{--bg:#100b19;--bg2:#180f26;--panel:#1d142b;--panel-2:#20172f;--border:#3c2b4b;--orange:#ff702b;--red:#ef345e;--purple:#823cff;--purple-2:#9d6af8;--text:#f7f1ff;--muted:#b9a9c9;--green:#1fbf8f;--gray:#3b3347;--shadow:0 18px 40px rgba(0,0,0,.35)}
-*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:radial-gradient(circle at top, rgba(130,60,255,.18), transparent 30%), linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:Tahoma,Segoe UI,sans-serif}a{text-decoration:none;color:inherit}.shell{display:flex;max-width:1400px;margin:0 auto;padding:20px;gap:18px}.shell nav{width:250px;background:rgba(24,15,38,.8);border:1px solid var(--border);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(10px);box-shadow:var(--shadow)}.shell nav button{border:none;background:transparent;color:var(--text);padding:12px 16px;border-radius:12px;font-size:15px;text-align:right;cursor:pointer;transition:.2s ease}.shell nav button:hover,.shell nav button.active{background:linear-gradient(135deg,rgba(130,60,255,.26),rgba(255,112,43,.17));border:1px solid rgba(130,60,255,.5)}main{flex:1;padding:10px 0}main .page{display:none;animation:fade .2s ease}.main .page.active,main .page{display:block}.page.active{display:block}.panel,.card{background:rgba(29,20,43,.92);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:var(--shadow)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-top:16px}.card{display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,rgba(29,20,43,.95),rgba(19,14,28,.95));min-height:130px}.metric{font-size:2rem;font-weight:700;color:var(--purple-2)}button{cursor:pointer}.logout-btn{display:none}.header{display:flex;align-items:center;justify-content:space-between;padding:20px 30px;background:rgba(18,12,26,.6);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px)}header{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;background:rgba(18,12,26,.6);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}.logo{display:flex;align-items:center;gap:10px;font-size:1.5rem;font-weight:800;letter-spacing:.08em}.logo small{font-size:.7rem;color:var(--muted);letter-spacing:.2em}.menu{display:none}.button,.actions button,nav button,.grade{font-family:inherit}.actions,form,.form{display:flex;flex-wrap:wrap;gap:12px}.actions button{padding:11px 18px;border-radius:12px;border:1px solid transparent;background:linear-gradient(135deg,var(--purple),var(--purple-2));color:var(--text);font-weight:700}.gray{background:#2d2737!important;border-color:var(--border)!important;color:var(--text)!important}.green{background:linear-gradient(135deg,#0d9f74,#1fbf8f)!important}.red{background:linear-gradient(135deg,#a32558,#ef345e)!important}.purple{background:linear-gradient(135deg,#5f3cc9,#8f61ff)!important}.warning{margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,112,43,.4);background:rgba(255,112,43,.1);color:#f8d7b0}.muted{color:var(--muted)}input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);outline:none}.input-group,label{display:block;margin-bottom:8px}.auth-shell{display:flex;justify-content:center;align-items:center;min-height:76vh;padding:20px 0}.auth-header{display:flex;justify-content:center;margin-bottom:18px}.tab-toggle{display:inline-flex;background:rgba(255,255,255,.04);padding:5px;border:1px solid var(--border);border-radius:999px}.tab-toggle button{border:none;background:transparent;padding:10px 22px;border-radius:999px;color:var(--muted);font-weight:700}.tab-toggle button.active{background:linear-gradient(135deg,var(--purple),var(--purple-2));color:var(--text)}.auth-card{max-width:420px;width:100%}.mini{font-size:.82rem;color:var(--muted)}.tablewrap{overflow:auto}.tablewrap table{width:100%;border-collapse:collapse}.tablewrap th,.tablewrap td{padding:12px 10px;text-align:right;border-bottom:1px solid var(--border)}.tablewrap th{color:var(--muted);font-weight:600}#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:12px 18px;background:rgba(19,14,28,.95);border:1px solid var(--border);border-radius:999px;display:none;box-shadow:var(--shadow);z-index:20}footer{padding:20px;text-align:center;color:var(--muted)}@media (max-width:900px){.shell{flex-direction:column}.shell nav{width:100%;display:none}.shell nav.open{display:flex}.menu{display:block;background:transparent;border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px}.header{padding:14px 18px}main{padding-top:0}}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:radial-gradient(circle at top, rgba(130,60,255,.18), transparent 30%), linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:Tahoma,Segoe UI,sans-serif}a{text-decoration:none;color:inherit}.shell{display:flex;max-width:1400px;margin:0 auto;padding:20px;gap:18px}.shell nav{width:250px;background:rgba(24,15,38,.8);border:1px solid var(--border);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(10px);box-shadow:var(--shadow)}.shell nav button{border:none;background:transparent;color:var(--text);padding:12px 16px;border-radius:12px;font-size:15px;text-align:right;cursor:pointer;transition:.2s ease}.shell nav button:hover,.shell nav button.active{background:linear-gradient(135deg,rgba(130,60,255,.26),rgba(255,112,43,.17));border:1px solid rgba(130,60,255,.5)}main{flex:1;padding:10px 0}main .page{display:none;animation:fade .2s ease}.page.active{display:block}.panel,.card{background:rgba(29,20,43,.92);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:var(--shadow)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-top:16px}.card{display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,rgba(29,20,43,.95),rgba(19,14,28,.95));min-height:130px}.metric{font-size:2rem;font-weight:700;color:var(--purple-2)}button{cursor:pointer}.logout-btn{display:none}header{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;background:rgba(18,12,26,.6);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}.logo{display:flex;align-items:center;gap:10px;font-size:1.5rem;font-weight:800;letter-spacing:.08em}.logo small{font-size:.7rem;color:var(--muted);letter-spacing:.2em}.menu{display:none}.actions,form,.form{display:flex;flex-wrap:wrap;gap:12px}.actions button{padding:11px 18px;border-radius:12px;border:1px solid transparent;background:linear-gradient(135deg,var(--purple),var(--purple-2));color:var(--text);font-weight:700}.gray{background:#2d2737!important;border-color:var(--border)!important;color:var(--text)!important}.green{background:linear-gradient(135deg,#0d9f74,#1fbf8f)!important}.red{background:linear-gradient(135deg,#a32558,#ef345e)!important}.warning{margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,112,43,.4);background:rgba(255,112,43,.1);color:#f8d7b0}.muted{color:var(--muted)}input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);outline:none}.auth-shell{display:flex;justify-content:center;align-items:center;min-height:76vh;padding:20px 0}.auth-header{display:flex;justify-content:center;margin-bottom:18px}.tab-toggle{display:inline-flex;background:rgba(255,255,255,.04);padding:5px;border:1px solid var(--border);border-radius:999px}.tab-toggle button{border:none;background:transparent;padding:10px 22px;border-radius:999px;color:var(--muted);font-weight:700}.tab-toggle button.active{background:linear-gradient(135deg,var(--purple),var(--purple-2));color:var(--text)}.auth-card{max-width:420px;width:100%}.mini{font-size:.82rem;color:var(--muted)}.tablewrap{overflow:auto}.tablewrap table{width:100%;border-collapse:collapse}.tablewrap th,.tablewrap td{padding:12px 10px;text-align:right;border-bottom:1px solid var(--border)}.tablewrap th{color:var(--muted);font-weight:600}#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:12px 18px;background:rgba(19,14,28,.95);border:1px solid var(--border);border-radius:999px;display:none;box-shadow:var(--shadow);z-index:20}footer{padding:20px;text-align:center;color:var(--muted)}@media (max-width:900px){.shell{flex-direction:column}.shell nav{width:100%;display:none}.shell nav.open{display:flex}.menu{display:block;background:transparent;border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px}header{padding:14px 18px}main{padding-top:0}}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -82,7 +82,7 @@
 <div class="panel">
 <h3>وضعیت اتصال</h3>
 <p id="connectionStatus" class="muted">API هنوز تنظیم نشده است.</p>
-<div class="warning">برای ساخت واقعی کاربر، ایجاد کانفیگ VLESS، مدیریت ترافیک و اتصال Xray باید بک‌اند و سرور پیکربندی شود. در حالت Cloudflare Pages، این نسخه به صورت LocalStorage سازگار شده است.</div>
+<div class="warning">اگر بک‌اند وجود ندارد، پنل به‌صورت localStorage به‌صورت خودکار کار می‌کند. اگر API واقعی داشته باشی، آدرس آن را در تنظیمات وارد کن.</div>
 </div>
 <div class="panel">
 <h3>پشتیبانی MHA.NET</h3>
@@ -94,14 +94,14 @@
 <h2>کانفیگ‌های VLESS</h2>
 <div class="panel">
 <div class="form">
-<div><label>نام کانف��گ</label><input id="cName" placeholder="مثلاً VLESS-01"></div>
+<div><label>نام کانفیگ</label><input id="cName" placeholder="مثلاً VLESS-01"></div>
 <div><label>شناسه کاربر</label><input id="cUser" placeholder="شناسه کاربر"></div>
 <div><label>آدرس سرور</label><input id="cHost" placeholder="server.example.com"></div>
 <div><label>پورت</label><input id="cPort" type="number" placeholder="443"></div>
 </div>
 <div class="actions"><button onclick="apiAction('POST','/api/configs',{name:val('cName'),userId:val('cUser'),host:val('cHost'),port:Number(val('cPort')),protocol:'vless'})">ایجاد کانفیگ</button><button class="gray" onclick="loadResource('configs')">بارگذاری مجدد</button></div>
 </div>
-<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>پروتکل</th><th>وضعیت</th></tr></thead><tbody id="configRows"><tr><td colspan="3">API متصل ن��ده است.</td></tr></tbody></table></div>
+<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>پروتکل</th><th>وضعیت</th></tr></thead><tbody id="configRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
 </section>
 
 <section id="users" class="page">
@@ -156,7 +156,7 @@
 <div class="panel">
 <label>آدرس API بک‌اند</label>
 <input id="apiBase" placeholder="https://your-worker.workers.dev">
-<p class="muted">در حالت Cloudflare Pages، اگر API وجود نداشته باشد، پنل به صورت خودکار از LocalStorage استفاده می‌کند.</p>
+<p class="muted">اگر بک‌اند وجود ندارد، پنل به حالت localStorage می‌رود. برای API واقعی، آدرس Worker یا localhost:3000 را وارد کن.</p>
 <div class="actions"><button onclick="saveApi()">ذخیره آدرس API</button><button class="gray" onclick="testApi()">بررسی اتصال</button></div>
 </div>
 </section>
@@ -205,7 +205,7 @@ function readStore(key, fallback) {
     const raw = localStorage.getItem(key);
     if (!raw) return fallback;
     const parsed = JSON.parse(raw);
-    return parsed && parsed.length !== undefined ? parsed : fallback;
+    return Array.isArray(parsed) ? parsed : fallback;
   } catch (e) {
     return fallback;
   }
@@ -352,24 +352,20 @@ function generateToken() {
 
 function localFallbackRequest(path, method='GET', body=null) {
   ensureDemoData();
-  const users = readStore(STORAGE_KEYS.users, defaultData().users);
-  const servers = readStore(STORAGE_KEYS.servers, defaultData().servers);
-  const subscriptions = readStore(STORAGE_KEYS.subscriptions, defaultData().subscriptions);
-  const configs = readStore(STORAGE_KEYS.configs, defaultData().configs);
+
+  let users = readStore(STORAGE_KEYS.users, defaultData().users);
+  let servers = readStore(STORAGE_KEYS.servers, defaultData().servers);
+  let subscriptions = readStore(STORAGE_KEYS.subscriptions, defaultData().subscriptions);
+  let configs = readStore(STORAGE_KEYS.configs, defaultData().configs);
 
   if (path === '/api/health') {
-    return { ok: true, service: 'MHA.NET API (LocalStorage fallback)', time: new Date().toISOString() };
+    return { ok: true, service: 'MHA.NET API (local fallback)', time: new Date().toISOString() };
   }
 
-  if (path === '/api/auth/register') {
+  if (path === '/api/auth/register' && method === 'POST') {
     const { username, password } = body || {};
-    if (!username || !password) {
-      throw new Error('Username and password are required.');
-    }
-    const exists = users.some(u => u.username === username);
-    if (exists) {
-      throw new Error('Username already exists.');
-    }
+    if (!username || !password) throw new Error('Username and password are required.');
+    if (users.some(u => u.username === username)) throw new Error('Username already exists.');
     const user = { id: Date.now(), username, password, status: 'active' };
     users.push(user);
     writeStore(STORAGE_KEYS.users, users);
@@ -378,26 +374,22 @@ function localFallbackRequest(path, method='GET', body=null) {
     return { message: 'Register successful.', token, user: { id: user.id, username: user.username, status: user.status } };
   }
 
-  if (path === '/api/auth/login') {
+  if (path === '/api/auth/login' && method === 'POST') {
     const { username, password } = body || {};
-    if (!username || !password) {
-      throw new Error('Username and password are required.');
-    }
+    if (!username || !password) throw new Error('Username and password are required.');
     const user = users.find(u => u.username === username && u.password === password);
-    if (!user) {
-      throw new Error('Invalid username or password.');
-    }
+    if (!user) throw new Error('Invalid username or password.');
     const token = generateToken();
     saveAuth(token, { id: user.id, username: user.username, status: user.status });
     return { message: 'Login successful.', token, user: { id: user.id, username: user.username, status: user.status } };
   }
 
-  if (path === '/api/auth/logout') {
+  if (path === '/api/auth/logout' && method === 'POST') {
     clearAuth();
     return { message: 'Logged out successfully.' };
   }
 
-  if (path === '/api/me') {
+  if (path === '/api/me' && method === 'GET') {
     const savedUser = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
     if (!savedUser) throw new Error('Unauthorized');
     return { id: savedUser.id, username: savedUser.username, status: savedUser.status };
@@ -409,58 +401,38 @@ function localFallbackRequest(path, method='GET', body=null) {
 
   if (path === '/api/users' && method === 'POST') {
     const { username, password } = body || {};
-    if (!username || !password) {
-      throw new Error('Username and password are required.');
-    }
-    const exists = users.some(u => u.username === username);
-    if (exists) {
-      throw new Error('Username already exists.');
-    }
+    if (!username || !password) throw new Error('Username and password are required.');
+    if (users.some(u => u.username === username)) throw new Error('Username already exists.');
     const user = { id: Date.now(), username, password, status: 'active' };
     users.push(user);
     writeStore(STORAGE_KEYS.users, users);
     return { message: 'User created successfully.', user: { id: user.id, username: user.username, status: user.status } };
   }
 
-  if (path === '/api/servers' && method === 'GET') {
-    return servers;
-  }
-
+  if (path === '/api/servers' && method === 'GET') return servers;
   if (path === '/api/servers' && method === 'POST') {
     const { name, host, port } = body || {};
-    if (!name || !host || !port) {
-      throw new Error('All server fields are required.');
-    }
+    if (!name || !host || !port) throw new Error('All server fields are required.');
     const server = { id: Date.now(), name, host, port, status: 'active' };
     servers.push(server);
     writeStore(STORAGE_KEYS.servers, servers);
     return { message: 'Server created successfully.', server };
   }
 
-  if (path === '/api/subscriptions' && method === 'GET') {
-    return subscriptions;
-  }
-
+  if (path === '/api/subscriptions' && method === 'GET') return subscriptions;
   if (path === '/api/subscriptions' && method === 'POST') {
     const { userId, volumeGB, days } = body || {};
-    if (!userId || !volumeGB || !days) {
-      throw new Error('userId, volumeGB and days are required.');
-    }
+    if (!userId || !volumeGB || !days) throw new Error('userId, volumeGB and days are required.');
     const sub = { id: Date.now(), userId, volumeGB, days, status: 'active' };
     subscriptions.push(sub);
     writeStore(STORAGE_KEYS.subscriptions, subscriptions);
     return { message: 'Subscription created successfully.', subscription: sub };
   }
 
-  if (path === '/api/configs' && method === 'GET') {
-    return configs;
-  }
-
+  if (path === '/api/configs' && method === 'GET') return configs;
   if (path === '/api/configs' && method === 'POST') {
     const { name, userId, host, port, protocol } = body || {};
-    if (!name || !userId || !host || !port || !protocol) {
-      throw new Error('All config fields are required.');
-    }
+    if (!name || !userId || !host || !port || !protocol) throw new Error('All config fields are required.');
     const config = { id: Date.now(), name, userId, host, port, protocol, status: 'active' };
     configs.push(config);
     writeStore(STORAGE_KEYS.configs, configs);
@@ -475,7 +447,7 @@ async function request(path,method='GET',body=null){
     API_BASE = getDefaultApiBase();
   }
 
-  if (!API_BASE) {
+  if(!API_BASE){
     return localFallbackRequest(path, method, body);
   }
 
@@ -487,7 +459,7 @@ async function request(path,method='GET',body=null){
   try {
     const controller = new AbortController();
     const timeout = setTimeout(()=>controller.abort(),15000);
-    const response = await fetch(API_BASE + path, { ...options, signal: controller.signal });
+    const response=await fetch(API_BASE + path, { ...options, signal: controller.signal });
     clearTimeout(timeout);
     const contentType = response.headers.get('content-type') || '';
     let data = {};
@@ -498,13 +470,17 @@ async function request(path,method='GET',body=null){
       data = { message: text || 'Request completed.' };
     }
 
-    if (!response.ok) {
+    if(!response.ok) {
       throw new Error(data.message || `HTTP ${response.status}`);
     }
 
     return data;
   } catch (e) {
-    if (e.name === 'AbortError' || (e.message && (e.message.includes('Failed to fetch') || e.message.includes('NetworkError')))) {
+    const msg = e && e.message ? e.message : '';
+    if (e && e.name === 'AbortError') {
+      return localFallbackRequest(path, method, body);
+    }
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('HTTP 404')) {
       return localFallbackRequest(path, method, body);
     }
     throw e;
@@ -538,7 +514,7 @@ async function apiAction(method,path,data){
       await loadResource(key.toLowerCase());
     }
   }catch(e){
-    if(e.message!=='API_NOT_CONFIGURED')notify('عملیات انجام نشد: '+e.message);
+    notify('عملیات انجام نشد: '+(e.message || 'خطای نامشخص'));
   }
 }
 
@@ -565,9 +541,8 @@ async function loadResource(resource){
       });
       body.appendChild(tr);
     });
-    notify('اطلاعات بارگذاری شد.');
   }catch(e){
-    if(e.message!=='API_NOT_CONFIGURED')notify('دریافت اطلاعات ناموفق بود: '+e.message);
+    notify('دریافت اطلاعات ناموفق بود: '+(e.message || 'خطای نامشخص'));
   }
 }
 
@@ -591,7 +566,7 @@ async function register(){
       await loadResource('subscriptions');
       await loadResource('configs');
     } else {
-      notify(result.message || 'ثبت‌نام ناموفق بود.');
+      notify(result && result.message ? result.message : 'ثبت‌نام ناموفق بود.');
     }
   }catch(e){
     notify(e.message || 'ثبت‌نام ناموفق بود.');
@@ -614,7 +589,7 @@ async function login(){
       await loadResource('subscriptions');
       await loadResource('configs');
     } else {
-      notify(result.message || 'ورود ناموفق بود.');
+      notify(result && result.message ? result.message : 'ورود ناموفق بود.');
     }
   }catch(e){
     notify(e.message || 'ورود ناموفق بود.');
@@ -663,114 +638,3 @@ initApp();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
