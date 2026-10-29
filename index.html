@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -104,11 +103,11 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div class="panel">
 <h3>وضعیت اتصال</h3>
 <p id="connectionStatus" class="muted">API هنوز تنظیم نشده است.</p>
-<div class="warning">برای ساخت واقعی کاربر، ایجاد کانفیگ VLESS، مدیریت ترافیک و اتصال Xray باید بک‌اند و سرور پیکربندی شوند. این رابط به‌تنهایی هیچ سروری را تغییر نمی‌دهد.</div>
-</div>
+<div class="warning">برای ساخت واقعی کاربر، ایجاد کانفیگ VLESS، مدیریت ترافیک و اتصال Xray باید بک‌اند و سرور پیکربندی شوند.</div>
 <div class="panel">
 <h3>پشتیبانی MHA.NET</h3>
 <button class="green" onclick="support()">✈️ پشتیبانی تلگرام</button>
+</div>
 </div>
 </section>
 
@@ -121,9 +120,9 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div><label>آدرس سرور</label><input id="cHost" placeholder="server.example.com"></div>
 <div><label>پورت</label><input id="cPort" type="number" placeholder="443"></div>
 </div>
-<div class="actions"><button onclick="apiAction('POST','/api/configs',{name:val('cName'),userId:val('cUser'),host:val('cHost'),port:Number(val('cPort')),protocol:'vless'})">ایجاد کانفیگ</button></div>
+<div class="actions"><button onclick="apiAction('POST','/api/configs',{name:val('cName'),userId:val('cUser'),host:val('cHost'),port:Number(val('cPort')),protocol:'vless'})">ایجاد کانفیگ</button><button class="gray" onclick="loadResource('configs')">بارگذاری</button></div>
 </div>
-<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>پروتکل</th><th>وضعیت</th></tr></thead><tbody id="configRows"><tr><td colspan="3">برای نمایش اطلاعات، API باید متصل شود.</td></tr></tbody></table></div>
+<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>پروتокол</th><th>وضعیت</th></tr></thead><tbody id="configRows"><tr><td colspan="3">برای نمایش اطلاعات، API باید متصل باشد.</td></tr></tbody></table></div>
 </section>
 
 <section id="users" class="page">
@@ -133,7 +132,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div><label>نام کاربری</label><input id="uName" placeholder="username"></div>
 <div><label>رمز عبور موقت</label><input id="uPass" type="password" placeholder="رمز امن"></div>
 </div>
-<div class="actions"><button onclick="apiAction('POST','/api/users',{username:val('uName'),password:val('uPass')})">ایجاد کاربر</button><button class="gray" onclick="loadResource('users')">بارگذاری کاربران</button></div>
+<div class="actions"><button onclick="apiAction('POST','/api/users',{username:val('uName'),password:val('uPass')})">ایجاد کاربر</button><button class="gray" onclick="loadResource('users')">بارگذاری</button></div>
 </div>
 <div class="panel tablewrap"><table><thead><tr><th>شناسه</th><th>نام کاربری</th><th>وضعیت</th></tr></thead><tbody id="userRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
 </section>
@@ -146,7 +145,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div><label>آدرس سرور</label><input id="sHost" placeholder="IP یا دامنه"></div>
 <div><label>پورت اتصال</label><input id="sPort" type="number" placeholder="443"></div>
 </div>
-<div class="actions"><button onclick="apiAction('POST','/api/servers',{name:val('sName'),host:val('sHost'),port:Number(val('sPort'))})">ثبت سرور</button><button class="gray" onclick="loadResource('servers')">بارگذاری سرورها</button></div>
+<div class="actions"><button onclick="apiAction('POST','/api/servers',{name:val('sName'),host:val('sHost'),port:Number(val('sPort'))})">ثبت سرور</button><button class="gray" onclick="loadResource('servers')">بارگذاری</button></div>
 </div>
 <div class="panel tablewrap"><table><thead><tr><th>نام</th><th>آدرس</th><th>پورت</th></tr></thead><tbody id="serverRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
 </section>
@@ -159,7 +158,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div><label>حجم (GB)</label><input id="subVolume" type="number" min="1" placeholder="50"></div>
 <div><label>مدت (روز)</label><input id="subDays" type="number" min="1" placeholder="30"></div>
 </div>
-<div class="actions"><button onclick="apiAction('POST','/api/subscriptions',{userId:val('subUser'),volumeGB:Number(val('subVolume')),days:Number(val('subDays'))})">ایجاد اشتراک</button><button class="gray" onclick="loadResource('subscriptions')">بارگذاری اشتراک‌ها</button></div>
+<div class="actions"><button onclick="apiAction('POST','/api/subscriptions',{userId:val('subUser'),volumeGB:Number(val('subVolume')),days:Number(val('subDays'))})">ایجاد اشتراک</button><button class="gray" onclick="loadResource('subscriptions')">بارگذاری</button></div>
 </div>
 <div class="panel tablewrap"><table><thead><tr><th>شناسه</th><th>کاربر</th><th>وضعیت</th></tr></thead><tbody id="subRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
 </section>
@@ -178,7 +177,7 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div class="panel">
 <label>آدرس API بک‌اند</label>
 <input id="apiBase" placeholder="https://your-worker.workers.dev">
-<p class="muted">آدرس Worker خودت را وارد و ذخیره کن. مسیرهای API باید در بک‌اند پیاده‌سازی شده باشند.</p>
+<p class="muted">اگر بک‌اند روی localhost:3000 اجرا شود، آدرس به‌صورت خودکار تنظیم می‌شود.</p>
 <div class="actions"><button onclick="saveApi()">ذخیره آدرس API</button><button class="gray" onclick="testApi()">بررسی اتصال</button></div>
 </div>
 </section>
@@ -198,13 +197,16 @@ main{padding:13px}header{padding:0 13px}.logo{font-size:20px}
 <div id="toast"></div>
 
 <script>
-/*
-  MHA.NET frontend
-  Configure API base in Settings.
-  Backend endpoints must be implemented separately.
-*/
-const API_KEY='mha_api_base';
-let API_BASE='';
+const API_KEY = 'mha_api_base';
+
+function getDefaultApiBase() {
+  if (window.location.protocol === 'http:' && window.location.hostname) {
+    return `${window.location.protocol}//${window.location.host}`;
+  }
+  return 'http://localhost:3000';
+}
+
+let API_BASE = '';
 
 function val(id){return document.getElementById(id).value.trim()}
 
@@ -234,8 +236,8 @@ function support(){
 
 function saveApi(){
  API_BASE=val('apiBase').replace(/\/+$/,'');
- if(!API_BASE.startsWith('https://')){
-   notify('آدرس API باید با https:// شروع شود.');
+ if(!API_BASE.startsWith('http://') && !API_BASE.startsWith('https://')){
+   notify('آدرس API باید با http:// یا https:// شروع شود.');
    return;
  }
  try{localStorage.setItem(API_KEY,API_BASE)}catch(e){}
@@ -270,7 +272,7 @@ async function testApi(){
 }
 
 async function apiAction(method,path,data){
- for(const [key,value] of Object.entries(data)){
+ for(const [key,value] of Object.entries(data||{})){
    if(value===''||value===null||value===undefined){
      notify('لطفاً تمام اطلاعات لازم را وارد کن.');
      return;
@@ -288,7 +290,8 @@ async function loadResource(resource){
  const paths={
    users:['/api/users','userRows',['id','username','status']],
    servers:['/api/servers','serverRows',['name','host','port']],
-   subscriptions:['/api/subscriptions','subRows',['id','userId','status']]
+   subscriptions:['/api/subscriptions','subRows',['id','userId','status']],
+   configs:['/api/configs','configRows',['name','protocol','status']]
  };
  const config=paths[resource];
  if(!config)return;
@@ -317,10 +320,7 @@ async function login(){
    notify('نام کاربری و رمز عبور را وارد کن.');
    return;
  }
- await apiAction('POST','/api/auth/login',{
-   username:val('loginUser'),
-   password:val('loginPass')
- });
+ await apiAction('POST','/api/auth/login',{ username:val('loginUser'), password:val('loginPass') });
 }
 
 function logout(){
@@ -332,10 +332,12 @@ function logout(){
 }
 
 try{
- API_BASE=localStorage.getItem(API_KEY)||'';
- document.getElementById('apiBase').value=API_BASE;
-}catch(e){}
-
+  API_BASE = localStorage.getItem(API_KEY) || getDefaultApiBase();
+  document.getElementById('apiBase').value = API_BASE;
+}catch(e){
+  API_BASE = getDefaultApiBase();
+  try { document.getElementById('apiBase').value = API_BASE; } catch (err) {}
+}
 </script>
 </body>
 </html>
