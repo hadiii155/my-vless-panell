@@ -1,371 +1,327 @@
-
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MHA.NET | پنل مدیریت VPN</title>
-<style>
-:root {
-  --bg:#0b0714;
-  --panel:#171025;
-  --purple:#a855f7;
-  --red:#ff2859;
-  --text:#f7f0ff;
-  --muted:#a99bbd;
-  --border:#342344;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Tahoma,Arial,sans-serif;font-size:14px;
-}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.layout{display:flex;min-height:100vh}
-.sidebar{
-  width:255px;flex-shrink:0;background:#110b1c;
-  border-left:1px solid var(--border);padding:22px 14px;
-}
-.brand{text-align:center;padding:10px 0 24px}
-.lion{
-  width:85px;height:85px;margin:auto auto 12px;
-  border-radius:50%;display:grid;place-items:center;
-  font-size:48px;background:linear-gradient(135deg,#6d28d9,#ff2859);
-  box-shadow:0 0 30px #a855f755;
-}
-.brand h2{margin:8px 0;color:#ffb44b;font-size:24px}
-.brand p{color:var(--muted);font-size:12px}
-.nav-title{color:#8f7ca6;font-size:11px;padding:16px 12px 8px}
-.nav{
-  width:100%;padding:13px 12px;margin:3px 0;
-  color:#d8cbe8;background:transparent;border:1px solid transparent;
-  border-radius:11px;text-align:right;display:flex;gap:12px;
-  align-items:center;
-}
-.nav:hover,.nav.active{
-  background:linear-gradient(100deg,#8b32e733,#ff28591c);
-  border-color:#7836a5;color:white;
-}
-.nav span:first-child{width:22px;text-align:center;font-size:17px}
-.main{flex:1;min-width:0;padding:24px}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px}
-.menu-btn{display:none}
-h1{font-size:23px;margin:0 0 8px}
-.subtitle{color:var(--muted);font-size:12px}
-.btn{
-  border:0;border-radius:10px;padding:11px 16px;
-  color:white;background:linear-gradient(110deg,#922cf4,#ff2859);
-}
-.btn.secondary{background:#261835;border:1px solid var(--border)}
-.btn.danger{background:#70172f}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.card{
-  min-width:0;background:linear-gradient(145deg,#1c1329,#100b19);
-  border:1px solid var(--border);border-radius:16px;padding:19px;
-}
-.stat-label{color:var(--muted);font-size:12px}
-.stat-value{font-size:27px;font-weight:bold;margin:15px 0 8px}
-.purple{color:#c084fc}.red{color:#ff6482}
-.green{color:#4ade80}.gold{color:#fbbf24}
-.section{margin-top:22px}
-.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
-h3{margin:0;font-size:16px}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.tile{
-  padding:17px;background:#160f22;border:1px solid var(--border);
-  border-radius:13px;color:var(--text);text-align:right;
-}
-.tile b{display:block;margin-bottom:8px}
-.tile small{color:var(--muted)}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
-input,select{
-  color:white;background:#100b19;border:1px solid var(--border);
-  border-radius:9px;padding:11px;max-width:100%;
-}
-input::placeholder{color:#8f819d}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;white-space:nowrap}
-th,td{text-align:right;padding:14px 10px;border-bottom:1px solid var(--border)}
-th{font-size:12px;color:#bba6ce}
-td{font-size:12px}
-.badge{padding:5px 9px;border-radius:20px;font-size:11px}
-.badge.ok{background:#14532d;color:#86efac}
-.badge.warn{background:#713f12;color:#fde68a}
-.badge.off{background:#57152b;color:#fda4af}
-.panel{display:none}
-.panel.active{display:block}
-.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.field{display:flex;flex-direction:column;gap:8px}
-.field label{color:#cbbbdc;font-size:12px}
-.field input,.field select{width:100%}
-.full{grid-column:1/-1}
-.notice{padding:13px;border:1px solid #7048a1;background:#321b4b55;border-radius:10px;color:#d8c4f5;line-height:1.9}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-footer{text-align:center;color:#766783;font-size:11px;padding:30px 0 10px}
-.mobile-support{display:none}
-@media(max-width:1050px){
- .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:720px){
- .sidebar{position:fixed;z-index:10;right:-270px;top:0;bottom:0;overflow:auto;transition:right .25s}
- .sidebar.open{right:0}
- .main{padding:15px}
- .menu-btn{display:inline-block}
- .topbar{align-items:flex-start}
- h1{font-size:19px}
- .grid{gap:9px}
- .card{padding:13px}
- .stat-value{font-size:22px}
- .tiles{grid-template-columns:1fr 1fr}
- .form-grid{grid-template-columns:1fr}
- .full{grid-column:auto}
- .mobile-support{display:block}
-}
-</style>
-</head>
-<body>
-<div class="layout">
-<aside class="sidebar" id="sidebar">
-  <div class="brand">
-    <div class="lion">🦁</div>
-    <h2>MHA.NET</h2>
-    <p>پنل مدیریت حرفه‌ای VPN</p>
-  </div>
-
-  <div class="nav-title">منوی اصلی</div>
-  <button class="nav active" data-page="dashboard"><span>⌂</span> داشبورد</button>
-  <button class="nav" data-page="create"><span>＋</span> ساخت کانفیگ</button>
-  <button class="nav" data-page="configs"><span>◈</span> مدیریت کانفیگ‌ها</button>
-  <button class="nav" data-page="users"><span>♙</span> مدیریت کاربران</button>
-  <button class="nav" data-page="servers"><span>▤</span> مدیریت سرورها</button>
-  <button class="nav" data-page="subs"><span>🔗</span> لینک‌های ساب</button>
-  <button class="nav" data-page="plans"><span>♧</span> اشتراک‌ها و تمدید</button>
-  <button class="nav" data-page="traffic"><span>▥</span> آمار مصرف</button>
-
-  <div class="nav-title">سیستم</div>
-  <button class="nav" data-page="security"><span>♢</span> امنیت و گزارش‌ها</button>
-  <button class="nav" data-page="settings"><span>⚙</span> تنظیمات پنل</button>
-  <a class="nav mobile-support" href="https://t.me/m_hadiii46333" target="_blank" rel="noopener"><span>✈</span> پشتیبانی تلگرام</a>
-  <a class="nav" href="https://t.me/m_hadiii46333" target="_blank" rel="noopener"><span>◉</span> پشتیبانی ۲۴ ساعته</a>
-  <button class="nav" id="logout"><span>⇥</span> خروج از حساب</button>
-</aside>
-
-<main class="main">
-  <header class="topbar">
-    <div style="display:flex;gap:12px;align-items:center">
-      <button class="btn secondary menu-btn" id="menu">☰</button>
-      <div>
-        <h1 id="page-title">داشبورد مدیریت</h1>
-        <div class="subtitle">به پنل مدیریت MHA.NET خوش آمدید</div>
-      </div>
-    </div>
-    <span class="badge ok">● رابط کاربری آزمایشی</span>
-  </header>
-
-  <section class="panel active" id="dashboard">
-    <div class="grid">
-      <div class="card"><div class="stat-label">کل کاربران</div><div class="stat-value purple" id="stat-users">۰</div><span class="subtitle">ثبت‌شده در این پیش‌نمایش</span></div>
-      <div class="card"><div class="stat-label">کانفیگ‌ها</div><div class="stat-value red" id="stat-configs">۰</div><span class="subtitle">نمونه‌های ایجادشده</span></div>
-      <div class="card"><div class="stat-label">سرورها</div><div class="stat-value gold" id="stat-servers">۰</div><span class="subtitle">سرورهای ثبت‌شده</span></div>
-      <div class="card"><div class="stat-label">مصرف ثبت‌شده</div><div class="stat-value green">۰ GB</div><span class="subtitle">تا اتصال بک‌اند محاسبه نمی‌شود</span></div>
-    </div>
-
-    <div class="section">
-      <div class="section-head"><h3>مدیریت سریع</h3></div>
-      <div class="tiles">
-        <button class="tile" data-go="create"><b>＋ ساخت کانفیگ</b><small>ایجاد مشخصات کانفیگ جدید</small></button>
-        <button class="tile" data-go="users"><b>♙ کاربران</b><small>مشاهده و مدیریت حساب‌ها</small></button>
-        <button class="tile" data-go="servers"><b>▤ سرورها</b><small>افزودن و مدیریت سرورها</small></button>
-        <button class="tile" data-go="subs"><b>🔗 لینک ساب</b><small>مدیریت اشتراک‌های اتصال</small></button>
-        <button class="tile" data-go="traffic"><b>▥ آمار مصرف</b><small>گزارش ترافیک کاربران</small></button>
-        <button class="tile" data-go="security"><b>♢ امنیت</b><small>گزارش‌ها و کنترل دسترسی</small></button>
-      </div>
-    </div>
-    <div class="section card">
-      <h3>وضعیت اتصال سرور</h3>
-      <p class="subtitle">هنوز هیچ سرور واقعی به بک‌اند متصل نشده است.</p>
-      <div class="notice">برای فعال شدن ساخت VLESS، تولید لینک واقعی، کنترل حجم و نمایش وضعیت اتصال، باید سرویس بک‌اند به سرور Xray متصل شود.</div>
-    </div>
-  </section>
-
-  <section class="panel" id="create">
-    <div class="card">
-      <div class="section-head"><h3>ساخت کانفیگ VLESS</h3></div>
-      <div class="notice">این فرم فعلاً پیش‌نمایش رابط کاربری است. ذخیره آن کانفیگ واقعی روی سرور ایجاد نمی‌کند.</div>
-      <form id="config-form" class="form-grid" style="margin-top:18px">
-        <div class="field"><label>نام کانفیگ</label><input name="name" required placeholder="مثلاً User-001"></div>
-        <div class="field"><label>انتخاب سرور</label><select name="server" id="config-server" required><option value="">انتخاب سرور</option></select></div>
-        <div class="field"><label>پروتکل</label><select name="protocol"><option>VLESS</option></select></div>
-        <div class="field"><label>حجم مجاز (GB)</label><input name="limit" type="number" min="1" required placeholder="مثلاً 50"></div>
-        <div class="field"><label>مدت اعتبار (روز)</label><input name="days" type="number" min="1" required placeholder="مثلاً 30"></div>
-        <div class="field"><label>حداکثر اتصال هم‌زمان</label><input name="connections" type="number" min="1" value="1" required></div>
-        <div class="full"><button class="btn" type="submit">＋ ثبت نمونه کانفیگ</button></div>
-      </form>
-      <div id="config-message" class="notice" style="display:none;margin-top:16px"></div>
-    </div>
-  </section>
-
-  <section class="panel" id="configs">
-    <div class="card">
-      <div class="section-head"><h3>مدیریت کانفیگ‌ها</h3><button class="btn" data-go="create">＋ ساخت کانفیگ</button></div>
-      <div class="toolbar"><input id="config-search" placeholder="جست‌وجوی نام کانفیگ..."></div>
-      <div class="table-wrap"><table><thead><tr><th>نام</th><th>پروتکل</th><th>سرور</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="config-table"></tbody></table></div>
-    </div>
-  </section>
-
-  <section class="panel" id="users">
-    <div class="card">
-      <div class="section-head"><h3>مدیریت کاربران</h3></div>
-      <div class="toolbar"><input id="user-search" placeholder="جست‌وجوی کاربر..."><button class="btn secondary" id="add-user">＋ افزودن کاربر آزمایشی</button></div>
-      <div class="table-wrap"><table><thead><tr><th>نام کاربر</th><th>اشتراک</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="user-table"></tbody></table></div>
-      <p class="subtitle">کاربران این نسخه نمونه هستند و به حساب‌های واقعی متصل نیستند.</p>
-    </div>
-  </section>
-
-  <section class="panel" id="servers">
-    <div class="card">
-      <div class="section-head"><h3>مدیریت سرورها</h3></div>
-      <form id="server-form" class="form-grid">
-        <div class="field"><label>نام سرور</label><input name="name" required placeholder="Server-01"></div>
-        <div class="field"><label>آدرس دامنه یا IP</label><input name="host" required placeholder="vpn.example.com"></div>
-        <div class="field"><label>پورت سرویس</label><input name="port" type="number" min="1" max="65535" required placeholder="443"></div>
-        <div class="field"><label>نوع سرویس</label><select name="type"><option>Xray / VLESS</option></select></div>
-        <div class="full"><button class="btn">＋ ثبت مشخصات سرور</button></div>
-      </form>
-      <div class="notice" style="margin-top:15px">ثبت این فرم فقط مشخصات را در پیش‌نمایش نگه می‌دارد؛ اتصال واقعی نیازمند تنظیم امن بک‌اند است.</div>
-      <div class="table-wrap" style="margin-top:18px"><table><thead><tr><th>نام</th><th>آدرس</th><th>پورت</th><th>وضعیت اتصال</th><th>عملیات</th></tr></thead><tbody id="server-table"></tbody></table></div>
-    </div>
-  </section>
-
-  <section class="panel" id="subs">
-    <div class="card"><h3>لینک‌های ساب</h3><p class="subtitle">لینک‌های واقعی پس از اتصال سرویس اشتراک به بک‌اند ساخته می‌شوند.</p><div class="notice">هر کاربر باید لینک اشتراک اختصاصی و قابل لغو داشته باشد. توکن‌ها نباید عمومی یا قابل حدس باشند.</div></div>
-  </section>
-
-  <section class="panel" id="plans">
-    <div class="card"><h3>اشتراک‌ها و تمدید</h3><p class="subtitle">مدیریت مدت اعتبار، حجم مجاز و وضعیت اشتراک کاربران.</p><div class="notice">تمدید و قطع دسترسی واقعی بعد از اتصال به دیتابیس و Xray پیاده‌سازی می‌شود.</div></div>
-  </section>
-
-  <section class="panel" id="traffic">
-    <div class="card"><h3>آمار مصرف کاربران</h3><p class="subtitle">آمار مصرف واقعی باید از سرور Xray دریافت شود.</p><div class="notice">در این نسخه اطلاعات ترافیک واقعی در دسترس نیست و عدد ساختگی نمایش داده نمی‌شود.</div></div>
-  </section>
-
-  <section class="panel" id="security">
-    <div class="card"><h3>امنیت و گزارش‌ها</h3><div class="notice">نسخه نهایی باید ورود امن، سطح دسترسی مدیر، گزارش رویدادها، محدودیت تلاش ورود، محافظت API و مدیریت امن کلیدها را داشته باشد.</div></div>
-  </section>
-
-  <section class="panel" id="settings">
-    <div class="card"><h3>تنظیمات پنل</h3>
-      <div class="form-grid" style="margin-top:18px">
-        <div class="field"><label>نام پنل</label><input value="MHA.NET" readonly></div>
-        <div class="field"><label>پروتکل اصلی</label><input value="VLESS / Xray" readonly></div>
-        <div class="field"><label>رنگ اصلی</label><input value="بنفش نئونی و قرمز" readonly></div>
-      </div>
-    </div>
-  </section>
-
-  <footer>MHA.NET · VPN MANAGEMENT PANEL · UI PREVIEW</footer>
-</main>
-</div>
-
-<script>
-const $ = s => document.querySelector(s);
-const $$ = s => document.querySelectorAll(s);
-const titles = {
- dashboard:"داشبورد مدیریت",create:"ساخت کانفیگ",
- configs:"مدیریت کانفیگ‌ها",users:"مدیریت کاربران",
- servers:"مدیریت سرورها",subs:"لینک‌های ساب",
- plans:"اشتراک‌ها و تمدید",traffic:"آمار مصرف",
- security:"امنیت و گزارش‌ها",settings:"تنظیمات پنل"
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization"
 };
-let configs=[], users=[], servers=[];
-let uid=0,cid=0,sid=0;
 
-function go(page){
- if(!titles[page]) return;
- $$(".panel").forEach(p=>p.classList.toggle("active",p.id===page));
- $$(".nav[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
- $("#page-title").textContent=titles[page];
- $("#sidebar").classList.remove("open");
-}
-$$("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
-$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
-$("#menu").onclick=()=>$("#sidebar").classList.toggle("open");
+const json = (data, status = 200) =>
+  new Response(JSON.stringify(data), {
+    status,
+    headers: { ...cors, "Content-Type": "application/json; charset=utf-8" }
+  });
 
-function escapeHTML(v){
- return String(v).replace(/[&<>"']/g,c=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- }[c]));
+async function hashPassword(password) {
+  const data = new TextEncoder().encode(password);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(hash)]
+    .map(b => b.toString(16).padStart(2, "0")).join("");
 }
-function updateStats(){
- $("#stat-users").textContent=users.length;
- $("#stat-configs").textContent=configs.length;
- $("#stat-servers").textContent=servers.length;
+
+async function sign(payload, secret) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const body = btoa(JSON.stringify(payload))
+    .replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+  const sig = await crypto.subtle.sign(
+    "HMAC", key, new TextEncoder().encode(body)
+  );
+  const signature = btoa(String.fromCharCode(...new Uint8Array(sig)))
+    .replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return `${body}.${signature}`;
 }
-function renderConfigs(){
- const q=$("#config-search").value.toLowerCase();
- $("#config-table").innerHTML=configs.filter(c=>c.name.toLowerCase().includes(q)).map(c=>`
- <tr><td>${escapeHTML(c.name)}</td><td>VLESS</td>
- <td>${escapeHTML(c.server)}</td><td><span class="badge warn">آزمایشی</span></td>
- <td><button class="btn danger" onclick="deleteConfig(${c.id})">حذف</button></td></tr>`).join("")
- ||'<tr><td colspan="5">کانفیگی ثبت نشده است.</td></tr>';
+
+async function verifyToken(token, secret) {
+  try {
+    const [body, signature] = token.split(".");
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
+    const sig = Uint8Array.from(
+      atob(signature.replace(/-/g, "+").replace(/_/g, "/")),
+      c => c.charCodeAt(0)
+    );
+    const valid = await crypto.subtle.verify(
+      "HMAC", key, sig,
+      new TextEncoder().encode(body)
+    );
+    if (!valid) return null;
+
+    const payload = JSON.parse(
+      atob(body.replace(/-/g, "+").replace(/_/g, "/"))
+    );
+    if (payload.exp < Date.now()) return null;
+    return payload;
+  } catch {
+    return null;
+  }
 }
-function deleteConfig(id){
- configs=configs.filter(c=>c.id!==id);
- renderConfigs();updateStats();
+
+function clean(value, max = 200) {
+  return String(value ?? "").trim().slice(0, max);
 }
-$("#config-search").addEventListener("input",renderConfigs);
-$("#config-form").addEventListener("submit",e=>{
- e.preventDefault();
- const f=new FormData(e.target);
- const name=f.get("name").trim(),server=f.get("server");
- if(!name||!server)return;
- configs.push({id:++cid,name,server});
- renderConfigs();updateStats();
- $("#config-message").style.display="block";
- $("#config-message").textContent="نمونه کانفیگ ثبت شد؛ هنوز کانفیگ واقعی روی سرور ساخته نشده است.";
- e.target.reset();go("configs");
-});
-$("#server-form").addEventListener("submit",e=>{
- e.preventDefault();
- const f=new FormData(e.target);
- servers.push({id:++sid,name:f.get("name").trim(),host:f.get("host").trim(),port:f.get("port")});
- renderServers();updateStats();e.target.reset();
-});
-function renderServers(){
- $("#server-table").innerHTML=servers.map(s=>`
- <tr><td>${escapeHTML(s.name)}</td><td>${escapeHTML(s.host)}</td>
- <td>${escapeHTML(s.port)}</td><td><span class="badge warn">اتصال بررسی نشده</span></td>
- <td><button class="btn danger" onclick="deleteServer(${s.id})">حذف</button></td></tr>`).join("")
- ||'<tr><td colspan="5">هنوز سروری ثبت نشده است.</td></tr>';
- $("#config-server").innerHTML='<option value="">انتخاب سرور</option>'+
- servers.map(s=>`<option>${escapeHTML(s.name)}</option>`).join("");
+
+async function readBody(request) {
+  try {
+    return await request.json();
+  } catch {
+    return null;
+  }
 }
-function deleteServer(id){
- servers=servers.filter(s=>s.id!==id);
- renderServers();updateStats();
-}
-$("#add-user").onclick=()=>{
- users.push({id:++uid,name:"User-"+String(uid).padStart(3,"0")});
- renderUsers();updateStats();
+
+export default {
+  async fetch(request, env) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: cors });
+    }
+
+    try {
+      if (!env.DB) {
+        return json({ error: "D1_DATABASE_NOT_CONFIGURED" }, 500);
+      }
+
+      const url = new URL(request.url);
+      const path = url.pathname.replace(/\/+$/, "") || "/";
+      const method = request.method;
+
+      // بررسی اتصال
+      if (path === "/api/test" && method === "GET") {
+        await env.DB.prepare("SELECT 1").first();
+        return json({ ok: true, service: "MHA.NET API" });
+      }
+
+      // ورود مدیر
+      if (path === "/api/login" && method === "POST") {
+        const body = await readBody(request);
+        if (!body) return json({ error: "INVALID_JSON" }, 400);
+
+        if (!env.ADMIN_PASSWORD || !env.JWT_SECRET) {
+          return json({ error: "ADMIN_SECRETS_NOT_CONFIGURED" }, 500);
+        }
+
+        const supplied = await hashPassword(
+          String(body.password ?? "")
+        );
+        const expected = await hashPassword(env.ADMIN_PASSWORD);
+
+        if (supplied !== expected) {
+          return json({ error: "نام کاربری یا رمز عبور اشتباه است" }, 401);
+        }
+
+        const token = await sign({
+          role: "admin",
+          exp: Date.now() + 8 * 60 * 60 * 1000
+        }, env.JWT_SECRET);
+
+        return json({ ok: true, token, expiresIn: 28800 });
+      }
+
+      // همه مسیرهای بعدی نیازمند ورود هستند
+      const auth = request.headers.get("Authorization") || "";
+      const token = auth.startsWith("Bearer ")
+        ? auth.slice(7)
+        : "";
+      const user = token
+        ? await verifyToken(token, env.JWT_SECRET || "")
+        : null;
+
+      if (!user || user.role !== "admin") {
+        return json({ error: "UNAUTHORIZED" }, 401);
+      }
+
+      // فهرست منابع مجاز برای مدیریت
+      const resources = {
+        configs: {
+          table: "configs",
+          fields: ["name", "protocol", "server_id", "config_text",
+                   "enabled", "traffic_limit", "expires_at"]
+        },
+        users: {
+          table: "users",
+          fields: ["username", "email", "traffic_limit",
+                   "expires_at", "enabled"]
+        },
+        servers: {
+          table: "servers",
+          fields: ["name", "host", "port", "protocol",
+                   "capacity", "enabled"]
+        },
+        subscriptions: {
+          table: "subscriptions",
+          fields: ["user_id", "config_id", "sub_url",
+                   "traffic_limit", "expires_at", "enabled"]
+        }
+      };
+
+      // آمار کلی
+      if (path === "/api/stats" && method === "GET") {
+        const queries = await Promise.all([
+          env.DB.prepare("SELECT COUNT(*) AS n FROM users").first(),
+          env.DB.prepare("SELECT COUNT(*) AS n FROM configs").first(),
+          env.DB.prepare("SELECT COUNT(*) AS n FROM servers").first(),
+          env.DB.prepare(
+            "SELECT COUNT(*) AS n FROM subscriptions WHERE enabled = 1"
+          ).first()
+        ]);
+
+        return json({
+          users: queries[0]?.n ?? 0,
+          configs: queries[1]?.n ?? 0,
+          servers: queries[2]?.n ?? 0,
+          activeSubscriptions: queries[3]?.n ?? 0
+        });
+      }
+
+      // مدیریت کاربران، کانفیگ‌ها، سرورها و اشتراک‌ها
+      const match = path.match(
+        /^\/api\/(configs|users|servers|subscriptions)(?:\/([0-9]+))?$/
+      );
+
+      if (!match) return json({ error: "NOT_FOUND" }, 404);
+
+      const [, resourceName, id] = match;
+      const resource = resources[resourceName];
+      const table = resource.table;
+
+      if (method === "GET" && !id) {
+        const result = await env.DB.prepare(
+          `SELECT * FROM ${table} ORDER BY id DESC LIMIT 500`
+        ).all();
+        return json({ items: result.results || [] });
+      }
+
+      if (method === "GET" && id) {
+        const item = await env.DB.prepare(
+          `SELECT * FROM ${table} WHERE id = ?`
+        ).bind(id).first();
+
+        return item
+          ? json(item)
+          : json({ error: "NOT_FOUND" }, 404);
+      }
+
+      if (method === "POST" && !id) {
+        const body = await readBody(request);
+        if (!body) return json({ error: "INVALID_JSON" }, 400);
+
+        const fields = resource.fields.filter(
+          key => body[key] !== undefined
+        );
+
+        if (!fields.length) {
+          return json({ error: "NO_VALID_FIELDS" }, 400);
+        }
+
+        const values = fields.map(key => {
+          const value = body[key];
+
+          if (["enabled"].includes(key)) {
+            return value ? 1 : 0;
+          }
+
+          if (["server_id", "traffic_limit", "expires_at",
+               "capacity", "port", "user_id", "config_id"].includes(key)) {
+            return value === null || value === ""
+              ? null
+              : Number(value);
+          }
+
+          return typeof value === "string"
+            ? clean(value, key === "config_text" ? 20000 : 1000)
+            : value;
+        });
+
+        const placeholders = fields.map(() => "?").join(", ");
+        const sql = `INSERT INTO ${table} (${fields.join(", ")}) VALUES (${placeholders})`;
+
+        const result = await env.DB.prepare(sql).bind(...values).run();
+
+        return json({
+          ok: true,
+          id: result.meta?.last_row_id
+        }, 201);
+      }
+
+      if (method === "PUT" && id) {
+        const body = await readBody(request);
+        if (!body) return json({ error: "INVALID_JSON" }, 400);
+
+        const fields = resource.fields.filter(
+          key => body[key] !== undefined
+        );
+
+        if (!fields.length) {
+          return json({ error: "NO_VALID_FIELDS" }, 400);
+        }
+
+        const values = fields.map(key => {
+          const value = body[key];
+
+          if (key === "enabled") return value ? 1 : 0;
+
+          if (["server_id", "traffic_limit", "expires_at",
+               "capacity", "port", "user_id", "config_id"].includes(key)) {
+            return value === null || value === ""
+              ? null
+              : Number(value);
+          }
+
+          return typeof value === "string"
+            ? clean(value, key === "config_text" ? 20000 : 1000)
+            : value;
+        });
+
+        const assignments = fields.map(key => `${key} = ?`).join(", ");
+        const result = await env.DB.prepare(
+          `UPDATE ${table} SET ${assignments} WHERE id = ?`
+        ).bind(...values, id).run();
+
+        return json({
+          ok: true,
+          changes: result.meta?.changes ?? 0
+        });
+      }
+
+      if (method === "PATCH" && id) {
+        const body = await readBody(request);
+        if (!body || typeof body.enabled !== "boolean") {
+          return json({ error: "ENABLED_BOOLEAN_REQUIRED" }, 400);
+        }
+
+        const result = await env.DB.prepare(
+          `UPDATE ${table} SET enabled = ? WHERE id = ?`
+        ).bind(body.enabled ? 1 : 0, id).run();
+
+        return json({
+          ok: true,
+          changes: result.meta?.changes ?? 0
+        });
+      }
+
+      if (method === "DELETE" && id) {
+        const result = await env.DB.prepare(
+          `DELETE FROM ${table} WHERE id = ?`
+        ).bind(id).run();
+
+        return json({
+          ok: true,
+          changes: result.meta?.changes ?? 0
+        });
+      }
+
+      return json({ error: "METHOD_NOT_ALLOWED" }, 405);
+    } catch (error) {
+      // جزئیات داخلی خطا به کاربر نمایش داده نمی‌شود
+      console.error("MHA.NET API error:", error);
+      return json({ error: "INTERNAL_SERVER_ERROR" }, 500);
+    }
+  }
 };
-$("#user-search").addEventListener("input",renderUsers);
-function renderUsers(){
- const q=$("#user-search").value.toLowerCase();
- $("#user-table").innerHTML=users.filter(u=>u.name.toLowerCase().includes(q)).map(u=>`
- <tr><td>${escapeHTML(u.name)}</td><td>تنظیم نشده</td>
- <td><span class="badge warn">آزمایشی</span></td>
- <td><button class="btn danger" onclick="deleteUser(${u.id})">حذف</button></td></tr>`).join("")
- ||'<tr><td colspan="4">کاربری ثبت نشده است.</td></tr>';
-}
-function deleteUser(id){
- users=users.filter(u=>u.id!==id);renderUsers();updateStats();
-}
-$("#logout").onclick=()=>{
- alert("ورود واقعی هنوز پیاده‌سازی نشده است؛ دکمه خروج نمایشی است.");
-};
-renderConfigs();renderUsers();renderServers();updateStats();
-</script>
-</body>
-</html>
