@@ -1,1140 +1,502 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#160d27">
-<title>MHA.NET | پنل مدیریت</title>
-
+<meta name="theme-color" content="#140d20">
+<title>MHA.NET | مدیریت هوشمند VPN</title>
 <style>
-:root {
-  --bg:#100a1c;
-  --panel:#1c1230;
-  --panel2:#25183b;
-  --purple:#8b45d8;
-  --red:#e54459;
-  --orange:#ff7438;
-  --text:#f8f3ff;
-  --muted:#a99bbd;
-  --border:#39294d;
-  --green:#36c98a;
-  --yellow:#f4bd55;
+:root{
+ --bg:#100a19;
+ --panel:#1b1328;
+ --panel2:#241832;
+ --border:#39264c;
+ --orange:#ff692d;
+ --red:#ed354f;
+ --purple:#9a54d6;
+ --text:#f7efff;
+ --muted:#ad9bbd;
+ --green:#32d69a;
+ --yellow:#f6c65b;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Tahoma,Arial,sans-serif;font-size:14px;
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Tahoma,Arial,sans-serif;
 }
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-.hidden{display:none!important}
-#authPage{
-  min-height:100vh;display:flex;align-items:center;
-  justify-content:center;padding:20px;
-  background:radial-gradient(circle at 20% 20%,#49236a 0,transparent 38%),
-  radial-gradient(circle at 90% 90%,#541b34 0,transparent 35%),var(--bg);
-}
-.auth-card{
-  width:100%;max-width:420px;background:#1d1430;
-  border:1px solid var(--border);border-radius:22px;
-  padding:28px;box-shadow:0 20px 70px #0008;
-}
-.logo{
-  width:65px;height:65px;border-radius:20px;
-  display:grid;place-items:center;margin:0 auto 15px;
-  background:linear-gradient(135deg,var(--orange),var(--red));
-  font-size:32px;box-shadow:0 8px 30px #e5445944;
-}
-.auth-card h1{text-align:center;margin:8px 0;color:white}
-.auth-card p{text-align:center;color:var(--muted);line-height:1.9}
-.tabs{display:flex;gap:8px;margin:22px 0}
-.tabs button{
-  flex:1;padding:12px;border:1px solid var(--border);
-  border-radius:10px;background:var(--panel2);color:white;
-}
-.tabs button.active{background:var(--purple);border-color:var(--purple)}
-.field{margin:13px 0}
-.field label{display:block;color:#d9cde8;margin-bottom:8px}
-input,select,textarea{
-  width:100%;padding:12px 13px;border-radius:10px;
-  border:1px solid var(--border);background:#120d1e;
-  color:white;outline:none;
-}
-input:focus,select:focus,textarea:focus{border-color:var(--purple)}
-textarea{min-height:90px;resize:vertical}
-.btn{
-  border:0;border-radius:10px;padding:12px 17px;
-  background:linear-gradient(120deg,var(--purple),var(--red));
-  color:white;font-weight:bold;
-}
-.btn:hover{filter:brightness(1.12)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn.secondary{background:#38264e;border:1px solid var(--border)}
-.btn.danger{background:#922d43}
-.btn.green{background:#167b59}
-.btn.small{padding:7px 10px;font-size:12px}
-.full{width:100%}
-.message{
-  padding:11px;border-radius:10px;margin:12px 0;
-  line-height:1.8;background:#352039;color:#ffd5d9;
-}
-.message.success{background:#153d31;color:#a8f4d4}
-#app{min-height:100vh}
-.topbar{
-  height:65px;display:flex;align-items:center;justify-content:space-between;
-  padding:0 18px;background:#1b1229;border-bottom:1px solid var(--border);
-  position:sticky;top:0;z-index:5;
-}
-.brand{display:flex;align-items:center;gap:10px;font-weight:bold;font-size:17px}
-.brand-mark{
-  width:38px;height:38px;border-radius:12px;
-  background:linear-gradient(135deg,var(--orange),var(--red));
-  display:grid;place-items:center;font-size:21px;
-}
-.top-actions{display:flex;align-items:center;gap:10px}
-.layout{display:flex;min-height:calc(100vh - 65px)}
+button:focus,input:focus,select:focus,textarea:focus{outline:1px solid var(--orange)}
+.layout{display:flex;min-height:100vh}
 .sidebar{
-  width:245px;background:#191126;border-left:1px solid var(--border);
-  padding:17px 12px;flex-shrink:0;
+ width:255px;background:#170f23;border-left:1px solid var(--border);
+ padding:18px 13px;position:fixed;right:0;top:0;bottom:0;
+ overflow-y:auto;z-index:10;transition:.25s;
 }
-.user-box{
-  padding:14px;background:var(--panel);border:1px solid var(--border);
-  border-radius:13px;margin-bottom:17px;
+.brand{text-align:center;padding:17px 5px 23px;border-bottom:1px solid var(--border)}
+.lion{font-size:43px}
+.brand h1{color:var(--orange);font-size:27px;margin:8px 0}
+.brand p{color:var(--muted);font-size:11px;margin:0}
+.nav-title{font-size:10px;color:#806c94;margin:22px 10px 8px}
+.nav-item{
+ width:100%;border:0;background:transparent;color:#cbbbd8;
+ text-align:right;padding:12px 13px;border-radius:10px;
+ display:flex;align-items:center;gap:11px;margin:3px 0;
 }
-.user-box strong{display:block;margin-bottom:6px}
-.user-box small{color:var(--muted)}
-.nav-title{font-size:11px;color:#8e7ba5;padding:13px 10px 7px}
-.nav-btn{
-  width:100%;display:flex;align-items:center;gap:10px;
-  text-align:right;border:0;background:transparent;color:#d8cce8;
-  padding:12px;border-radius:10px;margin:2px 0;
+.nav-item:hover,.nav-item.active{background:linear-gradient(100deg,#47254e,#30203e);color:white}
+.nav-item.active{border-right:3px solid var(--orange)}
+.nav-icon{width:22px;text-align:center;font-size:17px}
+.main{margin-right:255px;width:calc(100% - 255px);min-width:0}
+.topbar{
+ height:72px;background:#181023;border-bottom:1px solid var(--border);
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 25px;position:sticky;top:0;z-index:5;
 }
-.nav-btn:hover,.nav-btn.active{background:#38234f;color:white}
-.nav-btn.active{border-right:3px solid var(--orange)}
-.main{flex:1;min-width:0;padding:22px}
-.page-head{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:12px;margin-bottom:20px;flex-wrap:wrap;
+.top-left,.top-right{display:flex;align-items:center;gap:12px}
+.menu-toggle{display:none}
+.icon-btn{
+ background:var(--panel2);border:1px solid var(--border);
+ color:white;border-radius:10px;padding:9px 12px;
 }
-.page-head h2{margin:0;font-size:21px}
-.muted{color:var(--muted)}
-.cards{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:13px;margin-bottom:20px;
+.avatar{
+ width:37px;height:37px;border-radius:50%;
+ background:linear-gradient(135deg,var(--orange),var(--red));
+ display:grid;place-items:center;font-weight:bold;
 }
-.stat{
-  background:var(--panel);border:1px solid var(--border);
-  padding:17px;border-radius:15px;min-width:0;
+.content{padding:24px;max-width:1500px;margin:auto}
+.page{display:none}
+.page.active{display:block}
+.page-heading{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:12px;flex-wrap:wrap;margin-bottom:20px;
 }
-.stat span{display:block;color:var(--muted);font-size:12px}
-.stat strong{display:block;font-size:25px;margin-top:12px;overflow-wrap:anywhere}
-.stat .icon{font-size:22px}
-.panel{
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:15px;padding:17px;margin-bottom:17px;min-width:0;
+.page-heading h2{font-size:21px;margin:0 0 7px}
+.page-heading p{font-size:12px;color:var(--muted);margin:0}
+.btn{
+ border:0;border-radius:10px;padding:11px 16px;
+ color:white;background:linear-gradient(110deg,var(--orange),var(--red));
+ font-size:12px;font-weight:bold;
 }
-.panel h3{margin:0 0 15px;font-size:16px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.table-wrap{overflow:auto}
-table{width:100%;border-collapse:collapse;min-width:580px}
-th,td{
-  padding:12px 10px;border-bottom:1px solid var(--border);
-  text-align:right;white-space:nowrap;
+.btn.secondary{background:#382446;border:1px solid #553966}
+.btn.green{background:#167c5a}
+.btn.danger{background:#922d43}
+.btn.small{padding:8px 11px}
+.grid{display:grid;gap:14px}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat,.panel{
+ background:var(--panel);border:1px solid var(--border);
+ border-radius:15px;padding:17px;
 }
-th{font-size:12px;color:#bcaaca;background:#251a36}
-td{font-size:13px}
-.status{
-  display:inline-block;padding:5px 9px;border-radius:20px;
-  font-size:11px;background:#392b47;color:#ddd;
+.stat-top{display:flex;justify-content:space-between;align-items:center}
+.stat-icon{
+ width:39px;height:39px;display:grid;place-items:center;
+ border-radius:12px;background:#382443;font-size:19px;
 }
-.status.active,.status.online,.status.paid{background:#164b39;color:#9af0c7}
-.status.blocked,.status.offline,.status.failed,.status.cancelled{background:#592638;color:#ffb4c0}
-.status.pending,.status.draft,.status.suspended{background:#55431f;color:#ffdc8b}
-.actions{display:flex;gap:6px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-grid .wide{grid-column:1/-1}
-.empty{text-align:center;color:var(--muted);padding:35px 10px}
-.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:13px}
-.toolbar input{max-width:260px}
-.notice{
-  padding:12px 14px;background:#332541;border-right:3px solid var(--orange);
-  border-radius:9px;line-height:1.9;color:#e5d8f1;margin-bottom:15px;
+.stat small{color:var(--muted);font-size:11px}
+.stat strong{display:block;font-size:25px;margin:13px 0 7px}
+.stat em{font-style:normal;color:var(--green);font-size:10px}
+.columns{grid-template-columns:1.5fr 1fr;margin-top:17px}
+.panel h3{font-size:14px;margin:0 0 17px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}
+.panel-head h3{margin:0}
+.muted{color:var(--muted);font-size:11px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:11px}
+th,td{padding:13px 10px;text-align:right;border-bottom:1px solid #34243f}
+th{color:var(--muted);font-weight:normal}
+td{color:#e8dced}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:10px}
+.online,.active-status{background:#123b30;color:#52e4ad}
+.offline,.expired{background:#48212c;color:#ff8999}
+.pending{background:#493a1d;color:#f5d078}
+.progress{height:6px;background:#382b45;border-radius:10px;overflow:hidden;margin-top:7px}
+.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--orange));border-radius:10px}
+.activity{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #34243f}
+.activity:last-child{border:0}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--orange);margin-top:5px;flex-shrink:0}
+.activity strong{font-size:11px}
+.activity p{font-size:10px;color:var(--muted);margin:5px 0}
+.quick-grid{grid-template-columns:repeat(3,1fr)}
+.quick{
+ background:#251833;border:1px solid var(--border);border-radius:12px;
+ padding:16px;color:white;text-align:right;
 }
-#toast{
-  position:fixed;bottom:20px;left:20px;z-index:20;
-  max-width:90%;padding:13px 17px;border-radius:11px;
-  background:#30203e;border:1px solid var(--border);
-  box-shadow:0 8px 30px #0007;display:none;
+.quick b{display:block;font-size:20px;margin-bottom:10px}
+.quick span{font-size:11px;color:#c4b3d2}
+.search{
+ background:#120d1b;border:1px solid var(--border);
+ border-radius:9px;padding:10px;color:white;width:220px;
 }
-#toast.show{display:block}
-.mobile-menu{display:none}
-.modal-bg{
-  position:fixed;inset:0;background:#0009;z-index:15;
-  display:flex;align-items:center;justify-content:center;padding:15px;
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
+.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}
+.field input,.field select,.field textarea{
+ width:100%;background:#120d1b;border:1px solid var(--border);
+ color:white;border-radius:9px;padding:12px;
 }
+.field textarea{min-height:85px;resize:vertical}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.server-grid{grid-template-columns:repeat(3,1fr)}
+.server-card{background:#20152e;border:1px solid var(--border);padding:16px;border-radius:13px}
+.server-card h4{margin:0 0 10px;font-size:13px}
+.server-card p{font-size:10px;color:var(--muted)}
+.map{
+ height:280px;border-radius:14px;border:1px solid var(--border);
+ background:radial-gradient(ellipse at 50% 50%,#302143,#171020 70%);
+ display:grid;place-items:center;text-align:center;color:#c8b5d9;
+}
+.map .world{font-size:60px}
+.ticket{padding:14px;border-bottom:1px solid var(--border);font-size:11px}
+.ticket small{display:block;color:var(--muted);margin-top:7px}
+.overlay{
+ position:fixed;inset:0;background:#0009;z-index:30;
+ display:none;align-items:center;justify-content:center;padding:15px;
+}
+.overlay.open{display:flex}
 .modal{
-  width:100%;max-width:560px;max-height:90vh;overflow:auto;
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:17px;padding:20px;
+ width:min(550px,100%);max-height:90vh;overflow:auto;
+ background:#1c1428;border:1px solid var(--border);
+ border-radius:17px;padding:22px;
 }
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-.modal-head h3{margin:0}
-.modal-close{background:none;border:0;color:white;font-size:24px}
-.footer-note{font-size:11px;color:var(--muted);line-height:1.8;margin-top:20px}
-@media(max-width:950px){
-  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .sidebar{width:210px}
+.modal h3{margin-top:0}
+.close{float:left;background:transparent;color:white;border:0;font-size:22px}
+.toast{
+ position:fixed;bottom:20px;left:20px;z-index:50;
+ background:#2b1d3a;border:1px solid var(--border);
+ border-radius:10px;padding:13px 18px;display:none;font-size:12px;
 }
-@media(max-width:680px){
-  .sidebar{
-    display:none;position:fixed;right:0;top:65px;bottom:0;
-    z-index:10;width:270px;overflow:auto;box-shadow:0 10px 30px #0008;
-  }
-  .sidebar.open{display:block}
-  .mobile-menu{display:inline-block}
-  .main{padding:14px}
-  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-  .stat{padding:13px}
-  .stat strong{font-size:21px}
-  .grid2,.form-grid{grid-template-columns:1fr}
-  .form-grid .wide{grid-column:auto}
-  .topbar{padding:0 10px}
+.toast.show{display:block}
+.footer{text-align:center;padding:25px;color:#766484;font-size:10px}
+@media(max-width:1000px){
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .columns{grid-template-columns:1fr}
+ .server-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+ .sidebar{transform:translateX(105%)}
+ .sidebar.open{transform:translateX(0)}
+ .main{margin:0;width:100%}
+ .menu-toggle{display:block}
+ .topbar{padding:0 13px}
+ .content{padding:15px}
+ .stats{gap:9px}
+ .stat{padding:12px}
+ .stat strong{font-size:21px}
+ .quick-grid{grid-template-columns:repeat(2,1fr)}
+ .server-grid{grid-template-columns:1fr}
+ .form-grid{grid-template-columns:1fr}
+ .search{width:145px}
 }
 </style>
 </head>
-
 <body>
+<div class="layout">
 
-<section id="authPage">
-  <div class="auth-card">
-    <div class="logo">🦁</div>
-    <h1>به پنل MHA.NET خوش آمدید</h1>
-    <p>سامانه مدیریت سرویس و اشتراک VPN</p>
+<aside class="sidebar" id="sidebar">
+ <div class="brand">
+  <div class="lion">🦁</div>
+  <h1>MHA.NET</h1>
+  <p>SMART VPN MANAGEMENT PANEL</p>
+ </div>
 
-    <div class="tabs">
-      <button id="loginTab" class="active" onclick="setAuthMode('login')">ورود</button>
-      <button id="registerTab" onclick="setAuthMode('register')">ثبت‌نام</button>
-    </div>
+ <div class="nav-title">منوی اصلی</div>
+ <button class="nav-item active" data-page="dashboard"><span class="nav-icon">▦</span>داشبورد</button>
+ <button class="nav-item" data-page="users"><span class="nav-icon">♙</span>مدیریت کاربران</button>
+ <button class="nav-item" data-page="configs"><span class="nav-icon">⌘</span>مدیریت کانفیگ‌ها</button>
+ <button class="nav-item" data-page="servers"><span class="nav-icon">▤</span>سرورها و نودها</button>
+ <button class="nav-item" data-page="subscriptions"><span class="nav-icon">◷</span>اشتراک‌ها</button>
 
-    <form id="authForm">
-      <div class="field">
-        <label>نام کاربری</label>
-        <input id="authUsername" required minlength="3" maxlength="32"
-          autocomplete="username" placeholder="نام کاربری">
-      </div>
-      <div class="field">
-        <label>رمز عبور</label>
-        <input id="authPassword" required type="password" minlength="8"
-          autocomplete="current-password" placeholder="حداقل ۸ کاراکتر">
-      </div>
-      <div id="extraRegister" class="hidden">
-        <div class="field">
-          <label>ایمیل (اختیاری)</label>
-          <input id="authEmail" type="email" placeholder="example@email.com">
-        </div>
-        <div class="field">
-          <label>شماره تماس (اختیاری)</label>
-          <input id="authPhone" placeholder="شماره تماس">
-        </div>
-      </div>
-      <div id="authMessage"></div>
-      <button id="authSubmit" class="btn full" type="submit">ورود به پنل</button>
-    </form>
-    <div class="footer-note">MHA.NET · مدیریت هوشمند سرویس‌های VPN</div>
+ <div class="nav-title">مالی و پشتیبانی</div>
+ <button class="nav-item" data-page="plans"><span class="nav-icon">◇</span>پلن‌ها و قیمت‌ها</button>
+ <button class="nav-item" data-page="payments"><span class="nav-icon">＄</span>پرداخت‌ها</button>
+ <button class="nav-item" data-page="tickets"><span class="nav-icon">✉</span>تیکت پشتیبانی</button>
+ <button class="nav-item" data-page="messages"><span class="nav-icon">◉</span>پیام همگانی</button>
+
+ <div class="nav-title">سیستم و امنیت</div>
+ <button class="nav-item" data-page="security"><span class="nav-icon">♢</span>امنیت و گزارش ورود</button>
+ <button class="nav-item" data-page="logs"><span class="nav-icon">▧</span>گزارش فعالیت</button>
+ <button class="nav-item" data-page="map"><span class="nav-icon">◎</span>نقشه سرورها</button>
+ <button class="nav-item" data-page="backup"><span class="nav-icon">◫</span>پشتیبان‌گیری</button>
+ <button class="nav-item" data-page="settings"><span class="nav-icon">⚙</span>تنظیمات</button>
+ <button class="nav-item" id="supportLink"><span class="nav-icon">➤</span>پشتیبانی تلگرام</button>
+</aside>
+
+<main class="main">
+<header class="topbar">
+ <div class="top-left">
+  <button class="icon-btn menu-toggle" id="menuToggle">☰</button>
+  <div>
+   <strong id="topTitle">داشبورد</strong>
+   <div class="muted">مدیریت هوشمند MHA.NET</div>
   </div>
+ </div>
+ <div class="top-right">
+  <button class="icon-btn" onclick="toast('اعلان جدیدی وجود ندارد')">♧</button>
+  <div class="avatar">M</div>
+  <div><b style="font-size:11px">مدیر سیستم</b><div class="muted">مدیر کل</div></div>
+ </div>
+</header>
+
+<div class="content">
+
+<section class="page active" id="dashboard">
+ <div class="page-heading">
+  <div><h2>داشبورد مدیریت</h2><p>نمای کلی وضعیت پنل MHA.NET</p></div>
+  <button class="btn" onclick="toast('این نسخه فعلاً نمایشی است')">＋ عملیات سریع</button>
+ </div>
+
+ <div class="grid stats">
+  <div class="stat"><div class="stat-top"><small>کل کاربران</small><span class="stat-icon">♙</span></div><strong id="userStat">1,248</strong><em>↑ کاربران ثبت‌شده</em></div>
+  <div class="stat"><div class="stat-top"><small>اشتراک فعال</small><span class="stat-icon">◷</span></div><strong>986</strong><em>↑ اشتراک‌های فعال</em></div>
+  <div class="stat"><div class="stat-top"><small>کانفیگ‌ها</small><span class="stat-icon">⌘</span></div><strong>1,102</strong><em>کانفیگ ثبت‌شده</em></div>
+  <div class="stat"><div class="stat-top"><small>درآمد ماه</small><span class="stat-icon">＄</span></div><strong>۴۸.۵M</strong><em>مقدار نمایشی</em></div>
+ </div>
+
+ <div class="grid columns">
+  <div class="panel">
+   <div class="panel-head"><h3>وضعیت سرورها</h3><span class="status online">نمایش نمونه</span></div>
+   <div class="server-card">
+    <div style="display:flex;justify-content:space-between"><b>Germany Node 01</b><span class="status online">آنلاین</span></div>
+    <p>مصرف ظرفیت نمونه: 68%</p><div class="progress"><span style="width:68%"></span></div>
+   </div>
+   <div class="server-card" style="margin-top:12px">
+    <div style="display:flex;justify-content:space-between"><b>Netherlands Node 02</b><span class="status online">آنلاین</span></div>
+    <p>مصرف ظرفیت نمونه: 42%</p><div class="progress"><span style="width:42%"></span></div>
+   </div>
+   <div class="server-card" style="margin-top:12px">
+    <div style="display:flex;justify-content:space-between"><b>Turkey Node 03</b><span class="status offline">آفلاین</span></div>
+    <p>وضعیت نمونه</p><div class="progress"><span style="width:8%"></span></div>
+   </div>
+  </div>
+  <div class="panel">
+   <h3>آخرین فعالیت‌ها</h3>
+   <div class="activity"><span class="dot"></span><div><strong>ثبت‌نام کاربر جدید</strong><p>user_1024 · امروز</p></div></div>
+   <div class="activity"><span class="dot"></span><div><strong>ایجاد اشتراک جدید</strong><p>اشتراک ۳۰ گیگ · امروز</p></div></div>
+   <div class="activity"><span class="dot"></span><div><strong>تمدید اشتراک</strong><p>کاربر نمونه · دیروز</p></div></div>
+   <div class="activity"><span class="dot"></span><div><strong>ورود مدیر</strong><p>مدیریت سیستم · دیروز</p></div></div>
+  </div>
+ </div>
+
+ <div class="panel" style="margin-top:17px">
+  <h3>دسترسی سریع</h3>
+  <div class="grid quick-grid">
+   <button class="quick" onclick="openModal('userModal')"><b>＋</b><span>افزودن کاربر</span></button>
+   <button class="quick" onclick="openModal('configModal')"><b>⌘</b><span>ساخت کانفیگ</span></button>
+   <button class="quick" onclick="openModal('serverModal')"><b>▤</b><span>افزودن سرور</span></button>
+   <button class="quick" onclick="openModal('planModal')"><b>◇</b><span>ساخت پلن</span></button>
+   <button class="quick" onclick="go('tickets')"><b>✉</b><span>تیکت‌ها</span></button>
+   <button class="quick" onclick="go('logs')"><b>▧</b><span>گزارش‌ها</span></button>
+  </div>
+ </div>
 </section>
 
-<section id="app" class="hidden">
-  <header class="topbar">
-    <div class="brand">
-      <button class="btn secondary mobile-menu" onclick="toggleSidebar()">☰</button>
-      <div class="brand-mark">🦁</div>
-      <span>MHA.NET</span>
-    </div>
-    <div class="top-actions">
-      <span id="topUsername" class="muted"></span>
-      <button class="btn secondary small" onclick="logout()">خروج</button>
-    </div>
-  </header>
-
-  <div class="layout">
-    <aside id="sidebar" class="sidebar">
-      <div class="user-box">
-        <strong id="sideUsername">کاربر</strong>
-        <small id="sideRole">حساب کاربری</small>
-      </div>
-
-      <div class="nav-title">داشبورد</div>
-      <button class="nav-btn active" data-page="dashboard" onclick="navigate('dashboard',this)">▦ داشبورد</button>
-      <button class="nav-btn" data-page="subscriptions" onclick="navigate('subscriptions',this)">◷ اشتراک‌های من</button>
-      <button class="nav-btn" data-page="configs" onclick="navigate('configs',this)">⌘ کانفیگ‌های من</button>
-      <button class="nav-btn" data-page="payments" onclick="navigate('payments',this)">＄ پرداخت‌ها</button>
-      <button class="nav-btn" data-page="tickets" onclick="navigate('tickets',this)">✉ پشتیبانی</button>
-
-      <div id="adminNav" class="hidden">
-        <div class="nav-title">مدیریت سیستم</div>
-        <button class="nav-btn" data-page="users" onclick="navigate('users',this)">♙ کاربران</button>
-        <button class="nav-btn" data-page="servers" onclick="navigate('servers',this)">▣ سرورها</button>
-        <button class="nav-btn" data-page="plans" onclick="navigate('plans',this)">▤ پلن‌ها و تعرفه‌ها</button>
-        <button class="nav-btn" data-page="allSubscriptions" onclick="navigate('allSubscriptions',this)">◷ مدیریت اشتراک‌ها</button>
-        <button class="nav-btn" data-page="allConfigs" onclick="navigate('allConfigs',this)">⌘ مدیریت کانفیگ‌ها</button>
-        <button class="nav-btn" data-page="allPayments" onclick="navigate('allPayments',this)">＄ مدیریت پرداخت‌ها</button>
-        <button class="nav-btn" data-page="allTickets" onclick="navigate('allTickets',this)">✉ تیکت‌ها</button>
-        <button class="nav-btn" data-page="logs" onclick="navigate('logs',this)">☷ گزارش فعالیت</button>
-      </div>
-
-      <div class="nav-title">شخصی</div>
-      <button class="nav-btn" data-page="settings" onclick="navigate('settings',this)">⚙ تنظیمات</button>
-      <button class="nav-btn" onclick="openSupport()">ⓘ ارتباط با پشتیبانی</button>
-    </aside>
-
-    <main class="main">
-      <div id="pageContent"></div>
-    </main>
-  </div>
+<section class="page" id="users">
+ <div class="page-heading"><div><h2>مدیریت کاربران</h2><p>نمایش و مدیریت حساب‌های کاربران</p></div><button class="btn" onclick="openModal('userModal')">＋ کاربر جدید</button></div>
+ <div class="panel">
+  <div class="panel-head"><h3>لیست کاربران</h3><input class="search" placeholder="جستجوی کاربر..." oninput="filterTable(this,'usersTable')"></div>
+  <div class="table-wrap"><table id="usersTable">
+   <thead><tr><th>شناسه</th><th>نام کاربری</th><th>نقش</th><th>وضعیت</th><th>اشتراک</th><th>عملیات</th></tr></thead>
+   <tbody>
+    <tr><td>1001</td><td>hadi_user</td><td>کاربر</td><td><span class="status online">فعال</span></td><td>۳۰ گیگ</td><td><button class="btn small secondary" onclick="toast('نمایش جزئیات نمونه')">جزئیات</button></td></tr>
+    <tr><td>1002</td><td>user_1024</td><td>کاربر</td><td><span class="status online">فعال</span></td><td>۵۰ گیگ</td><td><button class="btn small secondary" onclick="toast('نمایش جزئیات نمونه')">جزئیات</button></td></tr>
+    <tr><td>1003</td><td>test_user</td><td>کاربر</td><td><span class="status expired">مسدود</span></td><td>منقضی</td><td><button class="btn small secondary" onclick="toast('نمایش جزئیات نمونه')">جزئیات</button></td></tr>
+   </tbody>
+  </table></div>
+ </div>
 </section>
 
-<div id="modalRoot"></div>
-<div id="toast"></div>
+<section class="page" id="configs">
+ <div class="page-heading"><div><h2>مدیریت کانفیگ‌ها</h2><p>ساخت و مدیریت پروفایل‌های اتصال</p></div><button class="btn" onclick="openModal('configModal')">＋ ساخت کانفیگ</button></div>
+ <div class="panel">
+  <div class="panel-head"><h3>کانفیگ‌های ثبت‌شده</h3><input class="search" placeholder="جستجوی کانفیگ..." oninput="filterTable(this,'configsTable')"></div>
+  <div class="table-wrap"><table id="configsTable">
+   <thead><tr><th>نام</th><th>پروتکل</th><th>سرور</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+   <tbody>
+    <tr><td>Config-DE-01</td><td>VLESS</td><td>Germany 01</td><td><span class="status online">فعال</span></td><td><button class="btn small secondary" onclick="toast('عملیات نمایشی')">مدیریت</button></td></tr>
+    <tr><td>Config-NL-02</td><td>VLESS</td><td>Netherlands 02</td><td><span class="status online">فعال</span></td><td><button class="btn small secondary" onclick="toast('عملیات نمایشی')">مدیریت</button></td></tr>
+   </tbody>
+  </table></div>
+ </div>
+ <div class="panel" style="margin-top:15px"><h3>ویژگی‌های سازنده کانفیگ</h3><p class="muted">پروتکل VLESS / VMess / Trojan · انتقال TCP / WS / gRPC / XHTTP · امنیت TLS / REALITY · لینک و QR · خروجی اشتراک</p></div>
+</section>
+
+<section class="page" id="servers">
+ <div class="page-heading"><div><h2>سرورها و نودها</h2><p>مدیریت موقعیت و ظرفیت سرورها</p></div><button class="btn" onclick="openModal('serverModal')">＋ افزودن سرور</button></div>
+ <div class="grid server-grid">
+  <div class="server-card"><div style="display:flex;justify-content:space-between"><h4>Germany 01</h4><span class="status online">آنلاین</span></div><p>کشور: آلمان · پورت: 443</p><p>ظرفیت نمونه</p><div class="progress"><span style="width:68%"></span></div></div>
+  <div class="server-card"><div style="display:flex;justify-content:space-between"><h4>Netherlands 02</h4><span class="status online">آنلاین</span></div><p>کشور: هلند · پورت: 443</p><p>ظرفیت نمونه</p><div class="progress"><span style="width:42%"></span></div></div>
+  <div class="server-card"><div style="display:flex;justify-content:space-between"><h4>Turkey 03</h4><span class="status offline">آفلاین</span></div><p>کشور: ترکیه · پورت: 8443</p><p>ظرفیت نمونه</p><div class="progress"><span style="width:8%"></span></div></div>
+ </div>
+</section>
+
+<section class="page" id="subscriptions">
+ <div class="page-heading"><div><h2>مدیریت اشتراک‌ها</h2><p>حجم، تاریخ انقضا و تمدید کاربران</p></div><button class="btn" onclick="toast('فرم اشتراک در نسخه متصل به بک‌اند فعال می‌شود')">＋ اشتراک جدید</button></div>
+ <div class="panel"><div class="table-wrap"><table><thead><tr><th>کاربر</th><th>پلن</th><th>حجم کل</th><th>مصرف</th><th>انقضا</th><th>وضعیت</th></tr></thead>
+ <tbody><tr><td>hadi_user</td><td>۳۰ گیگ</td><td>۳۰ GB</td><td>۱۲ GB</td><td>۱۴۰۵/۱۲/۰۱</td><td><span class="status online">فعال</span></td></tr><tr><td>user_1024</td><td>۵۰ گیگ</td><td>۵۰ GB</td><td>۴۵ GB</td><td>۱۴۰۵/۱۱/۱۵</td><td><span class="status pending">نزدیک اتمام</span></td></tr></tbody></table></div></div>
+</section>
+
+<section class="page" id="plans">
+ <div class="page-heading"><div><h2>پلن‌ها و قیمت‌ها</h2><p>تعریف بسته‌های اشتراک</p></div><button class="btn" onclick="openModal('planModal')">＋ پلن جدید</button></div>
+ <div class="grid server-grid">
+  <div class="panel"><h3>پلن ۳۰ گیگ</h3><h2 style="color:var(--orange)">قیمت قابل تنظیم</h2><p class="muted">۳۰ گیگابایت · ۳۰ روز · ۲ دستگاه</p><button class="btn secondary" onclick="toast('ویرایش نمایشی')">ویرایش پلن</button></div>
+  <div class="panel"><h3>پلن ۵۰ گیگ</h3><h2 style="color:var(--orange)">قیمت قابل تنظیم</h2><p class="muted">۵۰ گیگابایت · ۳۰ روز · ۳ دستگاه</p><button class="btn secondary" onclick="toast('ویرایش نمایشی')">ویرایش پلن</button></div>
+  <div class="panel"><h3>پلن ۱۰۰ گیگ</h3><h2 style="color:var(--orange)">قیمت قابل تنظیم</h2><p class="muted">۱۰۰ گیگابایت · ۶۰ روز · ۴ دستگاه</p><button class="btn secondary" onclick="toast('ویرایش نمایشی')">ویرایش پلن</button></div>
+ </div>
+</section>
+
+<section class="page" id="payments">
+ <div class="page-heading"><div><h2>پرداخت‌ها و امور مالی</h2><p>تراکنش‌ها و گزارش درآمد</p></div></div>
+ <div class="grid stats"><div class="stat"><small>پرداخت موفق</small><strong>۱۲۸</strong></div><div class="stat"><small>در انتظار</small><strong>۸</strong></div><div class="stat"><small>بازپرداخت</small><strong>۳</strong></div><div class="stat"><small>درآمد نمونه</small><strong>۴۸.۵M</strong></div></div>
+ <div class="panel" style="margin-top:15px"><h3>آخرین تراکنش‌ها</h3><div class="table-wrap"><table><thead><tr><th>شناسه</th><th>کاربر</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody><tr><td>#P1001</td><td>hadi_user</td><td>قابل تنظیم</td><td><span class="status online">موفق</span></td></tr><tr><td>#P1002</td><td>user_1024</td><td>قابل تنظیم</td><td><span class="status pending">در انتظار</span></td></tr></tbody></table></div></div>
+</section>
+
+<section class="page" id="tickets">
+ <div class="page-heading"><div><h2>تیکت پشتیبانی</h2><p>درخواست‌های کاربران</p></div><button class="btn" onclick="toast('اتصال سامانه تیکت در مرحله بک‌اند')">＋ تیکت جدید</button></div>
+ <div class="panel"><div class="ticket"><b>مشکل اتصال کانفیگ</b><small>کاربر: hadi_user · <span class="status pending">در انتظار پاسخ</span></small></div><div class="ticket"><b>درخواست تمدید اشتراک</b><small>کاربر: user_1024 · <span class="status online">پاسخ داده شد</span></small></div></div>
+</section>
+
+<section class="page" id="messages">
+ <div class="page-heading"><div><h2>پیام همگانی</h2><p>ارسال اعلان به کاربران</p></div></div>
+ <div class="panel"><div class="field"><label>عنوان پیام</label><input placeholder="عنوان اعلان"></div><div class="field" style="margin-top:12px"><label>متن پیام</label><textarea placeholder="متن پیام را بنویسید..."></textarea></div><div class="actions"><button class="btn" onclick="toast('ارسال پیام پس از اتصال بک‌اند فعال می‌شود')">ارسال پیام</button></div></div>
+</section>
+
+<section class="page" id="security">
+ <div class="page-heading"><div><h2>امنیت و گزارش ورود</h2><p>کنترل دسترسی و امنیت حساب‌ها</p></div></div>
+ <div class="grid stats"><div class="stat"><small>ورودهای امروز</small><strong>۲۴</strong></div><div class="stat"><small>ورود ناموفق</small><strong>۳</strong></div><div class="stat"><small>کاربران مسدود</small><strong>۵</strong></div><div class="stat"><small>مدیران</small><strong>۲</strong></div></div>
+ <div class="panel" style="margin-top:15px"><h3>امکانات امنیتی</h3><p class="muted">محدودیت دستگاه · گزارش IP · ورود دومرحله‌ای · مسدودسازی موقت و دائم · ثبت فعالیت مدیران</p></div>
+</section>
+
+<section class="page" id="logs">
+ <div class="page-heading"><div><h2>گزارش فعالیت</h2><p>تاریخچه رویدادهای پنل</p></div></div>
+ <div class="panel"><div class="activity"><span class="dot"></span><div><strong>ورود مدیر به پنل</strong><p>نمونه · امروز</p></div></div><div class="activity"><span class="dot"></span><div><strong>تغییر تنظیمات</strong><p>نمونه · امروز</p></div></div><div class="activity"><span class="dot"></span><div><strong>ساخت اشتراک</strong><p>نمونه · دیروز</p></div></div></div>
+</section>
+
+<section class="page" id="map">
+ <div class="page-heading"><div><h2>نقشه سرورها</h2><p>نمای کلی موقعیت نودها</p></div></div>
+ <div class="map"><div><div class="world">🌍</div><h3>نقشه موقعیت سرورها</h3><p>نمایش زنده موقعیت نودها پس از اتصال اطلاعات سرورها فعال می‌شود.</p></div></div>
+</section>
+
+<section class="page" id="backup">
+ <div class="page-heading"><div><h2>پشتیبان‌گیری</h2><p>مدیریت نسخه‌های پشتیبان اطلاعات</p></div></div>
+ <div class="panel"><h3>پشتیبان‌گیری از اطلاعات</h3><p class="muted">کاربران، اشتراک‌ها، پلن‌ها، کانفیگ‌ها و گزارش‌ها</p><button class="btn" onclick="toast('بک‌آپ واقعی به اتصال بک‌اند نیاز دارد')">ایجاد نسخه پشتیبان</button><button class="btn secondary" onclick="toast('بازیابی واقعی به اتصال بک‌اند نیاز دارد')">بازیابی نسخه</button></div>
+</section>
+
+<section class="page" id="settings">
+ <div class="page-heading"><div><h2>تنظیمات پنل</h2><p>تنظیمات عمومی و مدیریتی</p></div></div>
+ <div class="panel">
+  <div class="form-grid">
+   <div class="field"><label>نام پنل</label><input value="MHA.NET"></div>
+   <div class="field"><label>زبان پنل</label><select><option>فارسی</option><option>English</option></select></div>
+   <div class="field"><label>رنگ اصلی</label><select><option>بنفش و نارنجی</option><option>بنفش و قرمز</option></select></div>
+   <div class="field"><label>پشتیبانی</label><input value="Telegram"></div>
+  </div>
+  <div class="actions"><button class="btn" onclick="toast('تنظیمات ظاهری در این نسخه ذخیره نمی‌شوند')">ذخیره تنظیمات</button></div>
+ </div>
+</section>
+
+<div class="footer">MHA.NET · SMART VPN MANAGEMENT · نسخه طراحی رابط کاربری</div>
+</div>
+</main>
+</div>
+
+<!-- USER MODAL -->
+<div class="overlay" id="userModal"><div class="modal">
+<button class="close" onclick="closeModal('userModal')">×</button>
+<h3>افزودن کاربر</h3>
+<div class="form-grid">
+<div class="field"><label>نام کاربری</label><input placeholder="username"></div>
+<div class="field"><label>رمز عبور</label><input type="password" placeholder="Password"></div>
+<div class="field"><label>نقش</label><select><option>کاربر</option><option>پشتیبان</option><option>مدیر</option></select></div>
+<div class="field"><label>وضعیت</label><select><option>فعال</option><option>مسدود</option></select></div>
+</div>
+<div class="actions"><button class="btn" onclick="toast('ثبت واقعی کاربر به بک‌اند نیاز دارد');closeModal('userModal')">ثبت کاربر</button></div>
+</div></div>
+
+<!-- CONFIG MODAL -->
+<div class="overlay" id="configModal"><div class="modal">
+<button class="close" onclick="closeModal('configModal')">×</button>
+<h3>سازنده کانفیگ</h3>
+<div class="form-grid">
+<div class="field"><label>نام کانفیگ</label><input placeholder="My Config"></div>
+<div class="field"><label>پروتکل</label><select><option>VLESS</option><option>VMess</option><option>Trojan</option></select></div>
+<div class="field"><label>سرور</label><select><option>Germany 01</option><option>Netherlands 02</option><option>Turkey 03</option></select></div>
+<div class="field"><label>پورت</label><input placeholder="443"></div>
+<div class="field"><label>انتقال</label><select><option>TCP</option><option>WebSocket</option><option>gRPC</option><option>XHTTP</option></select></div>
+<div class="field"><label>امنیت</label><select><option>TLS</option><option>REALITY</option><option>None</option></select></div>
+<div class="field"><label>UUID</label><input placeholder="UUID کاربر"></div>
+<div class="field"><label>شناسه اشتراک</label><input placeholder="Subscription ID"></div>
+</div>
+<div class="actions"><button class="btn" onclick="toast('ساخت کانفیگ واقعی به نود Xray متصل نیاز دارد');closeModal('configModal')">ایجاد کانفیگ</button></div>
+</div></div>
+
+<!-- SERVER MODAL -->
+<div class="overlay" id="serverModal"><div class="modal">
+<button class="close" onclick="closeModal('serverModal')">×</button>
+<h3>افزودن سرور</h3>
+<div class="form-grid">
+<div class="field"><label>نام سرور</label><input placeholder="Germany Node"></div>
+<div class="field"><label>آدرس IP یا دامنه</label><input placeholder="server.example.com"></div>
+<div class="field"><label>کشور</label><input placeholder="Germany"></div>
+<div class="field"><label>پورت</label><input placeholder="443"></div>
+<div class="field"><label>ظرفیت</label><input placeholder="1000"></div>
+<div class="field"><label>وضعیت</label><select><option>فعال</option><option>غیرفعال</option></select></div>
+</div>
+<div class="actions"><button class="btn" onclick="toast('ثبت سرور واقعی به Worker و Node Agent نیاز دارد');closeModal('serverModal')">ثبت سرور</button></div>
+</div></div>
+
+<!-- PLAN MODAL -->
+<div class="overlay" id="planModal"><div class="modal">
+<button class="close" onclick="closeModal('planModal')">×</button>
+<h3>تعریف پلن اشتراک</h3>
+<div class="form-grid">
+<div class="field"><label>نام پلن</label><input placeholder="پلن ویژه"></div>
+<div class="field"><label>حجم (GB)</label><input type="number" placeholder="30"></div>
+<div class="field"><label>مدت (روز)</label><input type="number" placeholder="30"></div>
+<div class="field"><label>تعداد دستگاه</label><input type="number" placeholder="2"></div>
+<div class="field"><label>قیمت</label><input placeholder="مبلغ"></div>
+<div class="field"><label>وضعیت</label><select><option>فعال</option><option>غیرفعال</option></select></div>
+</div>
+<div class="actions"><button class="btn" onclick="toast('ذخیره پلن به بک‌اند نیاز دارد');closeModal('planModal')">ذخیره پلن</button></div>
+</div></div>
+
+<div class="toast" id="toastBox"></div>
 
 <script>
-"use strict";
+const pages=document.querySelectorAll('.page');
+const navItems=document.querySelectorAll('.nav-item[data-page]');
+const sidebar=document.getElementById('sidebar');
 
-/* آدرس Worker خودت را اینجا قرار بده */
-const API_BASE = "https://YOUR-WORKER-NAME.workers.dev";
-
-let token = sessionStorage.getItem("mha_token") || "";
-let currentUser = null;
-let currentPage = "dashboard";
-let authMode = "login";
-let cached = {};
-
-const $ = id => document.getElementById(id);
-
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  })[char]);
+function go(id){
+ pages.forEach(p=>p.classList.toggle('active',p.id===id));
+ navItems.forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+ const item=document.querySelector('[data-page="'+id+'"]');
+ document.getElementById('topTitle').textContent=item?item.textContent.trim():'MHA.NET';
+ sidebar.classList.remove('open');
+ window.scrollTo({top:0,behavior:'smooth'});
 }
+navItems.forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+document.getElementById('menuToggle').addEventListener('click',()=>sidebar.classList.toggle('open'));
+document.getElementById('supportLink').addEventListener('click',()=>window.open('https://t.me/m_hadiii46333','_blank'));
 
-function toast(message) {
-  const el = $("toast");
-  el.textContent = message;
-  el.classList.add("show");
-  clearTimeout(toast.timer);
-  toast.timer = setTimeout(() => el.classList.remove("show"), 3500);
-}
-
-function money(value) {
-  return Number(value || 0).toLocaleString("fa-IR") + " تومان";
-}
-
-function date(value) {
-  if (!value) return "—";
-  return new Date(Number(value) * 1000).toLocaleDateString("fa-IR");
-}
-
-function statusLabel(value) {
-  const labels = {
-    active:"فعال",online:"آنلاین",offline:"آفلاین",
-    blocked:"مسدود",suspended:"تعلیق‌شده",
-    expired:"منقضی",cancelled:"لغوشده",
-    pending:"در انتظار",paid:"پرداخت‌شده",
-    failed:"ناموفق",refunded:"برگشت‌خورده",
-    draft:"پیش‌نویس",open:"باز",answered:"پاسخ داده‌شده",
-    closed:"بسته‌شده"
-  };
-  return labels[value] || value || "نامشخص";
-}
-
-function statusHTML(value) {
-  return `<span class="status ${escapeHTML(value)}">${escapeHTML(statusLabel(value))}</span>`;
-}
-
-async function api(path, options = {}) {
-  if (!API_BASE || API_BASE.includes("YOUR-WORKER-NAME")) {
-    throw new Error("ابتدا آدرس Worker را در API_BASE وارد کن.");
-  }
-
-  const headers = {
-    "Content-Type":"application/json",
-    ...(token ? {"Authorization":"Bearer " + token} : {}),
-    ...(options.headers || {})
-  };
-
-  let response;
-  try {
-    response = await fetch(API_BASE.replace(/\/$/,"") + path, {
-      method:options.method || "GET",
-      headers,
-      body:options.body ? JSON.stringify(options.body) : undefined
-    });
-  } catch (error) {
-    throw new Error("ارتباط با Worker برقرار نشد. آدرس و تنظیمات CORS را بررسی کن.");
-  }
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok || data.ok === false) {
-    if (response.status === 401) {
-      token = "";
-      sessionStorage.removeItem("mha_token");
-    }
-    throw new Error(data.message || data.error || "درخواست ناموفق بود.");
-  }
-
-  return data;
-}
-
-function setAuthMode(mode) {
-  authMode = mode;
-  $("loginTab").classList.toggle("active", mode === "login");
-  $("registerTab").classList.toggle("active", mode === "register");
-  $("extraRegister").classList.toggle("hidden", mode !== "register");
-  $("authSubmit").textContent = mode === "login" ? "ورود به پنل" : "ایجاد حساب کاربری";
-  $("authPassword").autocomplete = mode === "login" ? "current-password" : "new-password";
-  $("authMessage").innerHTML = "";
-}
-
-$("authForm").addEventListener("submit", async event => {
-  event.preventDefault();
-
-  const button = $("authSubmit");
-  button.disabled = true;
-  button.textContent = "لطفاً صبر کنید...";
-  $("authMessage").innerHTML = "";
-
-  const payload = {
-    username:$("authUsername").value.trim(),
-    password:$("authPassword").value
-  };
-
-  if (authMode === "register") {
-    payload.email = $("authEmail").value.trim();
-    payload.phone = $("authPhone").value.trim();
-  }
-
-  try {
-    const result = await api(
-      authMode === "login" ? "/api/login" : "/api/register",
-      {method:"POST",body:payload}
-    );
-
-    token = result.token;
-    sessionStorage.setItem("mha_token", token);
-    currentUser = result.user;
-    showApp();
-    toast(authMode === "login" ? "ورود موفق بود." : "ثبت‌نام انجام شد.");
-  } catch (error) {
-    $("authMessage").innerHTML =
-      `<div class="message">${escapeHTML(error.message)}</div>`;
-  } finally {
-    button.disabled = false;
-    button.textContent = authMode === "login" ? "ورود به پنل" : "ایجاد حساب کاربری";
-  }
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.overlay').forEach(o=>{
+ o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')});
 });
 
-async function startApp() {
-  if (!token) return showAuth();
-
-  try {
-    const result = await api("/api/me");
-    currentUser = result.user;
-    showApp();
-  } catch {
-    token = "";
-    sessionStorage.removeItem("mha_token");
-    showAuth();
-  }
+let toastTimer;
+function toast(text){
+ const box=document.getElementById('toastBox');
+ box.textContent=text;
+ box.classList.add('show');
+ clearTimeout(toastTimer);
+ toastTimer=setTimeout(()=>box.classList.remove('show'),2800);
 }
-
-function showAuth() {
-  $("authPage").classList.remove("hidden");
-  $("app").classList.add("hidden");
+function filterTable(input,id){
+ const q=input.value.toLowerCase();
+ document.querySelectorAll('#'+id+' tbody tr').forEach(row=>{
+  row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';
+ });
 }
-
-function showApp() {
-  $("authPage").classList.add("hidden");
-  $("app").classList.remove("hidden");
-
-  const username = currentUser?.username || "کاربر";
-  const admin = ["admin","superadmin"].includes(currentUser?.role);
-
-  $("topUsername").textContent = username;
-  $("sideUsername").textContent = username;
-  $("sideRole").textContent = admin ? "مدیر سیستم" : "حساب کاربری";
-  $("adminNav").classList.toggle("hidden", !admin);
-
-  navigate("dashboard");
-}
-
-async function logout() {
-  try {
-    await api("/api/logout", {method:"POST"});
-  } catch {}
-  token = "";
-  currentUser = null;
-  cached = {};
-  sessionStorage.removeItem("mha_token");
-  showAuth();
-  toast("از حساب خارج شدی.");
-}
-
-function toggleSidebar() {
-  $("sidebar").classList.toggle("open");
-}
-
-function navigate(page, button) {
-  currentPage = page;
-  document.querySelectorAll(".nav-btn").forEach(item => item.classList.remove("active"));
-
-  const selected = button || document.querySelector(`[data-page="${page}"]`);
-  if (selected) selected.classList.add("active");
-
-  $("sidebar").classList.remove("open");
-  renderPage();
-}
-
-function pageHead(title, description = "") {
-  return `<div class="page-head">
-    <div><h2>${title}</h2>
-    <div class="muted" style="margin-top:7px">${description}</div></div>
-  </div>`;
-}
-
-function table(headers, rows) {
-  if (!rows.length) return `<div class="empty">هنوز اطلاعاتی ثبت نشده است.</div>`;
-  return `<div class="table-wrap"><table>
-    <thead><tr>${headers.map(x => `<th>${x}</th>`).join("")}</tr></thead>
-    <tbody>${rows.join("")}</tbody>
-  </table></div>`;
-}
-
-function actionButtons(items) {
-  return `<div class="actions">${items.join("")}</div>`;
-}
-
-function button(label, action, type = "secondary") {
-  return `<button class="btn small ${type}" onclick="${action}">${label}</button>`;
-}
-
-async function load(path, key) {
-  const result = await api(path);
-  cached[key] = result;
-  return result;
-}
-
-async function renderPage() {
-  const root = $("pageContent");
-  root.innerHTML = `<div class="empty">در حال دریافت اطلاعات...</div>`;
-
-  try {
-    switch (currentPage) {
-      case "dashboard": return await renderDashboard();
-      case "subscriptions": return await renderSubscriptions(false);
-      case "configs": return await renderConfigs(false);
-      case "payments": return await renderPayments(false);
-      case "tickets": return await renderTickets(false);
-      case "users": return await renderUsers();
-      case "servers": return await renderServers();
-      case "plans": return await renderPlans();
-      case "allSubscriptions": return await renderSubscriptions(true);
-      case "allConfigs": return await renderConfigs(true);
-      case "allPayments": return await renderPayments(true);
-      case "allTickets": return await renderTickets(true);
-      case "logs": return await renderLogs();
-      case "settings": return renderSettings();
-      default:
-        root.innerHTML = `<div class="panel">این بخش وجود ندارد.</div>`;
-    }
-  } catch (error) {
-    root.innerHTML = `<div class="panel">
-      <h3>خطا در دریافت اطلاعات</h3>
-      <div class="message">${escapeHTML(error.message)}</div>
-      <button class="btn" onclick="renderPage()">تلاش دوباره</button>
-    </div>`;
-  }
-}
-
-async function renderDashboard() {
-  let stats = null;
-
-  if (["admin","superadmin"].includes(currentUser.role)) {
-    stats = (await load("/api/admin/overview","overview")).overview;
-  }
-
-  const subs = (await load("/api/subscriptions","subscriptions")).subscriptions || [];
-  const configs = (await load("/api/configs","configs")).configs || [];
-
-  let cards;
-
-  if (stats) {
-    cards = [
-      ["کل کاربران",stats.users],
-      ["کاربران فعال",stats.active_users],
-      ["سرورها",stats.servers],
-      ["اشتراک فعال",stats.active_subscriptions],
-      ["کانفیگ‌ها",stats.configs],
-      ["مجموع درآمد",money(stats.revenue)]
-    ];
-  } else {
-    cards = [
-      ["اشتراک‌ها",subs.length],
-      ["کانفیگ‌ها",configs.length],
-      ["نام کاربری",currentUser.username],
-      ["نقش حساب",currentUser.role === "user" ? "کاربر" : currentUser.role]
-    ];
-  }
-
-  $("pageContent").innerHTML = `
-    ${pageHead("داشبورد MHA.NET","نمای کلی وضعیت حساب و سرویس‌ها")}
-    <div class="cards">
-      ${cards.map((c,i)=>`<div class="stat">
-        <span>${c[0]}</span><strong>${escapeHTML(c[1])}</strong>
-      </div>`).join("")}
-    </div>
-    <div class="grid2">
-      <div class="panel">
-        <h3>اشتراک‌های اخیر</h3>
-        ${subs.length ? table(
-          ["شناسه","حجم","مصرف ثبت‌شده","انقضا","وضعیت"],
-          subs.slice(0,5).map(s=>`<tr>
-            <td>${s.id}</td><td>${s.volume_gb} GB</td>
-            <td>${(Number(s.used_bytes||0)/1073741824).toFixed(2)} GB</td>
-            <td>${date(s.expires_at)}</td><td>${statusHTML(s.status)}</td>
-          </tr>`)
-        ) : `<div class="empty">اشتراکی ثبت نشده است.</div>`}
-      </div>
-      <div class="panel">
-        <h3>کانفیگ‌های اخیر</h3>
-        ${configs.length ? table(
-          ["نام","پروتکل","وضعیت"],
-          configs.slice(0,5).map(c=>`<tr>
-            <td>${escapeHTML(c.name)}</td>
-            <td>${escapeHTML(c.protocol)}</td>
-            <td>${statusHTML(c.status)}</td>
-          </tr>`)
-        ) : `<div class="empty">کانفیگی ثبت نشده است.</div>`}
-      </div>
-    </div>
-    <div class="notice">
-      وضعیت و مصرف فقط زمانی واقعی هستند که نود Xray به بک‌اند متصل شده و اطلاعات ترافیک ارسال کند.
-    </div>`;
-}
-
-async function renderUsers() {
-  const data = await load("/api/admin/users","users");
-  const rows = (data.users || []).map(u=>`<tr>
-    <td>${u.id}</td><td>${escapeHTML(u.username)}</td>
-    <td>${escapeHTML(u.email || "—")}</td>
-    <td>${escapeHTML(u.role)}</td><td>${statusHTML(u.status)}</td>
-    <td>${date(u.created_at)}</td>
-    <td>${actionButtons([
-      button("فعال","updateUser("+u.id+",'active')","green"),
-      button("مسدود","updateUser("+u.id+",'blocked')","danger"),
-      button("حذف","deleteUser("+u.id+")","danger")
-    ])}</td>
-  </tr>`);
-
-  $("pageContent").innerHTML = `
-    ${pageHead("مدیریت کاربران","مشاهده، مسدودسازی و مدیریت حساب‌ها")}
-    <div class="panel">
-      ${table(["شناسه","نام کاربری","ایمیل","نقش","وضعیت","تاریخ عضویت","عملیات"],rows)}
-    </div>`;
-}
-
-async function renderServers() {
-  const data = await load("/api/admin/servers","servers");
-  const rows = (data.servers || []).map(s=>`<tr>
-    <td>${s.id}</td><td>${escapeHTML(s.name)}</td>
-    <td>${escapeHTML(s.country || "—")}</td>
-    <td>${escapeHTML(s.host)}</td><td>${s.port}</td>
-    <td>${escapeHTML(s.protocol)}</td>
-    <td>${s.current_users}/${s.capacity}</td>
-    <td>${statusHTML(s.status)}</td>
-    <td>${actionButtons([
-      button("ویرایش","editServer("+s.id+")"),
-      button("حذف","deleteServer("+s.id+")","danger")
-    ])}</td>
-  </tr>`);
-
-  $("pageContent").innerHTML = `
-    ${pageHead("مدیریت سرورها","ثبت و مدیریت نودهای VPN")}
-    <div class="toolbar"><button class="btn" onclick="serverForm()">＋ افزودن سرور</button></div>
-    <div class="panel">${table(
-      ["شناسه","نام","کشور","آدرس","پورت","پروتکل","کاربران","وضعیت","عملیات"],rows
-    )}</div>
-    <div class="notice">ثبت سرور در دیتابیس به‌معنای آنلاین بودن واقعی آن نیست. وضعیت اتصال باید توسط نود گزارش شود.</div>`;
-}
-
-async function renderPlans() {
-  const data = await load("/api/admin/plans","plans");
-  const rows = (data.plans || []).map(p=>`<tr>
-    <td>${p.id}</td><td>${escapeHTML(p.name)}</td>
-    <td>${p.volume_gb} GB</td><td>${p.duration_days} روز</td>
-    <td>${p.device_limit}</td><td>${money(p.price)}</td>
-    <td>${statusHTML(p.status)}</td>
-    <td>${button("حذف","deletePlan("+p.id+")","danger")}</td>
-  </tr>`);
-
-  $("pageContent").innerHTML = `
-    ${pageHead("پلن‌ها و تعرفه‌ها","تعریف حجم، مدت و قیمت اشتراک")}
-    <div class="toolbar"><button class="btn" onclick="planForm()">＋ ساخت پلن</button></div>
-    <div class="panel">${table(
-      ["شناسه","نام","حجم","مدت","دستگاه","قیمت","وضعیت","عملیات"],rows
-    )}</div>`;
-}
-
-async function renderSubscriptions(admin) {
-  const data = await load("/api/subscriptions","subscriptions");
-  const rows = (data.subscriptions || []).map(s=>`<tr>
-    <td>${s.id}</td>${admin ? `<td>${escapeHTML(s.username || "")}</td>` : ""}
-    <td>${escapeHTML(s.plan_name || "—")}</td>
-    <td>${s.volume_gb} GB</td>
-    <td>${(Number(s.used_bytes||0)/1073741824).toFixed(2)} GB</td>
-    <td>${date(s.expires_at)}</td><td>${statusHTML(s.status)}</td>
-    ${admin ? `<td>${button("ویرایش","editSubscription("+s.id+")")}</td>` : ""}
-  </tr>`);
-
-  $("pageContent").innerHTML = `
-    ${pageHead(admin ? "مدیریت اشتراک‌ها" : "اشتراک‌های من","مدیریت حجم، مصرف و تاریخ انقضا")}
-    ${admin ? `<div class="toolbar"><button class="btn" onclick="subscriptionForm()">＋ ایجاد اشتراک</button></div>` : ""}
-    <div class="panel">${table(
-      admin
-        ? ["شناسه","کاربر","پلن","حجم","مصرف ثبت‌شده","انقضا","وضعیت","عملیات"]
-        : ["شناسه","پلن","حجم","مصرف ثبت‌شده","انقضا","وضعیت"],
-      rows
-    )}</div>
-    <div class="notice">مصرف فعلی از داده‌های ثبت‌شده در دیتابیس خوانده می‌شود؛ برای مصرف زنده باید اتصال Xray تکمیل شود.</div>`;
-}
-
-async function renderConfigs(admin) {
-  const data = await load("/api/configs","configs");
-  const rows = (data.configs || []).map(c=>`<tr>
-    <td>${c.id}</td>${admin ? `<td>${escapeHTML(c.username || "")}</td>` : ""}
-    <td>${escapeHTML(c.name)}</td><td>${escapeHTML(c.protocol)}</td>
-    <td>${escapeHTML(c.server_name || "—")}</td>
-    <td>${escapeHTML(c.transport)}</td><td>${escapeHTML(c.security)}</td>
-    <td>${statusHTML(c.status)}</td>
-    <td>${admin ? button("حذف","deleteConfig("+c.id+")","danger") : "—"}</td>
-  </tr>`);
-
-  $("pageContent").innerHTML = `
-    ${pageHead(admin ? "مدیریت کانفیگ‌ها" : "کانفیگ‌های من","مدیریت کانفیگ‌های ثبت‌شده")}
-    ${admin ? `<div class="toolbar"><button class="btn" onclick="configForm()">＋ ساخت کانفیگ</button></div>` : ""}
-    <div class="panel">${table(
-      admin
-       ? ["شناسه","کاربر","نام","پروتکل","سرور","انتقال","امنیت","وضعیت","عملیات"]
-       : ["شناسه","نام","پروتکل","سرور","انتقال","امنیت","وضعیت","عملیات"],
-      rows
-    )}</div>
-    <div class="notice">
-      کانفیگ‌های ساخته‌شده در این نسخه به‌صورت پیش‌نویس ذخیره می‌شوند. ساخت و فعال‌سازی واقعی روی سرور Xray هنوز نیازمند نصب و اتصال Node Agent است.
-    </div>`;
-}
-
-async function renderPayments(admin) {
-  const data = await load("/api/payments","payments");
-  const rows = (data.payments || []).map(p=>`<tr>
-    <td>${p.id}</td>${admin ? `<td>${escapeHTML(p.username || "")}</td>` : ""}
-    <td>${money(p.amount)}</td><td>${escapeHTML(p.method || "—")}</td>
-    <td>${escapeHTML(p.reference || "—")}</td>
-    <td>${statusHTML(p.status)}</td>
-    ${admin ? `<td>${actionButtons([
-      button("تأیید","updatePayment("+p.id+",'paid')","green"),
-      button("رد","updatePayment("+p.id+",'failed')","danger")
-    ])}</td>` : ""}
-  </tr>`);
-
-  $("pageContent").innerHTML = `
-    ${pageHead(admin ? "مدیریت پرداخت‌ها" : "پرداخت‌های من","مشاهده درخواست‌های پرداخت")}
-    ${!admin ? `<div class="toolbar"><button class="btn" onclick="paymentForm()">＋ ثبت درخواست پرداخت</button></div>` : ""}
-    <div class="panel">${table(
-      admin
-       ? ["شناسه","کاربر","مبلغ","روش","شناسه پیگیری","وضعیت","عملیات"]
-       : ["شناسه","مبلغ","روش","شناسه پیگیری","وضعیت"],
-      rows
-    )}</div>
-    <div class="notice">تغییر وضعیت دستی است و این نسخه هنوز به درگاه پرداخت بانکی متصل نیست.</div>`;
-}
-
-async function renderTickets(admin) {
-  const data = await load("/api/tickets","tickets");
-  const rows = (data.tickets || []).map(t=>`<tr>
-    <td>${t.id}</td>${admin ? `<td>${escapeHTML(t.username || "")}</td>` : ""}
-    <td>${escapeHTML(t.subject)}</td><td>${escapeHTML(t.message)}</td>
-    <td>${statusHTML(t.status)}</td><td>${date(t.created_at)}</td>
-    ${admin ? `<td>${button("بستن تیکت","updateTicket("+t.id+")")}</td>` : ""}
-  </tr>`);
-
-  $("pageContent").innerHTML = `
-    ${pageHead(admin ? "مدیریت تیکت‌ها" : "پشتیبانی","ثبت و پیگیری درخواست‌های پشتیبانی")}
-    ${!admin ? `<div class="toolbar"><button class="btn" onclick="ticketForm()">＋ تیکت جدید</button></div>` : ""}
-    <div class="panel">${table(
-      admin
-       ? ["شناسه","کاربر","موضوع","پیام","وضعیت","تاریخ","عملیات"]
-       : ["شناسه","موضوع","پیام","وضعیت","تاریخ"],
-      rows
-    )}</div>`;
-}
-
-async function renderLogs() {
-  const data = await load("/api/admin/logs","logs");
-  const rows = (data.logs || []).map(l=>`<tr>
-    <td>${l.id}</td><td>${escapeHTML(l.username || "سیستم")}</td>
-    <td>${escapeHTML(l.action)}</td><td>${escapeHTML(l.target_type || "—")}</td>
-    <td>${l.target_id || "—"}</td><td>${date(l.created_at)}</td>
-  </tr>`);
-
-  $("pageContent").innerHTML = `
-    ${pageHead("گزارش فعالیت","آخرین عملیات ثبت‌شده در سیستم")}
-    <div class="panel">${table(
-      ["شناسه","کاربر","عملیات","نوع","شناسه هدف","زمان"],rows
-    )}</div>`;
-}
-
-function renderSettings() {
-  $("pageContent").innerHTML = `
-    ${pageHead("تنظیمات","تنظیمات شخصی و اتصال سامانه")}
-    <div class="panel">
-      <h3>حساب کاربری</h3>
-      <p>نام کاربری: <strong>${escapeHTML(currentUser.username)}</strong></p>
-      <p>سطح دسترسی: <strong>${escapeHTML(currentUser.role)}</strong></p>
-    </div>
-    <div class="panel">
-      <h3>تنظیمات زبان</h3>
-      <p class="muted">انتخاب زبان فقط در تنظیمات قرار دارد.</p>
-      <select id="languageSetting">
-        <option value="fa">فارسی</option>
-        <option value="en">English</option>
-        <option value="tr">Türkçe</option>
-      </select>
-      <p class="footer-note">تغییر زبان در این نسخه هنوز به سیستم ترجمه کامل متصل نشده است.</p>
-    </div>
-    <div class="panel">
-      <h3>ارتباط با پشتیبانی</h3>
-      <button class="btn" onclick="openSupport()">ورود به تلگرام پشتیبانی</button>
-    </div>`;
-}
-
-function openSupport() {
-  window.open("https://t.me/m_hadiii46333","_blank");
-}
-
-function openModal(title, content) {
-  $("modalRoot").innerHTML = `
-    <div class="modal-bg" onclick="if(event.target===this)closeModal()">
-      <div class="modal">
-        <div class="modal-head">
-          <h3>${title}</h3>
-          <button class="modal-close" onclick="closeModal()">×</button>
-        </div>
-        ${content}
-      </div>
-    </div>`;
-}
-
-function closeModal() {
-  $("modalRoot").innerHTML = "";
-}
-
-function formField(label, name, type = "text", value = "", required = true) {
-  return `<div class="field">
-    <label>${label}</label>
-    <input name="${name}" type="${type}" value="${escapeHTML(value)}"
-      ${required ? "required" : ""}>
-  </div>`;
-}
-
-function formSelect(label, name, options) {
-  return `<div class="field"><label>${label}</label>
-    <select name="${name}">${options.map(o=>
-      `<option value="${o[0]}">${o[1]}</option>`).join("")}</select>
-  </div>`;
-}
-
-function formShell(fields, submitText, callback) {
-  return `<form onsubmit="${callback}(event)">
-    <div class="form-grid">${fields}</div>
-    <button class="btn full" type="submit">${submitText}</button>
-  </form>`;
-}
-
-function formValues(event) {
-  return Object.fromEntries(new FormData(event.target).entries());
-}
-
-async function serverForm(id = null) {
-  let s = {};
-  if (id) {
-    const data = await load("/api/admin/servers","servers");
-    s = (data.servers || []).find(x=>x.id === id) || {};
-  }
-
-  openModal(id ? "ویرایش سرور" : "افزودن سرور",
-    formShell(
-      formField("نام سرور","name","text",s.name || "") +
-      formField("کشور","country","text",s.country || "",false) +
-      formField("شهر","city","text",s.city || "",false) +
-      formField("آدرس IP یا دامنه","host","text",s.host || "") +
-      formField("پورت","port","number",s.port || 443) +
-      formField("ظرفیت","capacity","number",s.capacity || 100) +
-      formSelect("پروتکل","protocol",[
-        ["vless","VLESS"],["vmess","VMess"],["trojan","Trojan"]
-      ]),
-      "ذخیره سرور","submitServer"
-    )
-  );
-}
-
-async function editServer(id) { serverForm(id); }
-
-async function submitServer(event) {
-  event.preventDefault();
-  const data = formValues(event);
-  data.port = Number(data.port);
-  data.capacity = Number(data.capacity);
-
-  try {
-    await api("/api/admin/servers",{method:"POST",body:data});
-    closeModal();toast("سرور ثبت شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function deleteServer(id) {
-  if (!confirm("سرور حذف شود؟")) return;
-  try {
-    await api("/api/admin/servers/"+id,{method:"DELETE"});
-    toast("سرور حذف شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-function planForm() {
-  openModal("ساخت پلن اشتراک",
-    formShell(
-      formField("نام پلن","name") +
-      formField("حجم به گیگابایت","volume_gb","number") +
-      formField("مدت به روز","duration_days","number") +
-      formField("تعداد دستگاه","device_limit","number") +
-      formField("قیمت به تومان","price","number"),
-      "ثبت پلن","submitPlan"
-    )
-  );
-}
-
-async function submitPlan(event) {
-  event.preventDefault();
-  const data = formValues(event);
-  for (const k of ["volume_gb","duration_days","device_limit","price"]) data[k] = Number(data[k]);
-
-  try {
-    await api("/api/admin/plans",{method:"POST",body:data});
-    closeModal();toast("پلن ایجاد شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function deletePlan(id) {
-  if (!confirm("این پلن حذف شود؟")) return;
-  try {
-    await api("/api/admin/plans/"+id,{method:"DELETE"});
-    toast("پلن حذف شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function subscriptionForm() {
-  const [usersData,plansData] = await Promise.all([
-    api("/api/admin/users"),api("/api/admin/plans")
-  ]);
-
-  const users = usersData.users || [];
-  const plans = plansData.plans || [];
-
-  openModal("ایجاد اشتراک",
-    formShell(
-      formSelect("کاربر","user_id",users.map(u=>[u.id,u.username])) +
-      formSelect("پلن","plan_id",plans.map(p=>[p.id,p.name])),
-      "ایجاد اشتراک","submitSubscription"
-    )
-  );
-}
-
-async function submitSubscription(event) {
-  event.preventDefault();
-  const data = formValues(event);
-  data.user_id = Number(data.user_id);
-  data.plan_id = Number(data.plan_id);
-
-  try {
-    await api("/api/admin/subscriptions",{method:"POST",body:data});
-    closeModal();toast("اشتراک ایجاد شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function editSubscription(id) {
-  const all = await api("/api/subscriptions");
-  const s = (all.subscriptions || []).find(x=>x.id === id);
-  if (!s) return toast("اشتراک پیدا نشد.");
-
-  openModal("ویرایش اشتراک",
-    formShell(
-      formSelect("وضعیت","status",[
-        ["active","فعال"],["suspended","تعلیق"],["expired","منقضی"],["cancelled","لغو"]
-      ]) +
-      formField("حجم GB","volume_gb","number",s.volume_gb) +
-      formField("تاریخ انقضا (Unix timestamp)","expires_at","number",s.expires_at),
-      "ذخیره تغییرات","submitSubscriptionEdit"
-    )
-  );
-  window.editingSubscriptionId = id;
-}
-
-async function submitSubscriptionEdit(event) {
-  event.preventDefault();
-  const data = formValues(event);
-  data.volume_gb = Number(data.volume_gb);
-  data.expires_at = Number(data.expires_at);
-
-  try {
-    await api("/api/admin/subscriptions/"+window.editingSubscriptionId,
-      {method:"PATCH",body:data});
-    closeModal();toast("اشتراک ویرایش شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function configForm() {
-  const [usersData,serversData,subsData] = await Promise.all([
-    api("/api/admin/users"),api("/api/admin/servers"),api("/api/subscriptions")
-  ]);
-
-  const users = usersData.users || [];
-  const servers = serversData.servers || [];
-  const subs = subsData.subscriptions || [];
-
-  openModal("ساخت کانفیگ",
-    `<div class="notice">این فرم کانفیگ را به‌صورت پیش‌نویس در دیتابیس ذخیره می‌کند. برای فعال‌سازی واقعی باید Node Agent نصب و متصل شود.</div>` +
-    formShell(
-      formSelect("کاربر","user_id",users.map(u=>[u.id,u.username])) +
-      formSelect("سرور","server_id",servers.map(s=>[s.id,s.name+" ("+s.status+")"])) +
-      formSelect("اشتراک","subscription_id",[
-        ["","بدون اشتراک"],
-        ...subs.map(s=>[s.id,"اشتراک #"+s.id+" - "+(s.username || "")])
-      ]) +
-      formField("نام کانفیگ","name") +
-      formSelect("پروتکل","protocol",[
-        ["vless","VLESS"],["vmess","VMess"],["trojan","Trojan"]
-      ]) +
-      formSelect("انتقال","transport",[
-        ["tcp","TCP"],["ws","WebSocket"],["grpc","gRPC"],["xhttp","XHTTP"]
-      ]) +
-      formSelect("امنیت","security",[
-        ["tls","TLS"],["reality","REALITY"],["none","بدون امنیت"]
-      ]),
-      "ثبت پیش‌نویس","submitConfig"
-    )
-  );
-}
-
-async function submitConfig(event) {
-  event.preventDefault();
-  const data = formValues(event);
-  data.user_id = Number(data.user_id);
-  data.server_id = Number(data.server_id);
-  data.subscription_id = data.subscription_id ? Number(data.subscription_id) : null;
-
-  try {
-    const result = await api("/api/admin/configs",{method:"POST",body:data});
-    closeModal();
-    toast("پیش‌نویس کانفیگ ثبت شد. شناسه: "+result.id);
-    renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function deleteConfig(id) {
-  if (!confirm("کانفیگ حذف شود؟")) return;
-  try {
-    await api("/api/admin/configs/"+id,{method:"DELETE"});
-    toast("کانفیگ حذف شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function updateUser(id,status) {
-  try {
-    await api("/api/admin/users/"+id,{method:"PATCH",body:{status}});
-    toast("وضعیت کاربر تغییر کرد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function deleteUser(id) {
-  if (!confirm("کاربر و اطلاعات وابسته او حذف شود؟")) return;
-  try {
-    await api("/api/admin/users/"+id,{method:"DELETE"});
-    toast("کاربر حذف شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-function paymentForm() {
-  openModal("ثبت درخواست پرداخت",
-    formShell(
-      formField("مبلغ به تومان","amount","number") +
-      formField("روش پرداخت","method","text","",false) +
-      formField("شناسه پیگیری","reference","text","",false),
-      "ثبت درخواست","submitPayment"
-    )
-  );
-}
-
-async function submitPayment(event) {
-  event.preventDefault();
-  const data = formValues(event);
-  data.amount = Number(data.amount);
-
-  try {
-    await api("/api/payments",{method:"POST",body:data});
-    closeModal();toast("درخواست پرداخت ثبت شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function updatePayment(id,status) {
-  if (status === "paid" && !confirm("آیا پرداخت را واقعاً بررسی و تأیید کرده‌ای؟")) return;
-  try {
-    await api("/api/admin/payments/"+id,{method:"PATCH",body:{status}});
-    toast("وضعیت پرداخت به‌روزرسانی شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-function ticketForm() {
-  openModal("ثبت تیکت پشتیبانی",
-    formShell(
-      formField("موضوع","subject") +
-      `<div class="field wide"><label>شرح درخواست</label>
-      <textarea name="message" required></textarea></div>`,
-      "ارسال تیکت","submitTicket"
-    )
-  );
-}
-
-async function submitTicket(event) {
-  event.preventDefault();
-  const data = formValues(event);
-
-  try {
-    await api("/api/tickets",{method:"POST",body:data});
-    closeModal();toast("تیکت ثبت شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-async function updateTicket(id) {
-  if (!confirm("این تیکت بسته شود؟")) return;
-  try {
-    await api("/api/admin/tickets/"+id,{
-      method:"PATCH",body:{status:"closed"}
-    });
-    toast("تیکت بسته شد.");renderPage();
-  } catch(e) { toast(e.message); }
-}
-
-startApp();
 </script>
 </body>
-</html>
+                                             </html>
