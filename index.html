@@ -1,330 +1,527 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#090817">
-<title>MHA.NET | پنل اینترنت آزاد</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090817" />
+  <title>MHA.NET | پنل اینترنت آزاد</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
-:root {
-  --bg:#090817;
-  --panel:#121027;
-  --panel2:#191533;
-  --purple:#842dff;
-  --red:#f04465;
-  --orange:#ff7547;
-  --text:#fff;
-  --muted:#aaa5c8;
-  --border:#30274e;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Vazirmatn',Tahoma,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-button,input{font-family:inherit} button{cursor:pointer}
-body:before{content:"";position:fixed;width:500px;height:500px;background:#7627ff;filter:blur(180px);opacity:.13;top:-220px;left:-180px;pointer-events:none}
-header{height:78px;padding:0 6%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:relative;z-index:2}
-.logo{display:flex;align-items:center;gap:10px}.lion{font-size:43px;filter:drop-shadow(0 0 12px #ff7547)}
-.logo-name{direction:ltr;font-size:25px;font-weight:800}.logo-name span{color:var(--orange)}
-.logo small{display:block;color:var(--muted);font-size:10px}
-.header-status{color:#70e6b3;font-size:12px}
-.container{max-width:1250px;margin:auto;padding:35px 5%;position:relative;z-index:1}
-.layout{display:grid;grid-template-columns:1fr 430px;gap:35px;align-items:center;min-height:calc(100vh - 140px)}
-.hero h1{font-size:clamp(30px,4vw,53px);line-height:1.7;margin-bottom:15px}
-.gradient{background:linear-gradient(90deg,#a66bff,#ff7547);-webkit-background-clip:text;color:transparent}
-.hero p{color:var(--muted);line-height:2.4;max-width:540px}
-.globe-area{height:270px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.globe{width:205px;height:205px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#75b9ff,#1743a3 45%,#050a28 85%);box-shadow:0 0 45px #376cff,0 0 100px #622aff}
-.orbit{position:absolute;width:320px;height:115px;border:2px solid #984dff;border-radius:50%;transform:rotate(-25deg)}
-.orbit.two{width:350px;height:150px;border-color:#35aaff;transform:rotate(25deg)}
-.features{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.feature{background:#15122c;border:1px solid var(--border);border-radius:14px;text-align:center;padding:17px 5px}
-.feature b{display:block;font-size:13px}.feature span{color:var(--muted);font-size:10px}
-.card{background:linear-gradient(145deg,#17132e,#0d0b1d);border:1px solid #44346c;border-radius:23px;padding:30px;box-shadow:0 15px 60px #0006;position:relative;overflow:hidden}
-.card:before{content:"";position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--red),var(--orange))}
-.auth-logo{text-align:center;margin-bottom:22px}.auth-logo .lion{font-size:48px}.auth-logo h2{direction:ltr;font-size:25px}.auth-logo h2 span{color:var(--orange)}.auth-logo p{font-size:11px;color:var(--muted)}
-h2.title{text-align:center;font-size:22px;margin-bottom:8px}.subtitle{text-align:center;color:var(--muted);font-size:12px;margin-bottom:22px}
-.tabs{display:flex;padding:5px;background:#0b091a;border:1px solid var(--border);border-radius:12px;margin-bottom:20px}
-.tab{flex:1;padding:11px;border:0;border-radius:9px;background:transparent;color:var(--muted)}
-.tab.active{color:white;background:linear-gradient(100deg,var(--purple),var(--red))}
-.field{margin-bottom:15px}.field label{display:block;font-size:12px;margin-bottom:8px;color:#ddd8f2}
-.field input{width:100%;padding:14px;border:1px solid #3b315f;border-radius:11px;background:#0a0919;color:white;outline:none;font-size:14px}
-.field input:focus{border-color:#a35aff;box-shadow:0 0 0 3px #883cff22}.field input::placeholder{color:#716b91}
-.password-box{position:relative}.password-box input{padding-left:48px}.eye{position:absolute;left:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#aaa}
-.submit{width:100%;padding:15px;border:0;border-radius:12px;margin-top:8px;color:white;font-weight:700;font-size:14px;background:linear-gradient(100deg,var(--purple),var(--red),var(--orange));box-shadow:0 7px 25px #842dff44}.submit:disabled{opacity:.6;cursor:wait}
-.notice{display:none;padding:12px;border-radius:10px;font-size:12px;margin-bottom:15px;line-height:1.9}.notice.error{display:block;background:#641d3266;border:1px solid #e34b6c;color:#ff9bad}.notice.success{display:block;background:#155b4566;border:1px solid #2bbf91;color:#7af0c3}
-.switch{text-align:center;color:var(--muted);font-size:12px;margin-top:20px}.switch a{color:#bb91ff;cursor:pointer;font-weight:bold}.terms{text-align:center;color:#77718f;font-size:10px;margin-top:20px;line-height:2}.footer{text-align:center;color:#77718f;font-size:11px;padding:20px;border-top:1px solid var(--border)}
-#dashboard{display:none}.dashboard-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;margin-bottom:25px}.dashboard-head h1{font-size:25px}.dashboard-head p{font-size:12px;color:var(--muted)}
-.logout{background:#481d34;border:1px solid #a83b60;color:#ffb4c7;border-radius:10px;padding:10px 18px}.welcome{background:linear-gradient(110deg,#32145f,#5a1d49);border:1px solid #75418b;padding:25px;border-radius:18px;margin-bottom:22px}.welcome h2{font-size:21px;margin-bottom:8px}.welcome p{font-size:12px;color:#e1d5f3}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}.stat{padding:20px;background:var(--panel);border:1px solid var(--border);border-radius:15px}.stat span{display:block;color:var(--muted);font-size:11px}.stat strong{display:block;margin-top:9px;font-size:17px}.section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:15px}.section h3{font-size:16px;margin-bottom:12px}.section p{font-size:12px;color:var(--muted);line-height:2.2}.menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:15px}.menu-item{border:1px solid var(--border);background:#19142e;color:white;padding:15px;border-radius:12px;text-align:right}.menu-item span{display:block;color:var(--muted);font-size:10px;margin-top:5px}
-@media(max-width:850px){.layout{grid-template-columns:1fr;gap:20px}.hero{text-align:center}.hero p{margin:auto}.globe-area{height:220px}.globe{width:170px;height:170px}.card{max-width:520px;margin:auto;width:100%}}
-@media(max-width:550px){header{height:68px;padding:0 17px}.lion{font-size:34px}.logo-name{font-size:21px}.container{padding:22px 15px}.hero h1{font-size:29px}.hero p{font-size:12px}.features{gap:5px}.feature{padding:12px 3px}.feature b{font-size:11px}.feature span{font-size:9px}.card{padding:23px 18px}.stats{grid-template-columns:1fr}}
-</style>
+    :root {
+      --bg: #090817;
+      --panel: #121027;
+      --panel2: #191533;
+      --purple: #842dff;
+      --red: #f04465;
+      --orange: #ff7547;
+      --text: #fff;
+      --muted: #aaa5c8;
+      --border: #30274e;
+      --green: #65e6ae;
+      --shadow: rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Vazirmatn', Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      direction: rtl;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      background: #7627ff;
+      filter: blur(180px);
+      opacity: .13;
+      top: -220px;
+      left: -180px;
+      pointer-events: none;
+    }
+
+    a { text-decoration: none; }
+    button, input {
+      font-family: inherit;
+    }
+    button { cursor: pointer; }
+
+    header {
+      height: 78px;
+      padding: 0 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 2;
+      background: rgba(9, 8, 23, 0.72);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lion { font-size: 43px; filter: drop-shadow(0 0 12px #ff7547); }
+    .logo-name {
+      direction: ltr;
+      font-size: 25px;
+      font-weight: 800;
+    }
+    .logo-name span { color: var(--orange); }
+    .logo small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lang-toggle {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .header-status {
+      color: #70e6b3;
+      font-size: 12px;
+    }
+
+    .container {
+      max-width: 1250px;
+      margin: auto;
+      padding: 35px 5%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 430px;
+      gap: 35px;
+      align-items: center;
+      min-height: calc(100vh - 140px);
+    }
+
+    .hero h1 {
+      font-size: clamp(30px, 4vw, 53px);
+      line-height: 1.7;
+      margin-bottom: 15px;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, #a66bff, #ff7547);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      line-height: 2.4;
+      max-width: 540px;
+    }
+
+    .globe-area {
+      height: 270px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .globe {
+      width: 205px;
+      height: 205px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #75b9ff, #1743a3 45%, #050a28 85%);
+      box-shadow: 0 0 45px #376cff, 0 0 100px #622aff;
+    }
+
+    .orbit {
+      position: absolute;
+      width: 320px;
+      height: 115px;
+      border: 2px solid #984dff;
+      border-radius: 50%;
+      transform: rotate(-25deg);
+    }
+
+    .orbit.two {
+      width: 350px;
+      height: 150px;
+      border-color: #35aaff;
+      transform: rotate(25deg);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .feature {
+      background: #15122c;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-align: center;
+      padding: 17px 5px;
+    }
+
+    .feature b { display: block; font-size: 13px; }
+    .feature span { color: var(--muted); font-size: 10px; }
+
+    .card {
+      background: linear-gradient(145deg, #17132e, #0d0b1d);
+      border: 1px solid #44346c;
+      border-radius: 23px;
+      padding: 30px;
+      box-shadow: 0 15px 60px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0; right: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--purple), var(--red), var(--orange));
+    }
+
+    .auth-logo { text-align: center; margin-bottom: 22px; }
+    .auth-logo .lion { font-size: 48px; }
+    .auth-logo h2 { direction: ltr; font-size: 25px; }
+    .auth-logo h2 span { color: var(--orange); }
+    .auth-logo p { font-size: 11px; color: var(--muted); }
+
+    h2.title {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 22px;
+    }
+
+    .tabs {
+      display: flex;
+      padding: 5px;
+      background: #0b091a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 11px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .tab.active {
+      color: white;
+      background: linear-gradient(100deg, var(--purple), var(--red));
+    }
+
+    .field { margin-bottom: 15px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 8px;
+      color: #ddd8f2;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #3b315f;
+      border-radius: 11px;
+      background: #0a0919;
+      color: white;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .field input:focus {
+      border-color: #a35aff;
+      box-shadow: 0 0 0 3px #883cff22;
+    }
+
+    .field input::placeholder { color: #716b91; }
+
+    .password-box { position: relative; }
+    .password-box input { padding-left: 48px; }
+    .eye {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #aaa;
+    }
+
+    .submit {
+      width: 100%;
+      padding: 15px;
+      border: 0;
+      border-radius: 12px;
+      margin-top: 8px;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      background: linear-gradient(100deg, var(--purple), var(--red), var(--orange));
+      box-shadow: 0 7px 25px rgba(132, 45, 255, 0.25);
+    }
+
+    .submit:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .notice {
+      display: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      margin-bottom: 15px;
+      line-height: 1.9;
+    }
+
+    .notice.error {
+      display: block;
+      background: rgba(100, 29, 50, 0.5);
+      border: 1px solid #e34b6c;
+      color: #ff9bad;
+    }
+
+    .notice.success {
+      display: block;
+      background: rgba(21, 91, 69, 0.5);
+      border: 1px solid #2bbf91;
+      color: #7af0c3;
+    }
+
+    .switch {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 20px;
+    }
+
+    .switch a {
+      color: #bb91ff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .terms {
+      text-align: center;
+      color: #77718f;
+      font-size: 10px;
+      margin-top: 20px;
+      line-height: 2;
+    }
+
+    .footer {
+      text-align: center;
+      color: #77718f;
+      font-size: 11px;
+      padding: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    #dashboard { display: none; }
+
+    .dashboard-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .dashboard-head h1 { font-size: 25px; }
+    .dashboard-head p { font-size: 12px; color: var(--muted); }
+
+    .logout {
+      background: #481d34;
+      border: 1px solid #a83b60;
+      color: #ffb4c7;
+      border-radius: 10px;
+      padding: 10px 18px;
+    }
+
+    .welcome {
+      background: linear-gradient(110deg, #32145f, #5a1d49);
+      border: 1px solid #75418b;
+      padding: 25px;
+      border-radius: 18px;
+      margin-bottom: 22px;
+    }
+
+    .welcome h2 { font-size: 21px; margin-bottom: 8px; }
+    .welcome p { font-size: 12px; color: #e1d5f3; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .stat {
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 9px;
+      font-size: 17px;
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 15px;
+    }
+
+    .section h3 { font-size: 16px; margin-bottom: 12px; }
+    .section p { font-size: 12px; color: var(--muted); line-height: 2.2; }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .menu-item {
+      border: 1px solid var(--border);
+      background: #19142e;
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: right;
+    }
+
+    .menu-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    .support-btn {
+      position: fixed;
+      left: 24px;
+      bottom: 24px;
+      z-index: 20;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #842dff, #ff7547);
+      color: white;
+      font-size: 28px;
+      box-shadow: 0 12px 28px rgba(132, 45, 255, 0.45);
+      cursor: pointer;
+    }
+
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: 1fr; gap: 20px; }
+      .hero { text-align: center; }
+      .hero p { margin: auto; }
+      .globe-area { height: 220px; }
+      .globe { width: 170px; height: 170px; }
+      .card { max-width: 520px; margin: auto; width: 100%; }
+    }
+
+    @media (max-width: 550px) {
+      header { height: 68px; padding: 0 17px; }
+      .lion { font-size: 34px; }
+      .logo-name { font-size: 21px; }
+      .container { padding: 22px 15px; }
+      .hero h1 { font-size: 29px; }
+      .hero p { font-size: 12px; }
+      .features { gap: 5px; }
+      .feature { padding: 12px 3px; }
+      .feature b { font-size: 11px; }
+      .feature span { font-size: 9px; }
+      .card { padding: 23px 18px; }
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-<header>
-  <div class="logo">
-    <div class="lion">🦁</div>
-    <div>
-      <div class="logo-name">MHA<span>.NET</span></div>
-      <small>Freedom in Your Hands</small>
-    </div>
-  </div>
-  <div class="header-status">● سیستم پنل</div>
-</header>
-
-<main class="container">
-  <section id="authSection" class="layout">
-    <div class="hero">
-      <h1>به <span class="gradient">دنیای بدون مرز</span><br>با MHA.NET خوش آمدید</h1>
-      <p>تجربه‌ای متفاوت از اینترنت جهانی، با مدیریت ساده حساب کاربری و دسترسی به خدمات MHA.NET.</p>
-      <div class="globe-area">
-        <div class="orbit"></div>
-        <div class="orbit two"></div>
-        <div class="globe"></div>
-      </div>
-      <div class="features">
-        <div class="feature">🛡️<b>امنیت</b><span>حفاظت حساب</span></div>
-        <div class="feature">🌐<b>دسترسی جهانی</b><span>شبکه جهانی</span></div>
-        <div class="feature">⚡<b>سرعت</b><span>تجربه روان</span></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="auth-logo">
-        <div class="lion">🦁</div>
-        <h2>MHA<span>.NET</span></h2>
-        <p>Freedom in Your Hands</p>
-      </div>
-
-      <h2 class="title" id="formTitle">ساخت حساب کاربری</h2>
-      <p class="subtitle" id="formSubtitle">برای استفاده از امکانات، حساب خود را بسازید.</p>
-
-      <div class="tabs">
-        <button class="tab active" id="registerTab" type="button" onclick="setMode('register')">ثبت‌نام</button>
-        <button class="tab" id="loginTab" type="button" onclick="setMode('login')">ورود</button>
-      </div>
-
-      <div id="notice" class="notice"></div>
-
-      <form id="authForm">
-        <div class="field">
-          <label for="username">نام کاربری</label>
-          <input id="username" type="text" minlength="3" maxlength="32" placeholder="نام کاربری انگلیسی" autocomplete="username" required>
-        </div>
-
-        <div class="field">
-          <label for="password">رمز عبور</label>
-          <div class="password-box">
-            <input id="password" type="password" minlength="8" maxlength="128" placeholder="حداقل ۸ کاراکتر" autocomplete="new-password" required>
-            <span class="eye" onclick="togglePassword('password',this)">👁</span>
-          </div>
-        </div>
-
-        <div class="field" id="confirmField">
-          <label for="confirmPassword">تکرار رمز عبور</label>
-          <div class="password-box">
-            <input id="confirmPassword" type="password" minlength="8" placeholder="رمز عبور را دوباره وارد کنید" autocomplete="new-password" required>
-            <span class="eye" onclick="togglePassword('confirmPassword',this)">👁</span>
-          </div>
-        </div>
-
-        <button type="submit" class="submit" id="submitBtn">ثبت‌نام در MHA.NET</button>
-      </form>
-
-      <div class="switch" id="switchText">قبلاً حساب دارید؟ <a onclick="setMode('login')">وارد شوید</a></div>
-      <div class="terms">با ثبت‌نام، شرایط استفاده از خدمات MHA.NET را می‌پذیرید.</div>
-    </div>
-  </section>
-
-  <section id="dashboard">
-    <div class="dashboard-head">
+  <header>
+    <div class="logo">
+      <div class="lion">🦁</div>
       <div>
-        <h1>پنل MHA.NET</h1>
-        <p>مدیریت حساب کاربری شما</p>
-      </div>
-      <button class="logout" onclick="logout()">خروج از حساب</button>
-    </div>
-
-    <div class="welcome">
-      <h2>خوش آمدی <span id="welcomeName"></span> 🦁</h2>
-      <p>به پنل MHA.NET خوش آمدید. حساب شما با موفقیت وارد شده است.</p>
-    </div>
-
-    <div class="stats">
-      <div class="stat"><span>وضعیت حساب</span><strong style="color:#65e6ae">فعال</strong></div>
-      <div class="stat"><span>نام کاربری</span><strong id="dashUsername">---</strong></div>
-      <div class="stat"><span>سطح دسترسی</span><strong id="dashRole">کاربر</strong></div>
-    </div>
-
-    <div class="section">
-      <h3>خدمات MHA.NET</h3>
-      <p>بخش‌های مدیریت سرور، کانفیگ، اشتراک و مصرف در مراحل بعدی به بک‌اند مدیریتی متصل خواهند شد.</p>
-      <div class="menu-grid">
-        <div class="menu-item">🌐 سرورها<span>مدیریت سرورها در مرحله بعد</span></div>
-        <div class="menu-item">🔐 کانفیگ‌ها<span>مدیریت کانفیگ در مرحله بعد</span></div>
-        <div class="menu-item">📦 اشتراک‌ها<span>مدیریت اشتراک در مرحله بعد</span></div>
-        <div class="menu-item">📊 مصرف اینترنت<span>گزارش مصرف در مرحله بعد</span></div>
+        <div class="logo-name">MHA<span>.NET</span></div>
+        <small id="headerTagline">Freedom in Your Hands</small>
       </div>
     </div>
-  </section>
-</main>
 
-<footer class="footer">© 2026 MHA.NET — Freedom in Your Hands</footer>
+    <div class="header-right">
+      <button class="lang-toggle" id="langToggle" type="button">FA / EN</button>
+      <div class="header-status" id="headerStatus">● سیستم پنل</div>
+    </div>
+  </header>
 
-<script>
-const API_BASE = "https://my-vless-panell.hadiabdoli20088.workers.dev";
-let currentMode = "register";
+  <main class="container">
+    <section id="authSection" class="layout">
+      <div class="hero">
+        <h1 id="heroTitle">به <span class="gradient">دنیای بدون مرز</span><br>با MHA.NET خوش آمدید</h1>
+        <p id="heroText">
+          تجربه‌ای متفاوت از اینترنت جهانی، با مدیریت ساده حساب کاربری
+          و دسترسی به خدمات MHA.NET.
+        </p>
 
-const form = document.getElementById("authForm");
-const username = document.getElementById("username");
-const password = document.getElementById("password");
-const confirmPassword = document.getElementById("confirmPassword");
-const confirmField = document.getElementById("confirmField");
-const notice = document.getElementById("notice");
-const submitBtn = document.getElementById("submitBtn");
+        <div class="globe-area">
+          <div class="orbit"></div>
+          <div class="orbit two"></div>
+          <div class="globe"></div>
+        </div>
 
-function showMessage(message, type) {
-  notice.textContent = message;
-  notice.className = "notice " + type;
-}
-
-function clearMessage() {
-  notice.textContent = "";
-  notice.className = "notice";
-}
-
-function setMode(mode) {
-  currentMode = mode;
-  clearMessage();
-
-  const register = mode === "register";
-  document.getElementById("registerTab").classList.toggle("active", register);
-  document.getElementById("loginTab").classList.toggle("active", !register);
-  document.getElementById("formTitle").textContent = register ? "ساخت حساب کاربری" : "ورود به حساب کاربری";
-  document.getElementById("formSubtitle").textContent = register ? "برای استفاده از امکانات، حساب خود را بسازید." : "نام کاربری و رمز عبور خود را وارد کنید.";
-  submitBtn.textContent = register ? "ثبت‌نام در MHA.NET" : "ورود به حساب";
-  document.getElementById("switchText").innerHTML = register ? 'قبلاً حساب دارید؟ <a onclick="setMode(\'login\')">وارد شوید</a>' : 'حساب ندارید؟ <a onclick="setMode(\'register\')">ثبت‌نام کنید</a>';
-  confirmField.style.display = register ? "block" : "none";
-  confirmPassword.required = register;
-  password.autocomplete = register ? "new-password" : "current-password";
-}
-
-function togglePassword(id, element) {
-  const input = document.getElementById(id);
-  input.type = input.type === "password" ? "text" : "password";
-  element.textContent = input.type === "password" ? "👁" : "🙈";
-}
-
-function showDashboard(user) {
-  document.getElementById("authSection").style.display = "none";
-  document.getElementById("dashboard").style.display = "block";
-  document.getElementById("welcomeName").textContent = user.username;
-  document.getElementById("dashUsername").textContent = user.username;
-  document.getElementById("dashRole").textContent = user.role === "admin" ? "مدیر" : "کاربر";
-}
-
-async function checkSession() {
-  const token = localStorage.getItem("mha_token");
-  if (!token) return;
-
-  try {
-    const result = await fetch(API_BASE + "/api/me", {
-      method: "GET",
-      headers: { Authorization: "Bearer " + token },
-      credentials: "include"
-    });
-
-    const data = await result.json().catch(() => ({}));
-    if (result.ok && data && data.user) {
-      showDashboard(data.user);
-    } else {
-      localStorage.removeItem("mha_token");
-    }
-  } catch (error) {
-    console.error("Session check failed:", error);
-  }
-}
-
-form.addEventListener("submit", async function(event) {
-  event.preventDefault();
-
-  const user = username.value.trim().toLowerCase();
-  const pass = password.value;
-
-  if (!/^[a-z0-9_.@+-]{3,32}$/.test(user)) {
-    showMessage("نام کاربری باید ۳ تا ۳۲ کاراکتر انگلیسی یا عدد باشد.", "error");
-    return;
-  }
-
-  if (pass.length < 8 || pass.length > 128) {
-    showMessage("رمز عبور باید حداقل ۸ و حداکثر ۱۲۸ کاراکتر باشد.", "error");
-    return;
-  }
-
-  if (currentMode === "register" && pass !== confirmPassword.value) {
-    showMessage("تکرار رمز عبور با رمز اصلی یکسان نیست.", "error");
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = "لطفاً صبر کنید...";
-  clearMessage();
-
-  try {
-    const endpoint = currentMode === "register" ? "/api/auth/register" : "/api/auth/login";
-    const result = await fetch(API_BASE + endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ username: user, password: pass })
-    });
-
-    const data = await result.json().catch(() => ({}));
-
-    if (!result.ok || !data || (!data.user && !data.token)) {
-      showMessage(data.message || "عملیات انجام نشد.", "error");
-      return;
-    }
-
-    if (!data.token || !data.user) {
-      showMessage("پاسخ سرور ناقص است. Worker یا CORS را بررسی کنید.", "error");
-      return;
-    }
-
-    localStorage.setItem("mha_token", data.token);
-    form.reset();
-    showDashboard(data.user);
-  } catch (error) {
-    console.error("Authentication error:", error);
-    showMessage("ارتباط با سرور برقرار نشد. آدرس Worker و تنظیمات CORS را بررسی کنید.", "error");
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = currentMode === "register" ? "ثبت‌نام در MHA.NET" : "ورود به حساب";
-  }
-});
-
-async function logout() {
-  const token = localStorage.getItem("mha_token");
-
-  try {
-    if (token) {
-      await fetch(API_BASE + "/api/auth/logout", {
-        method: "POST",
-        headers: { Authorization: "Bearer " + token },
-        credentials: "include"
-      });
-    }
-  } catch (error) {
-    console.error("Logout request failed:", error);
-  }
-
-  localStorage.removeItem("mha_token");
-  document.getElementById("dashboard").style.display = "none";
-  document.getElementById("authSection").style.display = "grid";
-  setMode("login");
-}
-
-checkSession();
-</script>
-</body>
-</html>
+        <div class="features">
+          <div class="feature">*
+
