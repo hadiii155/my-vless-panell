@@ -19,11 +19,11 @@
       --muted: #aaa5c8;
       --border: #30274e;
       --green: #65e6ae;
-      --shadow: rgba(0,0,0,0.35);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
+
     body {
       font-family: 'Vazirmatn', Tahoma, sans-serif;
       background: var(--bg);
@@ -46,9 +46,7 @@
     }
 
     a { text-decoration: none; }
-    button, input {
-      font-family: inherit;
-    }
+    button, input { font-family: inherit; }
     button { cursor: pointer; }
 
     header {
@@ -58,30 +56,17 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border);
+      background: rgba(9,8,23,0.72);
+      backdrop-filter: blur(10px);
       position: relative;
       z-index: 2;
-      background: rgba(9, 8, 23, 0.72);
-      backdrop-filter: blur(10px);
     }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    .logo { display: flex; align-items: center; gap: 10px; }
     .lion { font-size: 43px; filter: drop-shadow(0 0 12px #ff7547); }
-    .logo-name {
-      direction: ltr;
-      font-size: 25px;
-      font-weight: 800;
-    }
+    .logo-name { direction: ltr; font-size: 25px; font-weight: 800; }
     .logo-name span { color: var(--orange); }
-    .logo small {
-      display: block;
-      color: var(--muted);
-      font-size: 10px;
-    }
+    .logo small { display: block; color: var(--muted); font-size: 10px; }
 
     .header-right {
       display: flex;
@@ -99,10 +84,7 @@
       cursor: pointer;
     }
 
-    .header-status {
-      color: #70e6b3;
-      font-size: 12px;
-    }
+    .header-status { color: #70e6b3; font-size: 12px; }
 
     .container {
       max-width: 1250px;
@@ -121,13 +103,13 @@
     }
 
     .hero h1 {
-      font-size: clamp(30px, 4vw, 53px);
+      font-size: clamp(30px,4vw,53px);
       line-height: 1.7;
       margin-bottom: 15px;
     }
 
     .gradient {
-      background: linear-gradient(90deg, #a66bff, #ff7547);
+      background: linear-gradient(90deg,#a66bff,#ff7547);
       -webkit-background-clip: text;
       color: transparent;
     }
@@ -189,7 +171,7 @@
     .feature span { color: var(--muted); font-size: 10px; }
 
     .card {
-      background: linear-gradient(145deg, #17132e, #0d0b1d);
+      background: linear-gradient(145deg,#17132e,#0d0b1d);
       border: 1px solid #44346c;
       border-radius: 23px;
       padding: 30px;
@@ -203,7 +185,7 @@
       position: absolute;
       top: 0; right: 0; left: 0;
       height: 3px;
-      background: linear-gradient(90deg, var(--purple), var(--red), var(--orange));
+      background: linear-gradient(90deg,var(--purple),var(--red),var(--orange));
     }
 
     .auth-logo { text-align: center; margin-bottom: 22px; }
@@ -247,7 +229,7 @@
 
     .tab.active {
       color: white;
-      background: linear-gradient(100deg, var(--purple), var(--red));
+      background: linear-gradient(100deg,var(--purple),var(--red));
     }
 
     .field { margin-bottom: 15px; }
@@ -296,14 +278,11 @@
       color: white;
       font-weight: 700;
       font-size: 14px;
-      background: linear-gradient(100deg, var(--purple), var(--red), var(--orange));
+      background: linear-gradient(100deg,var(--purple),var(--red),var(--orange));
       box-shadow: 0 7px 25px rgba(132, 45, 255, 0.25);
     }
 
-    .submit:disabled {
-      opacity: 0.6;
-      cursor: wait;
-    }
+    .submit:disabled { opacity: 0.6; cursor: wait; }
 
     .notice {
       display: none;
@@ -316,14 +295,14 @@
 
     .notice.error {
       display: block;
-      background: rgba(100, 29, 50, 0.5);
+      background: rgba(100,29,50,0.5);
       border: 1px solid #e34b6c;
       color: #ff9bad;
     }
 
     .notice.success {
       display: block;
-      background: rgba(21, 91, 69, 0.5);
+      background: rgba(21,91,69,0.5);
       border: 1px solid #2bbf91;
       color: #7af0c3;
     }
@@ -380,7 +359,7 @@
     }
 
     .welcome {
-      background: linear-gradient(110deg, #32145f, #5a1d49);
+      background: linear-gradient(110deg,#32145f,#5a1d49);
       border: 1px solid #75418b;
       padding: 25px;
       border-radius: 18px;
@@ -392,7 +371,7 @@
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3,1fr);
       gap: 14px;
       margin-bottom: 22px;
     }
@@ -429,7 +408,7 @@
 
     .menu-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2,1fr);
       gap: 12px;
       margin-top: 15px;
     }
@@ -459,10 +438,10 @@
       height: 52px;
       border-radius: 50%;
       border: none;
-      background: linear-gradient(135deg, #842dff, #ff7547);
+      background: linear-gradient(135deg,#842dff,#ff7547);
       color: white;
       font-size: 28px;
-      box-shadow: 0 12px 28px rgba(132, 45, 255, 0.45);
+      box-shadow: 0 12px 28px rgba(132,45,255,0.45);
       cursor: pointer;
     }
 
@@ -511,10 +490,7 @@
     <section id="authSection" class="layout">
       <div class="hero">
         <h1 id="heroTitle">به <span class="gradient">دنیای بدون مرز</span><br>با MHA.NET خوش آمدید</h1>
-        <p id="heroText">
-          تجربه‌ای متفاوت از اینترنت جهانی، با مدیریت ساده حساب کاربری
-          و دسترسی به خدمات MHA.NET.
-        </p>
+        <p id="heroText">تجربه‌ای متفاوت از اینترنت جهانی، با مدیریت ساده حساب کاربری و دسترسی به خدمات MHA.NET.</p>
 
         <div class="globe-area">
           <div class="orbit"></div>
@@ -523,5 +499,361 @@
         </div>
 
         <div class="features">
-          <div class="feature">*
-
+          <div class="feature">🛡️<b id="featureSecurity">امنیت</b><span id="featureSecuritySub">حفاظت حساب</span></div>
+          <div class="feature">🌐<b id="featureAccess">دسترسی جهانی</b><span id="featureAccessSub">شبکه جهانی</span></div>
+          <div class="feature">⚡<b id="featureSpeed">سرعت</b><span id="featureSpeedSub">تجربه روان</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="auth-logo">
+          <div class="lion">🦁</div>
+          <h2>MHA<span>.NET</span></h2>
+          <p id="brandTagline">Freedom in Your Hands</p>
+        </div>
+
+        <h2 class="title" id="formTitle">ساخت حساب کاربری</h2>
+        <p class="subtitle" id="formSubtitle">برای استفاده از امکانات، حساب خود را بسازید.</p>
+
+        <div class="tabs">
+          <button class="tab active" id="registerTab" type="button" onclick="setMode('register')">ثبت‌نام</button>
+          <button class="tab" id="loginTab" type="button" onclick="setMode('login')">ورود</button>
+        </div>
+
+        <div id="notice" class="notice"></div>
+
+        <form id="authForm">
+          <div class="field">
+            <label for="username" id="labelUsername">نام کاربری</label>
+            <input id="username" type="text" minlength="3" maxlength="32" placeholder="نام کاربری انگلیسی" autocomplete="username" required />
+          </div>
+
+          <div class="field">
+            <label for="password" id="labelPassword">رمز عبور</label>
+            <div class="password-box">
+              <input id="password" type="password" minlength="8" maxlength="128" placeholder="حداقل ۸ کاراکتر" autocomplete="new-password" required />
+              <span class="eye" onclick="togglePassword('password', this)">👁</span>
+            </div>
+          </div>
+
+          <div class="field" id="confirmField">
+            <label for="confirmPassword" id="labelConfirmPassword">تکرار رمز عبور</label>
+            <div class="password-box">
+              <input id="confirmPassword" type="password" minlength="8" placeholder="رمز عبور را دوباره وارد کنید" autocomplete="new-password" required />
+              <span class="eye" onclick="togglePassword('confirmPassword', this)">👁</span>
+            </div>
+          </div>
+
+          <button type="submit" class="submit" id="submitBtn">ثبت‌نام در MHA.NET</button>
+        </form>
+
+        <div class="switch" id="switchText">قبلاً حساب دارید؟ <a onclick="setMode('login')">وارد شوید</a></div>
+        <div class="terms" id="termsText">با ثبت‌نام، شرایط استفاده از خدمات MHA.NET را می‌پذیرید.</div>
+      </div>
+    </section>
+
+    <section id="dashboard">
+      <div class="dashboard-head">
+        <div>
+          <h1 id="dashTitle">پنل MHA.NET</h1>
+          <p id="dashSubtitle">مدیریت حساب کاربری شما</p>
+        </div>
+
+        <button class="logout" onclick="logout()">خروج از حساب</button>
+      </div>
+
+      <div class="welcome">
+        <h2>خوش آمدی <span id="welcomeName"></span> 🦁</h2>
+        <p id="welcomeText">به پنل MHA.NET خوش آمدید. حساب شما با موفقیت وارد شده است.</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span id="statStatus">وضعیت حساب</span><strong id="statusValue" style="color:#65e6ae">فعال</strong></div>
+        <div class="stat"><span id="statUsername">نام کاربری</span><strong id="dashUsername">---</strong></div>
+        <div class="stat"><span id="statAccess">سطح دسترسی</span><strong id="dashRole">کاربر</strong></div>
+      </div>
+
+      <div class="section">
+        <h3 id="serviceTitle">خدمات MHA.NET</h3>
+        <p id="serviceText">بخش‌های مدیریت سرور، کانفیگ، اشتراک و مصرف در مراحل بعدی به بک‌اند مدیریتی متصل خواهند شد.</p>
+
+        <div class="menu-grid">
+          <div class="menu-item">🌐 <span id="serverItem">سرورها</span><span id="serverItemSub">مدیریت سرورها در مرحله بعد</span></div>
+          <div class="menu-item">🔐 <span id="configItem">کانفیگ‌ها</span><span id="configItemSub">مدیریت کانفیگ در مرحله بعد</span></div>
+          <div class="menu-item">📦 <span id="subscriptionItem">اشتراک‌ها</span><span id="subscriptionItemSub">مدیریت اشتراک در مرحله بعد</span></div>
+          <div class="menu-item">📊 <span id="usageItem">مصرف اینترنت</span><span id="usageItemSub">گزارش مصرف در مرحله بعد</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="footerText">© 2026 MHA.NET — Freedom in Your Hands</footer>
+
+  <button class="support-btn" type="button" onclick="supportOpen()" title="پشتیبانی">✈</button>
+
+  <script>
+    const API_BASE = "https://my-vless-panell.hadiabdoli20088.workers.dev";
+
+    let currentMode = "register";
+    let language = "fa";
+
+    const form = document.getElementById("authForm");
+    const username = document.getElementById("username");
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const confirmField = document.getElementById("confirmField");
+    const notice = document.getElementById("notice");
+    const submitBtn = document.getElementById("submitBtn");
+    const langToggle = document.getElementById("langToggle");
+
+    function supportOpen() {
+      window.open("https://t.me/m_hadiii46333", "_blank", "noopener");
+    }
+
+    function setLanguage(lang) {
+      language = lang;
+      const isFa = lang === "fa";
+
+      document.documentElement.lang = isFa ? "fa" : "en";
+      document.documentElement.dir = isFa ? "rtl" : "ltr";
+
+      document.getElementById("headerTagline").textContent = "Freedom in Your Hands";
+      document.getElementById("headerStatus").textContent = isFa ? "● سیستم پنل" : "● Panel system";
+
+      document.getElementById("heroTitle").innerHTML = isFa
+        ? 'به <span class="gradient">دنیای بدون مرز</span><br>با MHA.NET خوش آمدید'
+        : 'Welcome to <span class="gradient">the world without borders</span><br>with MHA.NET';
+
+      document.getElementById("heroText").textContent = isFa
+        ? "تجربه‌ای متفاوت از اینترنت جهانی، با مدیریت ساده حساب کاربری و دسترسی به خدمات MHA.NET."
+        : "A different experience of the global internet with simple account management and access to MHA.NET services.";
+
+      document.getElementById("featureSecurity").textContent = isFa ? "امنیت" : "Security";
+      document.getElementById("featureSecuritySub").textContent = isFa ? "حفاظت حساب" : "Account protection";
+      document.getElementById("featureAccess").textContent = isFa ? "دسترسی جهانی" : "Global access";
+      document.getElementById("featureAccessSub").textContent = isFa ? "شبکه جهانی" : "Global network";
+      document.getElementById("featureSpeed").textContent = isFa ? "سرعت" : "Speed";
+      document.getElementById("featureSpeedSub").textContent = isFa ? "تجربه روان" : "Smooth experience";
+
+      document.getElementById("formTitle").textContent = isFa ? "ساخت حساب کاربری" : "Create account";
+      document.getElementById("formSubtitle").textContent = isFa
+        ? "برای استفاده از امکانات، حساب خود را بسازید."
+        : "Create your account to use the features.";
+
+      document.getElementById("submitBtn").textContent = isFa ? "ثبت‌نام در MHA.NET" : "Sign up for MHA.NET";
+      document.getElementById("switchText").innerHTML = isFa
+        ? 'قبلاً حساب دارید؟ <a onclick=\"setMode(\\'login\\')\">وارد شوید</a>'
+        : 'Already have an account? <a onclick=\"setMode(\\'login\\')\">Log in</a>';
+
+      document.getElementById("termsText").textContent = isFa
+        ? "با ثبت‌نام، شرایط استفاده از خدمات MHA.NET را می‌پذیرید."
+        : "By signing up, you accept the terms of MHA.NET services.";
+
+      document.getElementById("dashTitle").textContent = isFa ? "پنل MHA.NET" : "MHA.NET Panel";
+      document.getElementById("dashSubtitle").textContent = isFa ? "مدیریت حساب کاربری شما" : "Manage your account";
+      document.getElementById("welcomeText").textContent = isFa
+        ? "به پنل MHA.NET خوش آمدید. حساب شما با موفقیت وارد شده است."
+        : "Welcome to the MHA.NET panel. Your account has been successfully logged in.";
+
+      document.getElementById("statStatus").textContent = isFa ? "وضعیت حساب" : "Account status";
+      document.getElementById("statUsername").textContent = isFa ? "نام کاربری" : "Username";
+      document.getElementById("statAccess").textContent = isFa ? "سطح دسترسی" : "Access level";
+
+      document.getElementById("serviceTitle").textContent = isFa ? "خدمات MHA.NET" : "MHA.NET services";
+      document.getElementById("serviceText").textContent = isFa
+        ? "بخش‌های مدیریت سرور، کانفیگ، اشتراک و مصرف در مراحل بعدی به بک‌اند مدیریتی متصل خواهند شد."
+        : "Server, config, subscription, and usage management sections will be connected to the management backend in the next stages.";
+
+      document.getElementById("serverItem").textContent = isFa ? "سرورها" : "Servers";
+      document.getElementById("serverItemSub").textContent = isFa ? "مدیریت سرورها در مرحله بعد" : "Manage servers in the next step";
+      document.getElementById("configItem").textContent = isFa ? "کانفیگ‌ها" : "Configs";
+      document.getElementById("configItemSub").textContent = isFa ? "مدیریت کانفیگ در مرحله بعد" : "Manage configs in the next step";
+      document.getElementById("subscriptionItem").textContent = isFa ? "اشتراک‌ها" : "Subscriptions";
+      document.getElementById("subscriptionItemSub").textContent = isFa ? "مدیریت اشتراک در مرحله بعد" : "Manage subscriptions in the next step";
+      document.getElementById("usageItem").textContent = isFa ? "مصرف اینترنت" : "Internet usage";
+      document.getElementById("usageItemSub").textContent = isFa ? "گزارش مصرف در مرحله بعد" : "Usage report in the next step";
+
+      document.getElementById("footerText").textContent = "© 2026 MHA.NET — Freedom in Your Hands";
+      document.getElementById("brandTagline").textContent = "Freedom in Your Hands";
+
+      document.getElementById("registerTab").textContent = isFa ? "ثبت‌نام" : "Register";
+      document.getElementById("loginTab").textContent = isFa ? "ورود" : "Login";
+
+      setMode(currentMode);
+    }
+
+    function showMessage(message, type) {
+      notice.textContent = message;
+      notice.className = "notice " + type;
+    }
+
+    function clearMessage() {
+      notice.textContent = "";
+      notice.className = "notice";
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      clearMessage();
+
+      const register = mode === "register";
+      document.getElementById("registerTab").classList.toggle("active", register);
+      document.getElementById("loginTab").classList.toggle("active", !register);
+
+      document.getElementById("formTitle").textContent = language === "fa"
+        ? (register ? "ساخت حساب کاربری" : "ورود به حساب کاربری")
+        : (register ? "Create account" : "Login to your account");
+
+      document.getElementById("formSubtitle").textContent = language === "fa"
+        ? (register ? "برای استفاده از امکانات، حساب خود را بسازید." : "نام کاربری و رمز عبور خود را وارد کنید.")
+        : (register ? "Create your account to use the features." : "Enter your username and password.");
+
+      document.getElementById("submitBtn").textContent = language === "fa"
+        ? (register ? "ثبت‌نام در MHA.NET" : "ورود به حساب")
+        : (register ? "Sign up for MHA.NET" : "Log in to account");
+
+      document.getElementById("switchText").innerHTML = language === "fa"
+        ? (register ? 'قبلاً حساب دارید؟ <a onclick=\"setMode(\\'login\\')\">وارد شوید</a>' : 'حساب ندارید؟ <a onclick=\"setMode(\\'register\\')\">ثبت‌نام کنید</a>')
+        : (register ? 'Already have an account? <a onclick=\"setMode(\\'login\\')\">Log in</a>' : 'Don\'t have an account? <a onclick=\"setMode(\\'register\\')\">Register</a>');
+
+      confirmField.style.display = register ? "block" : "none";
+      confirmPassword.required = register;
+      password.autocomplete = register ? "new-password" : "current-password";
+    }
+
+    function togglePassword(id, element) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+      element.textContent = input.type === "password" ? "👁" : "🙈";
+    }
+
+    function showDashboard(user) {
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+
+      document.getElementById("welcomeName").textContent = user.username;
+      document.getElementById("dashUsername").textContent = user.username;
+      document.getElementById("dashRole").textContent = user.role === "admin" ? "مدیر" : "کاربر";
+    }
+
+    async function checkSession() {
+      const token = localStorage.getItem("mha_token");
+      if (!token) return;
+
+      try {
+        const result = await fetch(API_BASE + "/api/me", {
+          method: "GET",
+          headers: { "Authorization": "Bearer " + token },
+          credentials: "include"
+        });
+
+        const data = await result.json().catch(() => ({}));
+
+        if (result.ok && data && data.user) {
+          showDashboard(data.user);
+        } else {
+          localStorage.removeItem("mha_token");
+        }
+      } catch (error) {
+        console.error("Session check failed:", error);
+      }
+    }
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const user = username.value.trim().toLowerCase();
+      const pass = password.value;
+
+      if (!/^[a-z0-9_.@+-]{3,32}$/.test(user)) {
+        showMessage(language === "fa"
+          ? "نام کاربری باید ۳ تا ۳۲ کاراکتر انگلیسی یا عدد باشد."
+          : "Username must be 3 to 32 English characters or numbers.", "error");
+        return;
+      }
+
+      if (pass.length < 8 || pass.length > 128) {
+        showMessage(language === "fa"
+          ? "رمز عبور باید حداقل ۸ و حداکثر ۱۲۸ کاراکتر باشد."
+          : "Password must be at least 8 and at most 128 characters.", "error");
+        return;
+      }
+
+      if (currentMode === "register" && pass !== confirmPassword.value) {
+        showMessage(language === "fa"
+          ? "تکرار رمز عبور با رمز اصلی یکسان نیست."
+          : "Passwords do not match.", "error");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = language === "fa" ? "لطفاً صبر کنید..." : "Please wait...";
+      clearMessage();
+
+      try {
+        const endpoint = currentMode === "register" ? "/api/auth/register" : "/api/auth/login";
+
+        const result = await fetch(API_BASE + endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            username: user,
+            password: pass
+          })
+        });
+
+        const data = await result.json().catch(() => ({}));
+
+        if (!result.ok || !data || !data.user || !data.token) {
+          showMessage((data && data.message) || (language === "fa" ? "عملیات انجام نشد." : "Operation failed."), "error");
+          return;
+        }
+
+        localStorage.setItem("mha_token", data.token);
+        form.reset();
+        showDashboard(data.user);
+
+      } catch (error) {
+        console.error("Authentication error:", error);
+        showMessage(language === "fa"
+          ? "ارتباط با سرور برقرار نشد. آدرس Worker و تنظیمات CORS را بررسی کنید."
+          : "Connection to the server failed. Check the Worker URL and CORS settings.", "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = language === "fa"
+          ? (currentMode === "register" ? "ثبت‌نام در MHA.NET" : "ورود به حساب")
+          : (currentMode === "register" ? "Sign up for MHA.NET" : "Log in to account");
+      }
+    });
+
+    async function logout() {
+      const token = localStorage.getItem("mha_token");
+
+      try {
+        if (token) {
+          await fetch(API_BASE + "/api/auth/logout", {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + token },
+            credentials: "include"
+          });
+        }
+      } catch (error) {
+        console.error("Logout request failed:", error);
+      }
+
+      localStorage.removeItem("mha_token");
+      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("authSection").style.display = "grid";
+      setMode("login");
+    }
+
+    langToggle.addEventListener("click", () => {
+      setLanguage(language === "fa" ? "en" : "fa");
+    });
+
+    setLanguage("fa");
+    checkSession();
+  </script>
+</body>
+</html>
