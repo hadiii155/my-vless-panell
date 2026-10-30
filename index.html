@@ -1,661 +1,359 @@
 
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b0818">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#100b20">
 <title>MHA.NET | VPN Management</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
- --bg:#0b0818;--panel:#151128;--panel2:#1e1836;
- --purple:#873cff;--red:#f04465;--orange:#ff7848;
- --text:#f8f6ff;--muted:#aaa3c0;--line:#ffffff14;
- --green:#39d99a;--yellow:#ffc45c;--blue:#53b8ff;
+ --bg:#0c0915;--panel:#171126;--panel2:#211832;--border:#342448;
+ --purple:#8b45d6;--purple2:#b36bff;--red:#fa405c;--orange:#ff762f;
+ --text:#f5efff;--muted:#a99bbd;--green:#35d69b;--yellow:#ffc45c;
+ --blue:#59a9ff;--radius:17px
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Vazirmatn,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-button:disabled{opacity:.5;cursor:not-allowed}
-a{color:inherit;text-decoration:none}
-.app{min-height:100vh}
-.topbar{
- height:70px;display:flex;align-items:center;justify-content:space-between;
- padding:0 22px;background:#100d20;border-bottom:1px solid var(--line);
- position:sticky;top:0;z-index:20
-}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:21px}
-.brand .lion{font-size:32px;filter:drop-shadow(0 0 9px #ff7848)}
-.brand b{color:var(--orange)}
-.top-actions{display:flex;align-items:center;gap:10px}
-.lang{background:var(--panel2);color:white;border:1px solid var(--line);border-radius:10px;padding:9px}
-.icon-btn,.hamburger{border:1px solid var(--line);background:var(--panel2);color:white;border-radius:10px;padding:9px 13px}
-.layout{display:flex;min-height:calc(100vh - 70px)}
-.sidebar{
- width:245px;flex-shrink:0;background:#100d20;border-left:1px solid var(--line);
- padding:18px 12px;transition:.25s
-}
-.sidebar-title{font-size:11px;color:var(--muted);padding:14px 12px 7px}
-.nav-btn{
- width:100%;display:flex;align-items:center;gap:12px;text-align:right;
- border:1px solid transparent;background:transparent;color:#c9c3dc;
- padding:12px;border-radius:11px;margin:3px 0;font-size:13px
-}
-.nav-btn:hover,.nav-btn.active{background:linear-gradient(100deg,#873cff30,#f0446520);border-color:#873cff44;color:white}
-.nav-btn .ico{width:22px;text-align:center;font-size:17px}
-.main{flex:1;min-width:0;padding:25px;max-width:1600px;margin:auto;width:100%}
+.app{display:flex;min-height:100vh}
+.sidebar{width:255px;background:#120d1e;border-left:1px solid var(--border);padding:20px 14px;position:fixed;right:0;top:0;bottom:0;overflow:auto;z-index:20;transition:.25s}
+.brand{display:flex;align-items:center;gap:12px;padding:8px 9px 22px;border-bottom:1px solid var(--border)}
+.logo{width:47px;height:47px;border-radius:15px;background:linear-gradient(135deg,var(--orange),var(--red),var(--purple));display:grid;place-items:center;font-size:25px;box-shadow:0 0 25px #ff5c4b44}
+.brand h2{margin:0;font-size:20px;letter-spacing:1px}
+.brand small{color:var(--muted);font-size:10px}
+.nav-title{font-size:10px;color:#806e99;margin:22px 10px 8px}
+.nav button{width:100%;border:0;background:transparent;color:#c7bad8;text-align:right;padding:12px 13px;border-radius:11px;margin:2px 0;display:flex;align-items:center;gap:12px;font-size:13px}
+.nav button:hover,.nav button.active{background:linear-gradient(90deg,#7d3cc533,#ed385522);color:white}
+.nav .ico{width:22px;text-align:center;font-size:17px}
+.main{margin-right:255px;width:calc(100% - 255px);padding:22px 26px 50px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:25px}
+.top-left,.top-right{display:flex;align-items:center;gap:10px}
+.menu-btn{display:none}
+.pill{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:12px;padding:10px 13px}
+.lang{min-width:125px}
 .page{display:none}.page.active{display:block}
-.page-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap}
-h1{font-size:23px;margin:0 0 5px}
-h2{font-size:18px;margin:0 0 14px}
-h3{font-size:15px;margin:0 0 12px}
-.sub{font-size:12px;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
-.card{
- background:linear-gradient(145deg,#1a1530,#131025);
- border:1px solid var(--line);border-radius:17px;padding:18px;min-width:0
-}
+h1{font-size:24px;margin:0 0 7px}
+h2{font-size:17px;margin:0 0 15px}
+h3{font-size:14px;margin:0 0 10px}
+.subtitle{color:var(--muted);font-size:12px;margin-bottom:22px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:17px 0}
+.card{background:linear-gradient(145deg,var(--panel),#171020);border:1px solid var(--border);border-radius:var(--radius);padding:17px;min-width:0}
 .stat{display:flex;justify-content:space-between;align-items:center}
-.stat .symbol{width:43px;height:43px;border-radius:13px;display:grid;place-items:center;background:#873cff24;font-size:21px}
-.stat strong{display:block;font-size:25px;margin-top:8px}
-.stat small{color:var(--muted)}
-.orange{color:var(--orange)}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}
-.btn{
- border:0;border-radius:10px;padding:10px 15px;background:linear-gradient(100deg,var(--purple),var(--red));
- color:white;font-weight:700;font-size:12px
-}
-.btn.secondary{background:#ffffff0c;border:1px solid var(--line);color:#eee}
-.btn.danger{background:#f0446524;border:1px solid #f0446544;color:#ff8798}
-.btn.success{background:#39d99a20;border:1px solid #39d99a44;color:#6de6b3}
-.btn.small{padding:7px 10px}
-.actions{display:flex;gap:7px;flex-wrap:wrap}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:650px;font-size:12px}
-th,td{padding:13px 10px;text-align:right;border-bottom:1px solid var(--line)}
-th{color:var(--muted);font-weight:500}
-td{color:#e7e2f4}
-.empty{text-align:center;color:var(--muted);padding:28px}
-.badge{display:inline-block;padding:4px 9px;border-radius:20px;font-size:10px;background:#ffffff12}
-.badge.ok{color:var(--green);background:#39d99a18}
-.badge.warn{color:var(--yellow);background:#ffc45c18}
-.badge.off{color:#ff8798;background:#f0446518}
-.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
-.field{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
-.field label{font-size:12px;color:#c9c3dc}
-.field input,.field select,.field textarea,.search{
- width:100%;padding:11px 12px;border-radius:10px;background:#0c0a19;
- border:1px solid var(--line);color:white;outline:none;min-width:0
-}
-.field input:focus,.field select:focus,.field textarea:focus,.search:focus{border-color:var(--purple)}
-.field select option{background:#17132b}
-.field textarea{min-height:85px;resize:vertical}
+.stat .symbol{width:42px;height:42px;border-radius:13px;background:#8c4bd329;display:grid;place-items:center;font-size:21px}
+.stat small{color:var(--muted);font-size:11px}
+.stat strong{display:block;font-size:25px;margin-top:9px}
+.stat em{font-size:10px;color:var(--yellow);font-style:normal}
+.two{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.btn{border:0;border-radius:11px;padding:11px 15px;color:white;background:linear-gradient(110deg,var(--purple),#a13e9c);font-size:12px}
+.btn:hover{filter:brightness(1.13)}
+.btn.red{background:linear-gradient(110deg,#c72d4b,var(--red))}
+.btn.green{background:linear-gradient(110deg,#15966c,#31c895)}
+.btn.gray{background:#30253e;border:1px solid var(--border)}
+.btn.small{padding:7px 10px;font-size:11px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.field{margin-bottom:13px}
+.field label{display:block;color:#c8b8db;font-size:11px;margin-bottom:7px}
+.field input,.field select,.field textarea,input,select,textarea{width:100%;background:#100b1a;color:white;border:1px solid var(--border);border-radius:10px;padding:11px;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple2)}
+.field textarea{min-height:90px;resize:vertical}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
-.modal{
- display:none;position:fixed;inset:0;background:#000b;z-index:50;
- align-items:center;justify-content:center;padding:15px
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:11px}
+th,td{text-align:right;padding:12px 10px;border-bottom:1px solid var(--border)}
+th{color:#a995c0;font-weight:normal}
+td{color:#e8dff2}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:10px;background:#7772;color:#ddd}
+.status.ok{background:#35d69b1b;color:var(--green)}
+.status.bad{background:#fa405c22;color:#ff8294}
+.status.wait{background:#ffc45c20;color:var(--yellow)}
+.muted{color:var(--muted);font-size:11px}
+.notice{padding:12px 14px;border-radius:12px;background:#ffc45c13;border:1px solid #ffc45c44;color:#ffdb9b;font-size:11px;line-height:1.9;margin:12px 0}
+.success{background:#35d69b12;border-color:#35d69b44;color:#79e8bd}
+.danger{background:#fa405c12;border-color:#fa405c44;color:#ff9bab}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 13px}
+.section-head h2{margin:0}
+.chart{height:155px;display:flex;align-items:end;gap:9px;padding:15px 5px 0}
+.bar{flex:1;min-width:8px;border-radius:7px 7px 2px 2px;background:linear-gradient(0deg,#7138b8,#d36cff);position:relative}
+.bar span{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted)}
+.globe-area{display:grid;place-items:center;min-height:300px;overflow:hidden;position:relative}
+.globe{width:min(260px,70vw);aspect-ratio:1;border-radius:50%;position:relative;background:
+ radial-gradient(circle at 35% 30%,#8edbff 0,#297cae 23%,#16426f 55%,#07182e 75%);
+ box-shadow:inset -25px -15px 50px #020817,inset 10px 8px 30px #b5e8ff55,0 0 35px #4baaff33;
+ border:1px solid #8acfff66;animation:float 5s ease-in-out infinite}
+.globe:before{content:"";position:absolute;inset:0;border-radius:50%;background:
+ radial-gradient(ellipse at 28% 30%,transparent 25%,#ffffff15 26%,transparent 27%),
+ repeating-linear-gradient(90deg,transparent 0 28px,#b6e9ff25 29px 30px,transparent 31px 58px);
 }
+.globe:after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid #b9eaff55;transform:scaleX(.48)}
+@keyframes float{50%{transform:translateY(-8px)}}
+.flag{position:absolute;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#16132a;border:1px solid #ffffff66;box-shadow:0 0 14px #69caff88;font-size:19px;z-index:3;animation:pulse 3s infinite}
+@keyframes pulse{50%{box-shadow:0 0 22px #b46cff}}
+.f1{top:12%;left:32%}.f2{top:24%;left:67%}.f3{top:39%;left:17%}.f4{top:48%;left:48%}
+.f5{top:64%;left:75%}.f6{top:75%;left:35%}.f7{top:17%;left:50%}.f8{top:55%;left:28%}
+.f9{top:33%;left:80%}.f10{top:78%;left:58%}.f11{top:43%;left:63%}.f12{top:9%;left:76%}
+.f13{top:65%;left:10%}.f14{top:87%;left:45%}.f15{top:28%;left:38%}
+.country-list{display:flex;flex-wrap:wrap;gap:7px}
+.country{font-size:10px;padding:7px 9px;border:1px solid var(--border);border-radius:20px;color:#d8c9e9;background:#120d1e}
+.modal{display:none;position:fixed;inset:0;background:#000b;z-index:50;align-items:center;justify-content:center;padding:15px}
 .modal.show{display:flex}
-.modal-box{
- width:min(560px,100%);max-height:90vh;overflow:auto;
- background:#17132b;border:1px solid var(--line);border-radius:18px;padding:21px
-}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-.close{background:none;border:0;color:white;font-size:22px}
-.notice{padding:12px;border:1px solid #ffc45c44;background:#ffc45c12;border-radius:11px;color:#ffd58a;font-size:12px;line-height:1.9;margin-bottom:14px}
-.toast{
- position:fixed;bottom:20px;left:20px;z-index:80;background:#211a39;
- border:1px solid var(--line);border-radius:12px;padding:13px 17px;
- display:none;max-width:min(360px,90vw);font-size:12px
-}
+.modal-box{width:min(650px,100%);max-height:90vh;overflow:auto;background:#1a1328;border:1px solid var(--border);border-radius:18px;padding:20px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.close{border:0;background:#34253f;color:white;border-radius:9px;padding:8px 12px}
+.login-screen{position:fixed;inset:0;z-index:100;background:radial-gradient(circle at 50% 20%,#442060,#100a1c 60%);display:none;align-items:center;justify-content:center;padding:18px}
+.login-screen.show{display:flex}
+.login-box{width:min(410px,100%);background:#171126;border:1px solid var(--border);padding:27px;border-radius:20px;box-shadow:0 20px 70px #0008}
+.toast{position:fixed;bottom:20px;left:20px;background:#261c36;border:1px solid var(--border);padding:13px 17px;border-radius:12px;z-index:200;display:none;font-size:12px;max-width:90vw}
 .toast.show{display:block}
-.auth-screen{
- min-height:calc(100vh - 70px);display:flex;align-items:center;justify-content:center;
- padding:25px;background:radial-gradient(ellipse at 50% 10%,#401a6a55,transparent 55%)
+.progress{height:7px;border-radius:20px;background:#32253e;overflow:hidden;margin:10px 0}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--orange));border-radius:20px}
+.qr{width:120px;height:120px;background:white;color:#111;display:grid;place-items:center;font-size:11px;margin:12px auto;border-radius:8px}
+.footer{margin-top:35px;padding-top:15px;border-top:1px solid var(--border);color:#756783;font-size:10px;text-align:center}
+@media(max-width:1050px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:750px){
+ .sidebar{transform:translateX(100%);width:270px;box-shadow:-15px 0 35px #0007}
+ .sidebar.open{transform:translateX(0)}
+ .main{margin:0;width:100%;padding:15px}
+ .menu-btn{display:block}
+ .two{grid-template-columns:1fr}
+ .three{grid-template-columns:1fr}
+ h1{font-size:20px}
+ .topbar{margin-bottom:18px}
 }
-.auth-card{width:min(440px,100%);padding:25px;background:#17132b;border:1px solid var(--line);border-radius:20px}
-.auth-logo{text-align:center;font-size:50px}
-.auth-logo b{color:var(--orange);font-size:25px}
-.auth-tabs{display:flex;gap:6px;background:#0d0a1b;padding:5px;border-radius:11px;margin:20px 0}
-.auth-tabs button{flex:1;padding:10px;border:0;border-radius:8px;background:transparent;color:var(--muted)}
-.auth-tabs button.active{background:linear-gradient(100deg,var(--purple),var(--red));color:white}
-.globe-area{height:190px;display:grid;place-items:center;position:relative;margin:0 auto 10px}
-.globe{
- width:145px;height:145px;border-radius:50%;
- background:radial-gradient(circle at 32% 25%,#71c4ff,#2160ae 45%,#071a49 80%);
- box-shadow:0 0 38px #873cff77,inset -15px -10px 30px #0009;
- position:relative;overflow:hidden
-}
-.globe:before{
- content:"";position:absolute;inset:0;
- background:radial-gradient(ellipse at 35% 35%,#49b875 0 12%,transparent 13%),
- radial-gradient(ellipse at 65% 55%,#58bd7d 0 16%,transparent 17%),
- radial-gradient(ellipse at 28% 75%,#50ad69 0 10%,transparent 11%)
-}
-.flag{position:absolute;font-size:20px;filter:drop-shadow(0 0 6px white);animation:float 3s infinite ease-in-out}
-.flag:nth-of-type(2){top:2px;left:40%}.flag:nth-of-type(3){right:8%;top:35%}
-.flag:nth-of-type(4){right:17%;bottom:4%}.flag:nth-of-type(5){bottom:0;left:43%}
-.flag:nth-of-type(6){left:7%;bottom:25%}.flag:nth-of-type(7){left:3%;top:35%}
-.flag:nth-of-type(8){left:20%;top:5%}
-@keyframes float{50%{transform:translateY(-7px)}}
-.auth-help{text-align:center;color:var(--muted);font-size:11px;margin-top:15px}
-.profile{display:flex;align-items:center;gap:12px}
-.avatar{width:42px;height:42px;display:grid;place-items:center;background:#873cff33;border-radius:50%;font-size:20px}
-.progress{height:8px;background:#ffffff13;border-radius:20px;overflow:hidden;margin:10px 0}
-.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--orange))}
-.mobile-overlay{display:none}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
-@media(max-width:900px){
- .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .sidebar{position:fixed;z-index:30;top:70px;bottom:0;right:-260px;width:245px;overflow:auto}
- .sidebar.open{right:0}
- .mobile-overlay.show{display:block;position:fixed;inset:70px 0 0;background:#0009;z-index:25}
-}
-@media(max-width:560px){
- .main{padding:15px}
- .grid,.grid.two,.form-grid{grid-template-columns:1fr}
- .topbar{padding:0 12px}.brand{font-size:17px}
- .brand .lion{font-size:26px}
- .page-head h1{font-size:19px}
- .lang{max-width:115px;font-size:11px}
-}
+@media(max-width:430px){.grid{grid-template-columns:1fr 1fr;gap:8px}.card{padding:12px}.stat strong{font-size:20px}.form-grid{grid-template-columns:1fr}.lang{min-width:90px}}
 </style>
 </head>
 <body>
 <div class="app">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><div class="logo">🦁</div><div><h2>MHA.NET</h2><small>SMART VPN MANAGEMENT</small></div></div>
+ <nav class="nav">
+  <div class="nav-title" data-i="mainMenu">منوی اصلی</div>
+  <button class="active" data-page="dashboard"><span class="ico">▦</span><span data-i="dashboard">داشبورد</span></button>
+  <button data-page="configs"><span class="ico">⚙</span><span data-i="configs">مدیریت کانفیگ</span></button>
+  <button data-page="users"><span class="ico">♙</span><span data-i="users">کاربران</span></button>
+  <button data-page="servers"><span class="ico">◉</span><span data-i="servers">سرورها</span></button>
+  <button data-page="subscriptions"><span class="ico">▤</span><span data-i="subscriptions">اشتراک‌ها</span></button>
+  <button data-page="plans"><span class="ico">◇</span><span data-i="plans">پلن‌ها و قیمت‌ها</span></button>
+  <div class="nav-title" data-i="business">مالی و ارتباط با مشتری</div>
+  <button data-page="finance"><span class="ico">＄</span><span data-i="finance">مالی و پرداخت‌ها</span></button>
+  <button data-page="support"><span class="ico">✉</span><span data-i="support">پشتیبانی</span></button>
+  <button data-page="announcements"><span class="ico">◈</span><span data-i="announcements">اطلاع‌رسانی</span></button>
+  <div class="nav-title" data-i="system">سیستم</div>
+  <button data-page="analytics"><span class="ico">▥</span><span data-i="analytics">گزارش‌ها و آمار</span></button>
+  <button data-page="admins"><span class="ico">♜</span><span data-i="admins">مدیران و دسترسی‌ها</span></button>
+  <button data-page="security"><span class="ico">♢</span><span data-i="security">امنیت و گزارش فعالیت</span></button>
+  <button data-page="settings"><span class="ico">⚒</span><span data-i="settings">تنظیمات</span></button>
+  <button data-page="profile"><span class="ico">☻</span><span data-i="profile">حساب کاربری</span></button>
+  <button id="logoutBtn"><span class="ico">⇥</span><span data-i="logout">خروج</span></button>
+ </nav>
+</aside>
 
-<header class="topbar">
- <div class="brand"><span class="lion">🦁</span><span>MHA.<b>NET</b></span></div>
- <div class="top-actions">
-  <select id="language" class="lang" aria-label="Language">
-   <option value="fa">🇮🇷 فارسی</option>
-   <option value="en">🇬🇧 English</option>
-   <option value="tr">🇹🇷 Türkçe</option>
-  </select>
-  <button class="hamburger" onclick="toggleSidebar()">☰</button>
- </div>
-</header>
-
-<div class="layout">
- <aside class="sidebar" id="sidebar">
-  <div class="sidebar-title" data-i18n="navigation">منوی اصلی</div>
-  <button class="nav-btn active" data-page="dashboard" onclick="navigate('dashboard')"><span class="ico">▦</span><span data-i18n="dashboard">داشبورد</span></button>
-  <button class="nav-btn" data-page="users" onclick="navigate('users')"><span class="ico">♙</span><span data-i18n="users">مدیریت کاربران</span></button>
-  <button class="nav-btn" data-page="configs" onclick="navigate('configs')"><span class="ico">⌘</span><span data-i18n="configs">مدیریت کانفیگ‌ها</span></button>
-  <button class="nav-btn" data-page="servers" onclick="navigate('servers')"><span class="ico">▤</span><span data-i18n="servers">مدیریت سرورها</span></button>
-  <button class="nav-btn" data-page="subscriptions" onclick="navigate('subscriptions')"><span class="ico">◷</span><span data-i18n="subscriptions">اشتراک‌ها</span></button>
-  <button class="nav-btn" data-page="usage" onclick="navigate('usage')"><span class="ico">◉</span><span data-i18n="usage">مصرف کاربران</span></button>
-  <button class="nav-btn" data-page="support" onclick="navigate('support')"><span class="ico">✉</span><span data-i18n="support">پشتیبانی</span></button>
-  <div class="sidebar-title" data-i18n="account">حساب کاربری</div>
-  <button class="nav-btn" data-page="profile" onclick="navigate('profile')"><span class="ico">⚙</span><span data-i18n="profile">تنظیمات حساب</span></button>
-  <button class="nav-btn" onclick="logout()"><span class="ico">↪</span><span data-i18n="logout">خروج</span></button>
- </aside>
- <div class="mobile-overlay" id="overlay" onclick="toggleSidebar()"></div>
-
- <main class="main">
-  <section id="authScreen" class="auth-screen">
-   <div class="auth-card">
-    <div class="auth-logo">🦁<br><b>MHA.NET</b></div>
-    <div class="globe-area">
-     <div class="globe"></div>
-     <span class="flag" style="top:2px;left:40%">🇮🇷</span>
-     <span class="flag" style="right:8%;top:35%">🇺🇸</span>
-     <span class="flag" style="right:17%;bottom:4%">🇩🇪</span>
-     <span class="flag" style="bottom:0;left:43%">🇬🇧</span>
-     <span class="flag" style="left:7%;bottom:25%">🇹🇷</span>
-     <span class="flag" style="left:3%;top:35%">🇨🇦</span>
-     <span class="flag" style="left:20%;top:5%">🇯🇵</span>
-    </div>
-    <h2 style="text-align:center" data-i18n="welcome">به پنل MHA.NET خوش آمدید</h2>
-    <div class="auth-tabs">
-     <button id="tabRegister" class="active" onclick="setAuthMode('register')" data-i18n="register">ثبت‌نام</button>
-     <button id="tabLogin" onclick="setAuthMode('login')" data-i18n="login">ورود</button>
-    </div>
-    <form id="authForm">
-     <div class="field"><label data-i18n="username">نام کاربری</label><input id="authUsername" required minlength="3" maxlength="32" autocomplete="username"></div>
-     <div class="field"><label data-i18n="password">رمز عبور</label><input id="authPassword" type="password" required minlength="8" autocomplete="new-password"></div>
-     <div class="field" id="confirmWrap"><label data-i18n="confirmPassword">تکرار رمز عبور</label><input id="authConfirm" type="password" minlength="8"></div>
-     <button class="btn" id="authSubmit" style="width:100%" data-i18n="createAccount">ایجاد حساب کاربری</button>
-     <p id="authMessage" class="sub" aria-live="polite"></p>
-    </form>
-    <div class="auth-help" data-i18n="authNote">ثبت‌نام و ورود از طریق سرور انجام می‌شود.</div>
-   </div>
-  </section>
-
-  <div id="workspace" style="display:none">
-   <section class="page active" id="page-dashboard">
-    <div class="page-head"><div><h1 data-i18n="dashboard">داشبورد</h1><div class="sub" data-i18n="overview">نمای کلی وضعیت پنل</div></div><button class="btn secondary" onclick="loadAll()" data-i18n="refresh">به‌روزرسانی</button></div>
-    <div class="grid">
-     <div class="card stat"><div><small data-i18n="totalUsers">کل کاربران</small><strong id="statUsers">—</strong></div><div class="symbol">♙</div></div>
-     <div class="card stat"><div><small data-i18n="activeConfigs">کانفیگ‌های فعال</small><strong id="statConfigs">—</strong></div><div class="symbol">⌘</div></div>
-     <div class="card stat"><div><small data-i18n="totalServers">سرورها</small><strong id="statServers">—</strong></div><div class="symbol">▤</div></div>
-     <div class="card stat"><div><small data-i18n="activeSubs">اشتراک فعال</small><strong id="statSubs">—</strong></div><div class="symbol">◷</div></div>
-    </div>
-    <div class="grid two" style="margin-top:15px">
-     <div class="card"><h2 data-i18n="systemStatus">وضعیت سیستم</h2><p class="sub" id="connectionStatus" data-i18n="checking">در انتظار اتصال به سرور...</p><div class="progress"><span id="healthBar" style="width:0%"></span></div><div class="sub" data-i18n="serverHealthNote">اطلاعات سلامت سرورها از API دریافت می‌شود.</div></div>
-     <div class="card"><h2 data-i18n="quickActions">دسترسی سریع</h2><div class="actions"><button class="btn" onclick="openEntityModal('config')" data-i18n="newConfig">کانفیگ جدید</button><button class="btn secondary" onclick="openEntityModal('user')" data-i18n="newUser">کاربر جدید</button><button class="btn secondary" onclick="openEntityModal('server')" data-i18n="newServer">سرور جدید</button></div></div>
-    </div>
-    <div class="card" style="margin-top:15px"><h2 data-i18n="recentActivity">فعالیت‌های اخیر</h2><div id="recentActivity" class="empty" data-i18n="noActivity">هنوز فعالیتی دریافت نشده است.</div></div>
-   </section>
-
-   <section class="page" id="page-users">
-    <div class="page-head"><div><h1 data-i18n="users">مدیریت کاربران</h1><div class="sub" data-i18n="usersDesc">ساخت، ویرایش و مدیریت دسترسی کاربران</div></div><button class="btn" onclick="openEntityModal('user')" data-i18n="newUser">کاربر جدید</button></div>
-    <div class="card"><div class="toolbar"><input class="search" id="userSearch" placeholder="جست‌وجوی کاربر..." oninput="filterTable('usersTable',this.value)"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i18n="username">نام کاربری</th><th data-i18n="role">نقش</th><th data-i18n="status">وضعیت</th><th data-i18n="created">تاریخ ایجاد</th><th data-i18n="actions">عملیات</th></tr></thead><tbody id="usersTable"><tr><td colspan="6" class="empty">—</td></tr></tbody></table></div></div>
-   </section>
-
-   <section class="page" id="page-configs">
-    <div class="page-head"><div><h1 data-i18n="configs">مدیریت کانفیگ‌ها</h1><div class="sub" data-i18n="configsDesc">مدیریت پروفایل‌ها و کانفیگ‌های VPN</div></div><button class="btn" onclick="openEntityModal('config')" data-i18n="newConfig">کانفیگ جدید</button></div>
-    <div class="card"><div class="toolbar"><input class="search" placeholder="جست‌وجوی کانفیگ..." oninput="filterTable('configsTable',this.value)"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i18n="configName">نام کانفیگ</th><th>Protocol</th><th data-i18n="server">سرور</th><th data-i18n="status">وضعیت</th><th data-i18n="actions">عملیات</th></tr></thead><tbody id="configsTable"><tr><td colspan="6" class="empty">—</td></tr></tbody></table></div></div>
-   </section>
-
-   <section class="page" id="page-servers">
-    <div class="page-head"><div><h1 data-i18n="servers">مدیریت سرورها</h1><div class="sub" data-i18n="serversDesc">مدیریت موقعیت، ظرفیت و سلامت سرورها</div></div><button class="btn" onclick="openEntityModal('server')" data-i18n="newServer">سرور جدید</button></div>
-    <div class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i18n="serverName">نام سرور</th><th data-i18n="country">کشور</th><th>Address</th><th data-i18n="capacity">ظرفیت</th><th data-i18n="status">وضعیت</th><th data-i18n="actions">عملیات</th></tr></thead><tbody id="serversTable"><tr><td colspan="7" class="empty">—</td></tr></tbody></table></div></div>
-   </section>
-
-   <section class="page" id="page-subscriptions">
-    <div class="page-head"><div><h1 data-i18n="subscriptions">اشتراک‌ها</h1><div class="sub" data-i18n="subsDesc">مدیریت لینک، حجم و تاریخ انقضای اشتراک</div></div><button class="btn" onclick="openEntityModal('subscription')" data-i18n="newSubscription">اشتراک جدید</button></div>
-    <div class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i18n="username">کاربر</th><th data-i18n="volume">حجم</th><th data-i18n="used">مصرف</th><th data-i18n="expiry">انقضا</th><th data-i18n="status">وضعیت</th><th data-i18n="actions">عملیات</th></tr></thead><tbody id="subscriptionsTable"><tr><td colspan="7" class="empty">—</td></tr></tbody></table></div></div>
-   </section>
-
-   <section class="page" id="page-usage">
-    <div class="page-head"><div><h1 data-i18n="usage">مصرف کاربران</h1><div class="sub" data-i18n="usageDesc">گزارش حجم مصرفی از سرور</div></div><button class="btn secondary" onclick="loadUsage()" data-i18n="refresh">به‌روزرسانی</button></div>
-    <div class="card"><div class="table-wrap"><table><thead><tr><th data-i18n="username">کاربر</th><th data-i18n="upload">آپلود</th><th data-i18n="download">دانلود</th><th data-i18n="used">مجموع مصرف</th><th data-i18n="updated">آخرین بروزرسانی</th></tr></thead><tbody id="usageTable"><tr><td colspan="5" class="empty">—</td></tr></tbody></table></div></div>
-   </section>
-
-   <section class="page" id="page-support">
-    <div class="page-head"><div><h1 data-i18n="support">پشتیبانی</h1><div class="sub" data-i18n="supportDesc">ارتباط با پشتیبانی MHA.NET</div></div></div>
-    <div class="card"><h2>✈ Telegram</h2><p class="sub" data-i18n="supportText">برای دریافت راهنمایی با پشتیبانی تلگرام در ارتباط باشید.</p><a class="btn" href="https://t.me/m_hadiii46333" target="_blank" rel="noopener" data-i18n="openTelegram">ورود به پشتیبانی تلگرام</a></div>
-   </section>
-
-   <section class="page" id="page-profile">
-    <div class="page-head"><div><h1 data-i18n="profile">تنظیمات حساب</h1><div class="sub" data-i18n="profileDesc">اطلاعات حساب و وضعیت نشست</div></div></div>
-    <div class="card"><div class="profile"><div class="avatar">👤</div><div><b id="profileUsername">—</b><div class="sub" id="profileRole">—</div></div></div><hr style="border-color:var(--line);margin:20px 0"><button class="btn danger" onclick="logout()" data-i18n="logout">خروج از حساب</button></div>
-   </section>
+<main class="main">
+ <header class="topbar">
+  <div class="top-left"><button class="pill menu-btn" id="menuBtn">☰</button><div><strong>MHA.NET</strong><div class="muted" data-i="controlCenter">مرکز کنترل مدیریت</div></div></div>
+  <div class="top-right">
+   <select class="pill lang" id="language">
+    <option value="fa">🇮🇷 فارسی</option><option value="tr">🇹🇷 Türkçe</option><option value="en">🇬🇧 English</option>
+   </select>
+   <button class="pill" id="notifBtn">♧</button>
+   <button class="pill" data-page="profile">☻ <span id="adminName">مدیر</span></button>
   </div>
- </main>
-</div>
-<footer>© MHA.NET — All rights reserved</footer>
+ </header>
+
+<section class="page active" id="page-dashboard">
+ <h1 data-i="welcome">به پنل MHA.NET خوش آمدید</h1>
+ <div class="subtitle" data-i="overviewSubtitle">نمای کلی وضعیت سرویس و مدیریت کاربران</div>
+ <div class="notice" id="connectionNotice">وضعیت API: هنوز بررسی نشده است. برای عملکرد واقعی، Worker و API باید متصل باشند.</div>
+ <div class="grid">
+  <div class="card stat"><div><small data-i="totalUsers">کل کاربران</small><strong id="statUsers">—</strong><em data-i="liveApi">نیازمند API واقعی</em></div><div class="symbol">♙</div></div>
+  <div class="card stat"><div><small data-i="onlineUsers">کاربران آنلاین</small><strong id="statOnline">—</strong><em data-i="liveApi">نیازمند API واقعی</em></div><div class="symbol">◉</div></div>
+  <div class="card stat"><div><small data-i="activeSubs">اشتراک فعال</small><strong id="statSubs">—</strong><em data-i="liveApi">نیازمند API واقعی</em></div><div class="symbol">▤</div></div>
+  <div class="card stat"><div><small data-i="totalRevenue">درآمد کل</small><strong id="statRevenue">—</strong><em data-i="liveApi">نیازمند API واقعی</em></div><div class="symbol">＄</div></div>
+ </div>
+ <div class="two">
+  <div class="card">
+   <div class="section-head"><h2 data-i="serverWorld">نقشه جهانی سرورها</h2><span class="status wait" data-i="demoMap">نمایش موقعیت نمونه</span></div>
+   <div class="globe-area"><div class="globe">
+    <span class="flag f1">🇩🇪</span><span class="flag f2">🇫🇮</span><span class="flag f3">🇺🇸</span><span class="flag f4">🇹🇷</span><span class="flag f5">🇯🇵</span>
+    <span class="flag f6">🇸🇬</span><span class="flag f7">🇬🇧</span><span class="flag f8">🇫🇷</span><span class="flag f9">🇳🇱</span><span class="flag f10">🇨🇦</span>
+    <span class="flag f11">🇦🇪</span><span class="flag f12">🇸🇪</span><span class="flag f13">🇮🇹</span><span class="flag f14">🇵🇱</span><span class="flag f15">🇮🇷</span>
+   </div></div>
+   <div class="country-list"><span class="country">🇩🇪 Germany</span><span class="country">🇫🇮 Finland</span><span class="country">🇺🇸 USA</span><span class="country">🇹🇷 Türkiye</span><span class="country">🇯🇵 Japan</span><span class="country">🇬🇧 UK</span><span class="country">🇳🇱 Netherlands</span></div>
+   <p class="muted" data-i="mapNote">پرچم‌ها نمایشی‌اند؛ وضعیت زنده فقط پس از اتصال API مانیتورینگ نمایش داده می‌شود.</p>
+  </div>
+  <div class="card">
+   <h2 data-i="quickActions">دسترسی سریع</h2>
+   <div class="actions">
+    <button class="btn" data-action="new-config" data-i="createConfig">＋ ساخت کانفیگ</button>
+    <button class="btn" data-action="new-user" data-i="addUser">＋ افزودن کاربر</button>
+    <button class="btn" data-action="new-server" data-i="addServer">＋ افزودن سرور</button>
+    <button class="btn gray" data-page="subscriptions" data-i="manageSubs">مدیریت اشتراک‌ها</button>
+    <button class="btn gray" data-page="support" data-i="support">پشتیبانی</button>
+   </div>
+   <div class="section-head"><h2 data-i="systemHealth">سلامت سیستم</h2></div>
+   <div class="muted" data-i="apiStatus">ارتباط API</div><div class="progress"><i id="apiProgress" style="width:12%"></i></div>
+   <div class="muted" data-i="dbStatus">اتصال دیتابیس</div><div class="progress"><i id="dbProgress" style="width:12%"></i></div>
+   <div class="muted" data-i="nodeStatus">اتصال نودهای Xray</div><div class="progress"><i style="width:0%"></i></div>
+   <span class="status wait" data-i="notVerified">هنوز تأیید نشده</span>
+  </div>
+ </div>
+ <div class="two">
+  <div class="card"><h2 data-i="usageChart">نمودار مصرف</h2><div class="chart" id="usageChart"></div><p class="muted" data-i="chartDemo">نمودار نمونه؛ داده واقعی باید از API دریافت شود.</p></div>
+  <div class="card"><h2 data-i="recentActivity">فعالیت‌های اخیر</h2><div id="recentActivity" class="muted">برای مشاهده گزارش واقعی، API گزارش فعالیت لازم است.</div></div>
+ </div>
+</section>
+
+<section class="page" id="page-configs">
+ <h1 data-i="configManagement">مدیریت کانفیگ‌ها</h1><p class="subtitle" data-i="configSubtitle">ساخت، ویرایش، انتشار و مدیریت دسترسی کانفیگ‌ها</p>
+ <div class="notice" data-i="xrayNotice">ساخت لینک به‌تنهایی کانفیگ را روی سرور فعال نمی‌کند. برای عملیات واقعی، API امن نود Xray باید متصل باشد.</div>
+ <div class="card">
+  <div class="section-head"><h2 data-i="smartBuilder">سازنده هوشمند کانفیگ</h2><button class="btn" id="openConfig">＋ <span data-i="newConfig">کانفیگ جدید</span></button></div>
+  <div class="form-grid">
+   <div class="field"><label data-i="protocol">پروتکل</label><select id="quickProtocol"><option>VLESS</option><option>VMess</option><option>Trojan</option></select></div>
+   <div class="field"><label data-i="server">سرور</label><select id="quickServer"><option value="">انتخاب سرور</option></select></div>
+   <div class="field"><label data-i="security">امنیت</label><select id="quickSecurity"><option>REALITY</option><option>TLS</option><option>None</option></select></div>
+   <div class="field"><label data-i="transport">نوع انتقال</label><select id="quickTransport"><option>TCP</option><option>WS</option><option>gRPC</option><option>XHTTP</option></select></div>
+   <div class="field"><label data-i="volume">حجم (GB)</label><input id="quickVolume" type="number" min="1" value="50"></div>
+   <div class="field"><label data-i="duration">مدت (روز)</label><input id="quickDuration" type="number" min="1" value="30"></div>
+   <div class="field"><label data-i="deviceLimit">محدودیت دستگاه</label><input id="quickDevices" type="number" min="1" value="2"></div>
+   <div class="field"><label data-i="username">نام کاربر</label><input id="quickUser" placeholder="username"></div>
+  </div>
+  <button class="btn" id="quickCreate" data-i="createAndPublish">ساخت و انتشار کانفیگ</button>
+ </div>
+ <div class="card" style="margin-top:14px"><div class="section-head"><h2 data-i="configList">فهرست کانفیگ‌ها</h2><input id="configSearch" style="max-width:210px" placeholder="Search..."></div>
+  <div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="username">کاربر</th><th data-i="protocol">پروتکل</th><th data-i="server">سرور</th><th data-i="volume">حجم</th><th data-i="status">وضعیت</th><th data-i="actions">عملیات</th></tr></thead><tbody id="configRows"><tr><td colspan="7" class="muted">داده‌ای از API دریافت نشده است.</td></tr></tbody></table></div>
+ </div>
+ <div class="card" style="margin-top:14px"><h2 data-i="configTools">ابزارهای کانفیگ</h2><div class="actions">
+ <button class="btn gray" data-action="bulk-config" data-i="bulkCreate">ساخت گروهی</button><button class="btn gray" data-action="templates" data-i="templates">قالب‌های ذخیره‌شده</button><button class="btn gray" data-action="export-configs" data-i="exportJson">خروجی JSON</button><button class="btn gray" data-action="subscription-link" data-i="subscriptionLink">لینک اشتراک</button></div></div>
+</section>
+
+<section class="page" id="page-users">
+ <h1 data-i="userManagement">مدیریت کاربران</h1><p class="subtitle" data-i="usersSubtitle">اطلاعات، وضعیت، دسترسی و دستگاه‌های کاربران</p>
+ <div class="card"><div class="section-head"><h2 data-i="usersList">فهرست کاربران</h2><button class="btn" id="openUser">＋ <span data-i="addUser">افزودن کاربر</span></button></div>
+ <input id="userSearch" placeholder="Search users..." style="max-width:260px;margin-bottom:12px">
+ <div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="username">نام کاربری</th><th data-i="role">نقش</th><th data-i="status">وضعیت</th><th data-i="created">تاریخ ایجاد</th><th data-i="actions">عملیات</th></tr></thead><tbody id="userRows"><tr><td colspan="6">برای نمایش کاربران، API لازم است.</td></tr></tbody></table></div></div>
+ <div class="three" style="margin-top:14px"><div class="card"><h3 data-i="deviceControl">مدیریت دستگاه‌ها</h3><p class="muted" data-i="deviceDesc">محدودیت دستگاه و مشاهده نشست‌های فعال</p></div><div class="card"><h3 data-i="userBlock">مسدودسازی کاربر</h3><p class="muted" data-i="blockDesc">تعلیق موقت یا دائمی حساب و دسترسی</p></div><div class="card"><h3 data-i="userHistory">تاریخچه کاربر</h3><p class="muted" data-i="historyDesc">مشاهده ورود، تمدید و مصرف اشتراک</p></div></div>
+</section>
+
+<section class="page" id="page-servers">
+ <h1 data-i="serverManagement">مدیریت سرورها</h1><p class="subtitle" data-i="serversSubtitle">نودهای Xray، ظرفیت، موقعیت و سلامت سرویس</p>
+ <div class="notice" data-i="nodeNotice">اطلاعات آنلاین، پینگ و ظرفیت فقط با نصب Agent امن روی سرور و اتصال آن به Worker قابل دریافت است.</div>
+ <div class="card"><div class="section-head"><h2 data-i="serverList">فهرست سرورها</h2><button class="btn" id="openServer">＋ <span data-i="addServer">افزودن سرور</span></button></div>
+ <div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="server">سرور</th><th data-i="country">کشور</th><th data-i="address">آدرس</th><th data-i="capacity">ظرفیت</th><th data-i="status">وضعیت</th><th data-i="actions">عملیات</th></tr></thead><tbody id="serverRows"><tr><td colspan="7">سروری ثبت نشده یا API متصل نیست.</td></tr></tbody></table></div></div>
+ <div class="card" style="margin-top:14px"><h2 data-i="monitoring">مانیتورینگ</h2><div class="three"><div><strong>Ping</strong><p class="muted">نیازمند Agent</p></div><div><strong>CPU / RAM</strong><p class="muted">نیازمند Agent</p></div><div><strong>Traffic</strong><p class="muted">نیازمند آمار Xray</p></div></div></div>
+</section>
+
+<section class="page" id="page-subscriptions">
+ <h1 data-i="subscriptionManagement">مدیریت اشتراک‌ها</h1><p class="subtitle" data-i="subsSubtitle">تمدید، انقضا، حجم و لینک‌های اختصاصی</p>
+ <div class="grid"><div class="card"><small data-i="activeSubs">اشتراک فعال</small><h2 id="activeSubCount">—</h2></div><div class="card"><small data-i="expiredSubs">منقضی‌شده</small><h2 id="expiredSubCount">—</h2></div><div class="card"><small data-i="nearExpiry">نزدیک انقضا</small><h2>—</h2></div><div class="card"><small data-i="lowVolume">حجم رو به اتمام</small><h2>—</h2></div></div>
+ <div class="card"><div class="section-head"><h2 data-i="subscriptionList">فهرست اشتراک‌ها</h2><button class="btn" id="openSub">＋ <span data-i="newSubscription">اشتراک جدید</span></button></div>
+ <div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="username">کاربر</th><th data-i="volume">حجم</th><th data-i="used">مصرف‌شده</th><th data-i="expiry">انقضا</th><th data-i="status">وضعیت</th><th data-i="actions">عملیات</th></tr></thead><tbody id="subRows"><tr><td colspan="7">اطلاعات اشتراک از API دریافت نشده است.</td></tr></tbody></table></div></div>
+ <div class="card" style="margin-top:14px"><h2 data-i="renewalOptions">امکانات تمدید</h2><div class="actions"><button class="btn gray" data-action="renew-selected" data-i="renew">تمدید</button><button class="btn gray" data-action="disable-selected" data-i="disable">غیرفعال‌سازی</button><button class="btn gray" data-action="send-expiry-alert" data-i="expiryAlert">ارسال هشدار انقضا</button></div></div>
+</section>
+
+<section class="page" id="page-plans">
+ <h1 data-i="plansPricing">پلن‌ها و قیمت‌گذاری</h1><p class="subtitle" data-i="plansSubtitle">تعریف بسته‌های فروش و محدودیت‌های اشتراک</p>
+ <div class="card"><div class="section-head"><h2 data-i="planList">فهرست پلن‌ها</h2><button class="btn" id="openPlan">＋ <span data-i="newPlan">پلن جدید</span></button></div><div id="planCards" class="three"><p class="muted">پلنی ثبت نشده است.</p></div></div>
+ <div class="notice" data-i="paymentNote">ثبت پلن به معنی دریافت پول نیست. درگاه پرداخت باید جداگانه و امن به بک‌اند متصل شود.</div>
+</section>
+
+<section class="page" id="page-finance">
+ <h1 data-i="financeTitle">مالی و پرداخت‌ها</h1><p class="subtitle" data-i="financeSubtitle">گزارش فروش، تراکنش و کیف پول کاربران</p>
+ <div class="grid"><div class="card"><small data-i="salesToday">فروش امروز</small><h2>—</h2></div><div class="card"><small data-i="salesMonth">فروش ماه</small><h2>—</h2></div><div class="card"><small data-i="wallets">موجودی کیف پول‌ها</small><h2>—</h2></div><div class="card"><small data-i="pendingPayments">پرداخت‌های در انتظار</small><h2>—</h2></div></div>
+ <div class="card"><h2 data-i="transactions">تراکنش‌ها</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="username">کاربر</th><th data-i="amount">مبلغ</th><th data-i="date">تاریخ</th><th data-i="status">وضعیت</th></tr></thead><tbody><tr><td colspan="5">داده پرداخت در دسترس نیست.</td></tr></tbody></table></div></div>
+ <div class="card" style="margin-top:14px"><h2 data-i="discounts">تخفیف و کد هدیه</h2><button class="btn" data-action="create-coupon" data-i="createCoupon">ساخت کد تخفیف</button></div>
+</section>
+
+<section class="page" id="page-support">
+ <h1 data-i="supportCenter">مرکز پشتیبانی</h1><p class="subtitle" data-i="supportSubtitle">مدیریت درخواست‌ها و ارتباط با کاربران</p>
+ <div class="card"><div class="section-head"><h2 data-i="tickets">تیکت‌ها</h2><button class="btn" data-action="new-ticket" data-i="newTicket">تیکت جدید</button></div><p class="muted">تیکت‌ها پس از اتصال API نمایش داده می‌شوند.</p><div class="actions"><a class="btn" href="https://t.me/m_hadiii46333" target="_blank" rel="noopener">✈ <span data-i="telegramSupport">پشتیبانی تلگرام</span></a><span class="status ok" data-i="alwaysAvailable">پشتیبانی ۲۴ ساعته</span></div></div>
+</section>
+
+<section class="page" id="page-announcements">
+ <h1 data-i="announcementsTitle">اطلاع‌رسانی و پیام‌ها</h1><p class="subtitle" data-i="announcementsSubtitle">پیام گروهی و هشدارهای خودکار</p>
+ <div class="card"><div class="field"><label data-i="messageTitle">عنوان پیام</label><input id="announcementTitle"></div><div class="field"><label data-i="messageBody">متن پیام</label><textarea id="announcementBody"></textarea></div><div class="field"><label data-i="audience">مخاطبان</label><select id="audience"><option value="all">همه کاربران</option><option value="active">کاربران فعال</option><option value="expired">اشتراک‌های منقضی</option></select></div><button class="btn" id="sendAnnouncement" data-i="sendMessage">ارسال پیام</button></div>
+ <div class="card" style="margin-top:14px"><h2 data-i="automaticAlerts">هشدارهای خودکار</h2><p class="muted" data-i="alertsDesc">هشدار نزدیک انقضا، اتمام حجم و قطعی سرور پس از پیاده‌سازی API قابل فعال‌سازی است.</p></div>
+</section>
+
+<section class="page" id="page-analytics">
+ <h1 data-i="reports">گزارش‌ها و آمار</h1><p class="subtitle" data-i="reportsSubtitle">تحلیل مصرف، رشد کاربران، درآمد و وضعیت سرویس</p>
+ <div class="card"><h2 data-i="trafficReport">گزارش ترافیک</h2><div class="chart" id="trafficChart"></div><p class="muted">داده نمونه؛ برای گزارش دقیق باید آمار نودهای Xray جمع‌آوری شود.</p></div>
+ <div class="card" style="margin-top:14px"><h2 data-i="exportReports">خروجی گزارش</h2><div class="actions"><button class="btn gray" data-action="export-users">خروجی کاربران CSV</button><button class="btn gray" data-action="export-usage">خروجی مصرف</button><button class="btn gray" data-action="export-finance">خروجی مالی</button></div></div>
+</section>
+
+<section class="page" id="page-admins">
+ <h1 data-i="adminManagement">مدیران و سطح دسترسی</h1><p class="subtitle" data-i="adminsSubtitle">تفکیک مسئولیت مدیر فنی، فروش و پشتیبانی</p>
+ <div class="card"><h2 data-i="roles">نقش‌ها</h2><div class="three"><div class="card"><h3>Super Admin</h3><p class="muted" data-i="superAdminDesc">دسترسی کامل به تنظیمات و مدیریت</p></div><div class="card"><h3>Sales Admin</h3><p class="muted" data-i="salesAdminDesc">مدیریت فروش و اشتراک‌ها</p></div><div class="card"><h3>Support Admin</h3><p class="muted" data-i="supportAdminDesc">رسیدگی به تیکت‌ها و کاربران</p></div></div><button class="btn" data-action="invite-admin" data-i="inviteAdmin">افزودن مدیر</button></div>
+ <div class="notice" data-i="permissionNotice">اعمال دسترسی باید در سمت Worker بررسی شود؛ مخفی کردن دکمه در مرورگر امنیت ایجاد نمی‌کند.</div>
+</section>
+
+<section class="page" id="page-security">
+ <h1 data-i="securityCenter">مرکز امنیت</h1><p class="subtitle" data-i="securitySubtitle">نشست‌ها، ورودها، کنترل سوءاستفاده و گزارش فعالیت</p>
+ <div class="grid"><div class="card"><h3 data-i="twoFactor">ورود دومرحله‌ای</h3><p class="muted">نیازمند پیاده‌سازی امن در بک‌اند</p></div><div class="card"><h3 data-i="loginHistory">تاریخچه ورود</h3><p class="muted">نیازمند API گزارش ورود</p></div><div class="card"><h3 data-i="abuseDetection">شناسایی رفتار غیرعادی</h3><p class="muted">نیازمند داده IP و نشست‌ها</p></div><div class="card"><h3 data-i="auditLog">گزارش فعالیت مدیر</h3><p class="muted">نیازمند API ثبت رویداد</p></div></div>
+ <div class="card"><h2 data-i="securityActions">عملیات امنیتی</h2><div class="actions"><button class="btn gray" data-action="revoke-sessions" data-i="revokeSessions">لغو نشست‌ها</button><button class="btn gray" data-action="backup" data-i="backup">پشتیبان‌گیری</button><button class="btn gray" data-action="restore" data-i="restore">بازیابی اطلاعات</button></div></div>
+</section>
+
+<section class="page" id="page-settings">
+ <h1 data-i="settingsTitle">تنظیمات پنل</h1><p class="subtitle" data-i="settingsSubtitle">تنظیمات عمومی و اتصال سرویس‌ها</p>
+ <div class="card"><h2 data-i="apiSettings">اتصال API</h2><div class="field"><label>Worker API URL</label><input id="apiUrl" value="https://my-vless-panell.hadiabdoli20088.workers.dev"></div><div class="field"><label data-i="apiToken">توکن نشست</label><input id="apiToken" type="password" placeholder="توکن فقط در حافظه مرورگر"></div><div class="actions"><button class="btn" id="saveApi" data-i="saveSettings">ذخیره تنظیمات</button><button class="btn gray" id="testApi" data-i="testConnection">تست ارتباط</button></div><div class="muted" id="apiResult" style="margin-top:12px"></div></div>
+ <div class="card" style="margin-top:14px"><h2 data-i="preferences">ترجیحات</h2><div class="field"><label data-i="currency">واحد پول</label><select id="currency"><option>USD</option><option>EUR</option><option>IRT</option><option>TRY</option></select></div><div class="field"><label data-i="timezone">منطقه زمانی</label><select><option>Asia/Tehran</option><option>Europe/Istanbul</option><option>Europe/Berlin</option><option>UTC</option></select></div><button class="btn gray" data-action="backup" data-i="backup">پشتیبان‌گیری</button></div>
+</section>
+
+<section class="page" id="page-profile">
+ <h1 data-i="profileTitle">حساب کاربری</h1><p class="subtitle" data-i="profileSubtitle">اطلاعات حساب مدیر</p>
+ <div class="card"><div class="field"><label data-i="username">نام کاربری</label><input id="profileUsername" value="admin"></div><div class="field"><label data-i="email">ایمیل</label><input id="profileEmail" type="email"></div><div class="field"><label data-i="newPassword">رمز عبور جدید</label><input id="profilePassword" type="password"></div><button class="btn" data-action="update-profile" data-i="saveChanges">ذخیره تغییرات</button></div>
+</section>
+<div class="footer">MHA.NET • Secure VPN Management Platform • <span data-i="footerText">نسخه رابط کاربری</span></div>
+</main>
 </div>
 
-<div class="modal" id="entityModal">
- <div class="modal-box">
-  <div class="modal-head"><h2 id="modalTitle">افزودن</h2><button class="close" onclick="closeModal()">×</button></div>
-  <div class="notice" data-i18n="apiNotice">ذخیره نهایی اطلاعات با API انجام می‌شود. تا اتصال Worker، این فرم اطلاعات را در سرور ذخیره نمی‌کند.</div>
-  <form id="entityForm"><div id="modalFields" class="form-grid"></div><div class="actions"><button class="btn" type="submit" data-i18n="save">ذخیره</button><button class="btn secondary" type="button" onclick="closeModal()" data-i18n="cancel">انصراف</button></div></form>
+<div class="modal" id="modal"><div class="modal-box"><div class="modal-head"><h2 id="modalTitle">فرم</h2><button class="close" id="closeModal">✕</button></div><div id="modalContent"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<div class="login-screen" id="loginScreen">
+ <div class="login-box">
+  <div style="text-align:center;margin-bottom:22px"><div class="logo" style="margin:auto">🦁</div><h2 style="margin:14px 0 5px">MHA.NET</h2><div class="muted" data-i="loginWelcome">به پنل MHA.NET خوش آمدید</div></div>
+  <div class="field"><label data-i="username">نام کاربری</label><input id="loginUsername" autocomplete="username"></div>
+  <div class="field"><label data-i="password">رمز عبور</label><input id="loginPassword" type="password" autocomplete="current-password"></div>
+  <button class="btn" style="width:100%" id="loginBtn" data-i="login">ورود</button>
+  <div class="muted" id="loginMessage" style="margin-top:12px"></div>
+  <p class="muted" style="text-align:center">MHA.NET • Secure Access</p>
  </div>
 </div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-"use strict";
-
-/* آدرس Worker را با آدرس دقیق Deploy شده خودت هماهنگ کن. */
-const API_BASE = "https://my-vless-panell.hadiabdoli20088.workers.dev";
-
-const I18N={
+/* ================= CONFIGURATION =================
+   Worker URL را با آدرس دقیق Worker خودت تطبیق بده.
+   توکن فقط در حافظه صفحه نگهداری می‌شود.
+*/
+const CONFIG={
+ API_BASE:"https://my-vless-panell.hadiabdoli20088.workers.dev",
+ REQUEST_TIMEOUT:12000
+};
+let token=sessionStorage.getItem("mha_token")||"";
+let currentUser=null;
+let currentLang=localStorage.getItem("mha_lang")||"fa";
+let cached={users:[],configs:[],servers:[],subscriptions:[],plans:[]};
+const $=id=>document.getElementById(id);
+const translations={
  fa:{
- navigation:"منوی اصلی",dashboard:"داشبورد",users:"مدیریت کاربران",configs:"مدیریت کانفیگ‌ها",
- servers:"مدیریت سرورها",subscriptions:"اشتراک‌ها",usage:"مصرف کاربران",support:"پشتیبانی",
- account:"حساب کاربری",profile:"تنظیمات حساب",logout:"خروج",welcome:"به پنل MHA.NET خوش آمدید",
- register:"ثبت‌نام",login:"ورود",username:"نام کاربری",password:"رمز عبور",
- confirmPassword:"تکرار رمز عبور",createAccount:"ایجاد حساب کاربری",authNote:"ثبت‌نام و ورود از طریق سرور انجام می‌شود.",
- overview:"نمای کلی وضعیت پنل",refresh:"به‌روزرسانی",totalUsers:"کل کاربران",activeConfigs:"کانفیگ‌های فعال",
- totalServers:"سرورها",activeSubs:"اشتراک فعال",systemStatus:"وضعیت سیستم",checking:"در انتظار اتصال به سرور...",
- serverHealthNote:"اطلاعات سلامت سرورها از API دریافت می‌شود.",quickActions:"دسترسی سریع",newConfig:"کانفیگ جدید",
- newUser:"کاربر جدید",newServer:"سرور جدید",recentActivity:"فعالیت‌های اخیر",noActivity:"هنوز فعالیتی دریافت نشده است.",
- usersDesc:"ساخت، ویرایش و مدیریت دسترسی کاربران",configsDesc:"مدیریت پروفایل‌ها و کانفیگ‌های VPN",
- serversDesc:"مدیریت موقعیت، ظرفیت و سلامت سرورها",subsDesc:"مدیریت لینک، حجم و تاریخ انقضای اشتراک",
- usageDesc:"گزارش حجم مصرفی از سرور",supportDesc:"ارتباط با پشتیبانی MHA.NET",
- supportText:"برای دریافت راهنمایی با پشتیبانی تلگرام در ارتباط باشید.",openTelegram:"ورود به پشتیبانی تلگرام",
- profileDesc:"اطلاعات حساب و وضعیت نشست",role:"نقش",status:"وضعیت",created:"تاریخ ایجاد",actions:"عملیات",
- configName:"نام کانفیگ",server:"سرور",serverName:"نام سرور",country:"کشور",capacity:"ظرفیت",
- volume:"حجم",used:"مصرف",expiry:"انقضا",newSubscription:"اشتراک جدید",upload:"آپلود",download:"دانلود",
- updated:"آخرین بروزرسانی",apiNotice:"ذخیره نهایی اطلاعات با API انجام می‌شود. تا اتصال Worker، این فرم اطلاعات را در سرور ذخیره نمی‌کند.",
- save:"ذخیره",cancel:"انصراف",connectionOk:"اتصال به API برقرار است.",connectionBad:"اتصال به API برقرار نشد.",
- fillFields:"لطفاً همه فیلدهای ضروری را کامل کنید.",passwordMismatch:"رمزهای عبور یکسان نیستند.",
- genericError:"عملیات ناموفق بود.",authError:"نام کاربری یا رمز عبور اشتباه است.",
- wait:"در حال ارسال درخواست...",registerOk:"ثبت‌نام موفق بود.",loginOk:"ورود موفق بود.",
- logoutOk:"از حساب خارج شدید.",adminOnly:"این بخش فقط برای مدیر مجاز است.",
- loadError:"دریافت اطلاعات ناموفق بود.",confirmDelete:"از حذف این مورد مطمئن هستید؟",
- delete:"حذف",edit:"ویرایش",copy:"کپی",active:"فعال",inactive:"غیرفعال",
- supportRole:"پشتیبانی",userRole:"کاربر",adminRole:"مدیر",usernamePlaceholder:"نام کاربری",
- passwordPlaceholder:"حداقل ۸ کاراکتر",noPermission:"دسترسی غیرمجاز"
+ mainMenu:"منوی اصلی",dashboard:"داشبورد",configs:"مدیریت کانفیگ",users:"کاربران",servers:"سرورها",subscriptions:"اشتراک‌ها",plans:"پلن‌ها و قیمت‌ها",finance:"مالی و پرداخت‌ها",support:"پشتیبانی",announcements:"اطلاع‌رسانی",analytics:"گزارش‌ها و آمار",admins:"مدیران و دسترسی‌ها",security:"امنیت و گزارش فعالیت",settings:"تنظیمات",profile:"حساب کاربری",logout:"خروج",business:"مالی و ارتباط با مشتری",system:"سیستم",controlCenter:"مرکز کنترل مدیریت",welcome:"به پنل MHA.NET خوش آمدید",overviewSubtitle:"نمای کلی وضعیت سرویس و مدیریت کاربران",totalUsers:"کل کاربران",onlineUsers:"کاربران آنلاین",activeSubs:"اشتراک فعال",totalRevenue:"درآمد کل",liveApi:"نیازمند API واقعی",serverWorld:"نقشه جهانی سرورها",demoMap:"نمایش موقعیت نمونه",mapNote:"پرچم‌ها نمایشی‌اند؛ وضعیت زنده فقط پس از اتصال API مانیتورینگ نمایش داده می‌شود.",quickActions:"دسترسی سریع",createConfig:"＋ ساخت کانفیگ",addUser:"＋ افزودن کاربر",addServer:"＋ افزودن سرور",manageSubs:"مدیریت اشتراک‌ها",systemHealth:"سلامت سیستم",apiStatus:"ارتباط API",dbStatus:"اتصال دیتابیس",nodeStatus:"اتصال نودهای Xray",notVerified:"هنوز تأیید نشده",usageChart:"نمودار مصرف",chartDemo:"نمودار نمونه؛ داده واقعی باید از API دریافت شود.",recentActivity:"فعالیت‌های اخیر",configManagement:"مدیریت کانفیگ‌ها",configSubtitle:"ساخت، ویرایش، انتشار و مدیریت دسترسی کانفیگ‌ها",xrayNotice:"ساخت لینک به‌تنهایی کانفیگ را روی سرور فعال نمی‌کند. برای عملیات واقعی، API امن نود Xray باید متصل باشد.",smartBuilder:"سازنده هوشمند کانفیگ",newConfig:"کانفیگ جدید",protocol:"پروتکل",server:"سرور",security:"امنیت",transport:"نوع انتقال",volume:"حجم (GB)",duration:"مدت (روز)",deviceLimit:"محدودیت دستگاه",username:"نام کاربر",createAndPublish:"ساخت و انتشار کانفیگ",configList:"فهرست کانفیگ‌ها",status:"وضعیت",actions:"عملیات",configTools:"ابزارهای کانفیگ",bulkCreate:"ساخت گروهی",templates:"قالب‌های ذخیره‌شده",exportJson:"خروجی JSON",subscriptionLink:"لینک اشتراک",userManagement:"مدیریت کاربران",usersSubtitle:"اطلاعات، وضعیت، دسترسی و دستگاه‌های کاربران",usersList:"فهرست کاربران",role:"نقش",created:"تاریخ ایجاد",deviceControl:"مدیریت دستگاه‌ها",deviceDesc:"محدودیت دستگاه و مشاهده نشست‌های فعال",userBlock:"مسدودسازی کاربر",blockDesc:"تعلیق موقت یا دائمی حساب و دسترسی",userHistory:"تاریخچه کاربر",historyDesc:"مشاهده ورود، تمدید و مصرف اشتراک",serverManagement:"مدیریت سرورها",serversSubtitle:"نودهای Xray، ظرفیت، موقعیت و سلامت سرویس",nodeNotice:"اطلاعات آنلاین، پینگ و ظرفیت فقط با نصب Agent امن روی سرور و اتصال آن به Worker قابل دریافت است.",serverList:"فهرست سرورها",country:"کشور",address:"آدرس",capacity:"ظرفیت",monitoring:"مانیتورینگ",subscriptionManagement:"مدیریت اشتراک‌ها",subsSubtitle:"تمدید، انقضا، حجم و لینک‌های اختصاصی",expiredSubs:"منقضی‌شده",nearExpiry:"نزدیک انقضا",lowVolume:"حجم رو به اتمام",subscriptionList:"فهرست اشتراک‌ها",newSubscription:"اشتراک جدید",used:"مصرف‌شده",expiry:"انقضا",renewalOptions:"امکانات تمدید",renew:"تمدید",disable:"غیرفعال‌سازی",expiryAlert:"ارسال هشدار انقضا",plansPricing:"پلن‌ها و قیمت‌گذاری",plansSubtitle:"تعریف بسته‌های فروش و محدودیت‌های اشتراک",planList:"فهرست پلن‌ها",newPlan:"پلن جدید",paymentNote:"ثبت پلن به معنی دریافت پول نیست. درگاه پرداخت باید جداگانه و امن به بک‌اند متصل شود.",financeTitle:"مالی و پرداخت‌ها",financeSubtitle:"گزارش فروش، تراکنش و کیف پول کاربران",salesToday:"فروش امروز",salesMonth:"فروش ماه",wallets:"موجودی کیف پول‌ها",pendingPayments:"پرداخت‌های در انتظار",transactions:"تراکنش‌ها",amount:"مبلغ",date:"تاریخ",discounts:"تخفیف و کد هدیه",createCoupon:"ساخت کد تخفیف",supportCenter:"مرکز پشتیبانی",supportSubtitle:"مدیریت درخواست‌ها و ارتباط با کاربران",tickets:"تیکت‌ها",newTicket:"تیکت جدید",telegramSupport:"پشتیبانی تلگرام",alwaysAvailable:"پشتیبانی ۲۴ ساعته",announcementsTitle:"اطلاع‌رسانی و پیام‌ها",announcementsSubtitle:"پیام گروهی و هشدارهای خودکار",messageTitle:"عنوان پیام",messageBody:"متن پیام",audience:"مخاطبان",sendMessage:"ارسال پیام",automaticAlerts:"هشدارهای خودکار",alertsDesc:"هشدار نزدیک انقضا، اتمام حجم و قطعی سرور پس از پیاده‌سازی API قابل فعال‌سازی است.",reports:"گزارش‌ها و آمار",reportsSubtitle:"تحلیل مصرف، رشد کاربران، درآمد و وضعیت سرویس",trafficReport:"گزارش ترافیک",exportReports:"خروجی گزارش",adminManagement:"مدیران و سطح دسترسی",adminsSubtitle:"تفکیک مسئولیت مدیر فنی، فروش و پشتیبانی",roles:"نقش‌ها",superAdminDesc:"دسترسی کامل به تنظیمات و مدیریت",salesAdminDesc:"مدیریت فروش و اشتراک‌ها",supportAdminDesc:"رسیدگی به تیکت‌ها و کاربران",inviteAdmin:"افزودن مدیر",permissionNotice:"اعمال دسترسی باید در سمت Worker بررسی شود؛ مخفی کردن دکمه در مرورگر امنیت ایجاد نمی‌کند.",securityCenter:"مرکز امنیت",securitySubtitle:"نشست‌ها، ورودها، کنترل سوءاستفاده و گزارش فعالیت",twoFactor:"ورود دومرحله‌ای",loginHistory:"تاریخچه ورود",abuseDetection:"شناسایی رفتار غیرعادی",auditLog:"گزارش فعالیت مدیر",securityActions:"عملیات امنیتی",revokeSessions:"لغو نشست‌ها",backup:"پشتیبان‌گیری",restore:"بازیابی اطلاعات",settingsTitle:"تنظیمات پنل",settingsSubtitle:"تنظیمات عمومی و اتصال سرویس‌ها",apiSettings:"اتصال API",apiToken:"توکن نشست",saveSettings:"ذخیره تنظیمات",testConnection:"تست ارتباط",preferences:"ترجیحات",currency:"واحد پول",timezone:"منطقه زمانی",profileTitle:"حساب کاربری",profileSubtitle:"اطلاعات حساب مدیر",email:"ایمیل",newPassword:"رمز عبور جدید",saveChanges:"ذخیره تغییرات",footerText:"نسخه رابط کاربری",loginWelcome:"به پنل MHA.NET خوش آمدید",password:"رمز عبور",login:"ورود",apiRequired:"این عملیات به API بک‌اند نیاز دارد.",connectionOk:"ارتباط با API برقرار شد.",connectionFail:"ارتباط برقرار نشد؛ آدرس Worker و مسیر API را بررسی کن.",saveOk:"تنظیمات ذخیره شد.",needLogin:"ابتدا وارد حساب شوید.",confirmDelete:"از حذف این مورد مطمئنی؟",create:"ایجاد",cancel:"انصراف",name:"نام",price:"قیمت",days:"روز",description:"توضیحات",noData:"داده‌ای وجود ندارد."
  },
  en:{
- navigation:"MAIN MENU",dashboard:"Dashboard",users:"Users",configs:"Configurations",servers:"Servers",
- subscriptions:"Subscriptions",usage:"Usage",support:"Support",account:"ACCOUNT",profile:"Account settings",
- logout:"Log out",welcome:"Welcome to MHA.NET",register:"Register",login:"Login",username:"Username",
- password:"Password",confirmPassword:"Confirm password",createAccount:"Create account",
- authNote:"Registration and login are processed by the server.",overview:"Panel overview",refresh:"Refresh",
- totalUsers:"Total users",activeConfigs:"Active configs",totalServers:"Servers",activeSubs:"Active subscriptions",
- systemStatus:"System status",checking:"Waiting for server connection...",serverHealthNote:"Server health is retrieved from the API.",
- quickActions:"Quick actions",newConfig:"New config",newUser:"New user",newServer:"New server",
- recentActivity:"Recent activity",noActivity:"No activity received yet.",usersDesc:"Create, edit and manage user access",
- configsDesc:"Manage VPN profiles and configurations",serversDesc:"Manage server location, capacity and health",
- subsDesc:"Manage subscription links, data and expiration",usageDesc:"Traffic usage reports",
- supportDesc:"Contact MHA.NET support",supportText:"Contact Telegram support for assistance.",
- openTelegram:"Open Telegram support",profileDesc:"Account details and session status",role:"Role",status:"Status",
- created:"Created",actions:"Actions",configName:"Config name",server:"Server",serverName:"Server name",
- country:"Country",capacity:"Capacity",volume:"Volume",used:"Used",expiry:"Expiry",newSubscription:"New subscription",
- upload:"Upload",download:"Download",updated:"Last update",apiNotice:"Final data storage requires the API. This form will not store data until the Worker is connected.",
- save:"Save",cancel:"Cancel",connectionOk:"API connected.",connectionBad:"API connection failed.",
- fillFields:"Please complete required fields.",passwordMismatch:"Passwords do not match.",
- genericError:"Operation failed.",authError:"Invalid username or password.",wait:"Sending request...",
- registerOk:"Registration successful.",loginOk:"Login successful.",logoutOk:"You have logged out.",
- adminOnly:"This section is for administrators only.",loadError:"Could not load data.",
- confirmDelete:"Are you sure you want to delete this item?",delete:"Delete",edit:"Edit",copy:"Copy",
- active:"Active",inactive:"Inactive",supportRole:"Support",userRole:"User",adminRole:"Admin",
- usernamePlaceholder:"Username",passwordPlaceholder:"At least 8 characters",noPermission:"Access denied"
+ mainMenu:"MAIN MENU",dashboard:"Dashboard",configs:"Configurations",users:"Users",servers:"Servers",subscriptions:"Subscriptions",plans:"Plans & Pricing",finance:"Finance & Payments",support:"Support",announcements:"Announcements",analytics:"Analytics & Reports",admins:"Admins & Permissions",security:"Security & Audit",settings:"Settings",profile:"Profile",logout:"Logout",business:"BUSINESS",system:"SYSTEM",controlCenter:"Management control center",welcome:"Welcome to MHA.NET",overviewSubtitle:"Service overview and user management",totalUsers:"Total users",onlineUsers:"Online users",activeSubs:"Active subscriptions",totalRevenue:"Total revenue",liveApi:"Requires live API",serverWorld:"Global server map",demoMap:"Illustrative locations",mapNote:"Flags are illustrative; live status requires a monitoring API.",quickActions:"Quick actions",createConfig:"＋ Create config",addUser:"＋ Add user",addServer:"＋ Add server",manageSubs:"Manage subscriptions",systemHealth:"System health",apiStatus:"API connection",dbStatus:"Database connection",nodeStatus:"Xray node connection",notVerified:"Not verified",usageChart:"Usage chart",chartDemo:"Illustrative chart; live data must come from API.",recentActivity:"Recent activity",configManagement:"Configuration management",configSubtitle:"Create, edit, publish and manage configurations",xrayNotice:"Creating a link does not activate a config on the server. A secure Xray node API is required.",smartBuilder:"Smart config builder",newConfig:"New config",protocol:"Protocol",server:"Server",security:"Security",transport:"Transport",volume:"Volume (GB)",duration:"Duration (days)",deviceLimit:"Device limit",username:"Username",createAndPublish:"Create and publish config",configList:"Configurations",status:"Status",actions:"Actions",configTools:"Config tools",bulkCreate:"Bulk create",templates:"Saved templates",exportJson:"Export JSON",subscriptionLink:"Subscription link",userManagement:"User management",usersSubtitle:"User details, status, permissions and devices",usersList:"Users list",role:"Role",created:"Created",deviceControl:"Device management",deviceDesc:"Device limits and active sessions",userBlock:"Block user",blockDesc:"Temporarily or permanently suspend access",userHistory:"User history",historyDesc:"Login, renewal and usage history",serverManagement:"Server management",serversSubtitle:"Xray nodes, capacity, location and health",nodeNotice:"Live status, ping and capacity require a secure node agent connected to Worker.",serverList:"Servers",country:"Country",address:"Address",capacity:"Capacity",monitoring:"Monitoring",subscriptionManagement:"Subscription management",subsSubtitle:"Renewal, expiry, quota and dedicated links",expiredSubs:"Expired",nearExpiry:"Near expiry",lowVolume:"Low quota",subscriptionList:"Subscriptions",newSubscription:"New subscription",used:"Used",expiry:"Expiry",renewalOptions:"Renewal tools",renew:"Renew",disable:"Disable",expiryAlert:"Send expiry alert",plansPricing:"Plans & pricing",plansSubtitle:"Define products and subscription limits",planList:"Plans",newPlan:"New plan",paymentNote:"Creating a plan does not collect payment. A secure payment gateway must be integrated.",financeTitle:"Finance & payments",financeSubtitle:"Sales, transactions and user wallets",salesToday:"Today's sales",salesMonth:"Monthly sales",wallets:"Wallet balances",pendingPayments:"Pending payments",transactions:"Transactions",amount:"Amount",date:"Date",discounts:"Discounts & gift codes",createCoupon:"Create coupon",supportCenter:"Support center",supportSubtitle:"Manage requests and communicate with users",tickets:"Tickets",newTicket:"New ticket",telegramSupport:"Telegram support",alwaysAvailable:"24/7 support",announcementsTitle:"Announcements",announcementsSubtitle:"Bulk messages and automatic alerts",messageTitle:"Message title",messageBody:"Message body",audience:"Audience",sendMessage:"Send message",automaticAlerts:"Automatic alerts",alertsDesc:"Expiry, quota and server outage alerts require backend implementation.",reports:"Analytics & reports",reportsSubtitle:"Usage, user growth, revenue and service health",trafficReport:"Traffic report",exportReports:"Export reports",adminManagement:"Admin roles & permissions",adminsSubtitle:"Separate technical, sales and support responsibilities",roles:"Roles",superAdminDesc:"Full access to settings and management",salesAdminDesc:"Sales and subscription management",supportAdminDesc:"Handle tickets and users",inviteAdmin:"Invite admin",permissionNotice:"Permissions must be enforced by Worker; hiding browser buttons is not security.",securityCenter:"Security center",securitySubtitle:"Sessions, logins, abuse prevention and audit",twoFactor:"Two-factor authentication",loginHistory:"Login history",abuseDetection:"Abuse detection",auditLog:"Admin audit log",securityActions:"Security actions",revokeSessions:"Revoke sessions",backup:"Backup",restore:"Restore",settingsTitle:"Panel settings",settingsSubtitle:"General settings and service connections",apiSettings:"API connection",apiToken:"Session token",saveSettings:"Save settings",testConnection:"Test connection",preferences:"Preferences",currency:"Currency",timezone:"Timezone",profileTitle:"Account",profileSubtitle:"Administrator account details",email:"Email",newPassword:"New password",saveChanges:"Save changes",footerText:"User interface edition",loginWelcome:"Welcome to MHA.NET",password:"Password",login:"Login",apiRequired:"This action requires a backend API.",connectionOk:"API connection successful.",connectionFail:"Connection failed. Check Worker URL and API route.",saveOk:"Settings saved.",needLogin:"Please sign in first.",confirmDelete:"Are you sure you want to delete this?",create:"Create",cancel:"Cancel",name:"Name",price:"Price",days:"Days",description:"Description",noData:"No data available."
  },
  tr:{
- navigation:"ANA MENÜ",dashboard:"Kontrol paneli",users:"Kullanıcılar",configs:"Yapılandırmalar",
- servers:"Sunucular",subscriptions:"Abonelikler",usage:"Kullanım",support:"Destek",
- account:"HESAP",profile:"Hesap ayarları",logout:"Çıkış",welcome:"MHA.NET paneline hoş geldiniz",
- register:"Kayıt ol",login:"Giriş yap",username:"Kullanıcı adı",password:"Şifre",
- confirmPassword:"Şifreyi tekrar girin",createAccount:"Hesap oluştur",
- authNote:"Kayıt ve giriş sunucu üzerinden işlenir.",overview:"Panel genel görünümü",refresh:"Yenile",
- totalUsers:"Toplam kullanıcı",activeConfigs:"Aktif yapılandırmalar",totalServers:"Sunucular",
- activeSubs:"Aktif abonelikler",systemStatus:"Sistem durumu",checking:"Sunucu bağlantısı bekleniyor...",
- serverHealthNote:"Sunucu durumu API üzerinden alınır.",quickActions:"Hızlı işlemler",newConfig:"Yeni yapılandırma",
- newUser:"Yeni kullanıcı",newServer:"Yeni sunucu",recentActivity:"Son etkinlikler",noActivity:"Henüz etkinlik yok.",
- usersDesc:"Kullanıcı oluşturma ve erişim yönetimi",configsDesc:"VPN profillerini ve yapılandırmalarını yönetin",
- serversDesc:"Sunucu konumu, kapasitesi ve sağlığı",subsDesc:"Abonelik bağlantıları, veri ve sona erme tarihi",
- usageDesc:"Trafik kullanım raporları",supportDesc:"MHA.NET destek ile iletişim",
- supportText:"Yardım için Telegram desteğiyle iletişime geçin.",openTelegram:"Telegram desteğini aç",
- profileDesc:"Hesap bilgileri ve oturum durumu",role:"Rol",status:"Durum",created:"Oluşturuldu",
- actions:"İşlemler",configName:"Yapılandırma adı",server:"Sunucu",serverName:"Sunucu adı",
- country:"Ülke",capacity:"Kapasite",volume:"Veri",used:"Kullanılan",expiry:"Bitiş",
- newSubscription:"Yeni abonelik",upload:"Yükleme",download:"İndirme",updated:"Son güncelleme",
- apiNotice:"Verilerin kalıcı kaydı API gerektirir. Worker bağlanana kadar bu form sunucuya veri kaydetmez.",
- save:"Kaydet",cancel:"İptal",connectionOk:"API bağlantısı kuruldu.",connectionBad:"API bağlantısı başarısız.",
- fillFields:"Lütfen gerekli alanları doldurun.",passwordMismatch:"Şifreler eşleşmiyor.",
- genericError:"İşlem başarısız.",authError:"Kullanıcı adı veya şifre hatalı.",wait:"İstek gönderiliyor...",
- registerOk:"Kayıt başarılı.",loginOk:"Giriş başarılı.",logoutOk:"Çıkış yapıldı.",
- adminOnly:"Bu bölüm yalnızca yöneticiler içindir.",loadError:"Veriler yüklenemedi.",
- confirmDelete:"Bu öğeyi silmek istediğinizden emin misiniz?",delete:"Sil",edit:"Düzenle",copy:"Kopyala",
- active:"Aktif",inactive:"Pasif",supportRole:"Destek",userRole:"Kullanıcı",adminRole:"Yönetici",
- usernamePlaceholder:"Kullanıcı adı",passwordPlaceholder:"En az 8 karakter",noPermission:"Erişim reddedildi"
+ mainMenu:"ANA MENÜ",dashboard:"Kontrol Paneli",configs:"Yapılandırmalar",users:"Kullanıcılar",servers:"Sunucular",subscriptions:"Abonelikler",plans:"Paketler ve Fiyatlar",finance:"Finans ve Ödemeler",support:"Destek",announcements:"Duyurular",analytics:"Analiz ve Raporlar",admins:"Yöneticiler ve Yetkiler",security:"Güvenlik ve Kayıtlar",settings:"Ayarlar",profile:"Hesap",logout:"Çıkış",business:"İŞLEMLER",system:"SİSTEM",controlCenter:"Yönetim merkezi",welcome:"MHA.NET paneline hoş geldiniz",overviewSubtitle:"Hizmet durumu ve kullanıcı yönetimi",totalUsers:"Toplam kullanıcı",onlineUsers:"Çevrimiçi kullanıcı",activeSubs:"Aktif abonelik",totalRevenue:"Toplam gelir",liveApi:"Canlı API gerekli",serverWorld:"Küresel sunucu haritası",demoMap:"Örnek konumlar",mapNote:"Bayraklar örnektir; canlı durum için izleme API'si gerekir.",quickActions:"Hızlı işlemler",createConfig:"＋ Yapılandırma oluştur",addUser:"＋ Kullanıcı ekle",addServer:"＋ Sunucu ekle",manageSubs:"Abonelikleri yönet",systemHealth:"Sistem durumu",apiStatus:"API bağlantısı",dbStatus:"Veritabanı bağlantısı",nodeStatus:"Xray düğüm bağlantısı",notVerified:"Doğrulanmadı",usageChart:"Kullanım grafiği",chartDemo:"Örnek grafik; canlı veri API'den alınmalıdır.",recentActivity:"Son etkinlikler",configManagement:"Yapılandırma yönetimi",configSubtitle:"Yapılandırma oluşturma, düzenleme ve yayınlama",xrayNotice:"Bağlantı oluşturmak sunucuda yapılandırmayı etkinleştirmez. Güvenli Xray API gerekir.",smartBuilder:"Akıllı yapılandırma oluşturucu",newConfig:"Yeni yapılandırma",protocol:"Protokol",server:"Sunucu",security:"Güvenlik",transport:"Taşıma türü",volume:"Kota (GB)",duration:"Süre (gün)",deviceLimit:"Cihaz sınırı",username:"Kullanıcı adı",createAndPublish:"Oluştur ve yayınla",configList:"Yapılandırmalar",status:"Durum",actions:"İşlemler",configTools:"Yapılandırma araçları",bulkCreate:"Toplu oluştur",templates:"Kayıtlı şablonlar",exportJson:"JSON dışa aktar",subscriptionLink:"Abonelik bağlantısı",userManagement:"Kullanıcı yönetimi",usersSubtitle:"Kullanıcı bilgileri, durum ve cihazlar",usersList:"Kullanıcı listesi",role:"Rol",created:"Oluşturulma",deviceControl:"Cihaz yönetimi",deviceDesc:"Cihaz sınırı ve aktif oturumlar",userBlock:"Kullanıcıyı engelle",blockDesc:"Erişimi geçici veya kalıcı durdur",userHistory:"Kullanıcı geçmişi",historyDesc:"Giriş, yenileme ve kullanım geçmişi",serverManagement:"Sunucu yönetimi",serversSubtitle:"Xray düğümleri, kapasite ve konum",nodeNotice:"Canlı durum, ping ve kapasite için güvenli sunucu aracısı gerekir.",serverList:"Sunucular",country:"Ülke",address:"Adres",capacity:"Kapasite",monitoring:"İzleme",subscriptionManagement:"Abonelik yönetimi",subsSubtitle:"Yenileme, süre sonu, kota ve bağlantılar",expiredSubs:"Süresi dolmuş",nearExpiry:"Süre sonu yakın",lowVolume:"Düşük kota",subscriptionList:"Abonelikler",newSubscription:"Yeni abonelik",used:"Kullanılan",expiry:"Bitiş",renewalOptions:"Yenileme araçları",renew:"Yenile",disable:"Devre dışı bırak",expiryAlert:"Süre sonu uyarısı",plansPricing:"Paketler ve fiyatlandırma",plansSubtitle:"Paket ve abonelik sınırlarını tanımla",planList:"Paketler",newPlan:"Yeni paket",paymentNote:"Paket oluşturmak ödeme almak değildir. Güvenli ödeme sistemi ayrıca bağlanmalıdır.",financeTitle:"Finans ve ödemeler",financeSubtitle:"Satışlar, işlemler ve cüzdanlar",salesToday:"Bugünkü satış",salesMonth:"Aylık satış",wallets:"Cüzdan bakiyeleri",pendingPayments:"Bekleyen ödemeler",transactions:"İşlemler",amount:"Tutar",date:"Tarih",discounts:"İndirim kodları",createCoupon:"Kupon oluştur",supportCenter:"Destek merkezi",supportSubtitle:"Talepleri yönet ve kullanıcılarla iletişim kur",tickets:"Destek talepleri",newTicket:"Yeni talep",telegramSupport:"Telegram desteği",alwaysAvailable:"7/24 destek",announcementsTitle:"Duyurular",announcementsSubtitle:"Toplu mesajlar ve otomatik uyarılar",messageTitle:"Mesaj başlığı",messageBody:"Mesaj içeriği",audience:"Alıcılar",sendMessage:"Mesaj gönder",automaticAlerts:"Otomatik uyarılar",alertsDesc:"Süre, kota ve sunucu uyarıları için backend gerekir.",reports:"Analiz ve raporlar",reportsSubtitle:"Kullanım, büyüme, gelir ve hizmet durumu",trafficReport:"Trafik raporu",exportReports:"Raporu dışa aktar",adminManagement:"Yönetici rolleri ve yetkileri",adminsSubtitle:"Teknik, satış ve destek sorumluluklarını ayır",roles:"Roller",superAdminDesc:"Tüm ayarlara ve yönetime erişim",salesAdminDesc:"Satış ve abonelik yönetimi",supportAdminDesc:"Destek talepleri ve kullanıcılar",inviteAdmin:"Yönetici ekle",permissionNotice:"Yetkiler Worker tarafında denetlenmelidir.",securityCenter:"Güvenlik merkezi",securitySubtitle:"Oturumlar, girişler ve denetim kayıtları",twoFactor:"İki aşamalı doğrulama",loginHistory:"Giriş geçmişi",abuseDetection:"Anormal davranış tespiti",auditLog:"Yönetici işlem kaydı",securityActions:"Güvenlik işlemleri",revokeSessions:"Oturumları iptal et",backup:"Yedekle",restore:"Geri yükle",settingsTitle:"Panel ayarları",settingsSubtitle:"Genel ayarlar ve servis bağlantıları",apiSettings:"API bağlantısı",apiToken:"Oturum anahtarı",saveSettings:"Ayarları kaydet",testConnection:"Bağlantıyı test et",preferences:"Tercihler",currency:"Para birimi",timezone:"Saat dilimi",profileTitle:"Hesap",profileSubtitle:"Yönetici hesap bilgileri",email:"E-posta",newPassword:"Yeni parola",saveChanges:"Değişiklikleri kaydet",footerText:"Arayüz sürümü",loginWelcome:"MHA.NET paneline hoş geldiniz",password:"Parola",login:"Giriş",apiRequired:"Bu işlem backend API gerektirir.",connectionOk:"API bağlantısı başarılı.",connectionFail:"Bağlantı başarısız. Worker adresini kontrol et.",saveOk:"Ayarlar kaydedildi.",needLogin:"Önce giriş yapın.",confirmDelete:"Silmek istediğinize emin misiniz?",create:"Oluştur",cancel:"İptal",name:"Ad",price:"Fiyat",days:"Gün",description:"Açıklama",noData:"Veri yok."
  }
 };
-
-let language=localStorage.getItem("mha_language")||"fa";
-let authMode="register";
-let token=localStorage.getItem("mha_token")||"";
-let me=null;
-let currentEntity=null;
-let currentEditId=null;
-
-const $=id=>document.getElementById(id);
-const tr=key=>(I18N[language]&&I18N[language][key])||I18N.fa[key]||key;
-
-function toast(message){
- const el=$("toast");el.textContent=message;el.classList.add("show");
- setTimeout(()=>el.classList.remove("show"),3500);
+function t(k){return (translations[currentLang]||translations.fa)[k]||translations.fa[k]||k}
+function applyLanguage(){
+ document.documentElement.lang=currentLang;document.documentElement.dir=currentLang==="fa"?"rtl":"ltr";
+ document.querySelectorAll("[data-i]").forEach(el=>{const k=el.dataset.i;el.textContent=t(k)});
+ $("language").value=currentLang;localStorage.setItem("mha_lang",currentLang);
 }
-function setLanguage(lang){
- language=lang;localStorage.setItem("mha_language",lang);
- document.documentElement.lang=lang;
- document.documentElement.dir=lang==="fa"?"rtl":"ltr";
- document.querySelectorAll("[data-i18n]").forEach(el=>{
-  const key=el.dataset.i18n;if(tr(key))el.textContent=tr(key);
- });
- $("language").value=lang;
- $("authSubmit").textContent=authMode==="register"?tr("createAccount"):tr("login");
-}
-$("language").addEventListener("change",e=>setLanguage(e.target.value));
-
-function toggleSidebar(){
- $("sidebar").classList.toggle("open");$("overlay").classList.toggle("show");
-}
-function navigate(page){
- if(!me){toast(tr("noPermission"));return}
- const adminPages=["users","configs","servers","subscriptions","usage"];
- if(adminPages.includes(page)&&me.role!=="admin"){
-  toast(tr("adminOnly"));return;
- }
- document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
- const target=$("page-"+page);if(target)target.classList.add("active");
- document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
- $("sidebar").classList.remove("open");$("overlay").classList.remove("show");
- if(page==="users")loadUsers();
- if(page==="configs")loadConfigs();
- if(page==="servers")loadServers();
- if(page==="subscriptions")loadSubscriptions();
- if(page==="usage")loadUsage();
-}
-function setAuthMode(mode){
- authMode=mode;
- $("tabRegister").classList.toggle("active",mode==="register");
- $("tabLogin").classList.toggle("active",mode==="login");
- $("confirmWrap").style.display=mode==="register"?"block":"none";
- $("authConfirm").required=mode==="register";
- $("authSubmit").textContent=mode==="register"?tr("createAccount"):tr("login");
- $("authMessage").textContent="";
-}
-async function api(path,options={}){
- const headers={"Content-Type":"application/json",...(options.headers||{})};
- if(token)headers.Authorization="Bearer "+token;
- const response=await fetch(API_BASE+path,{...options,headers,mode:"cors"});
- const data=await response.json().catch(()=>({}));
- if(!response.ok)throw new Error(data.message||data.error||tr("genericError"));
- return data;
-}
-function showWorkspace(user){
- me=user;
- $("authScreen").style.display="none";$("workspace").style.display="block";
- $("profileUsername").textContent=user.username||"";
- $("profileRole").textContent=user.role||"user";
- document.querySelectorAll('[data-page="users"],[data-page="configs"],[data-page="servers"],[data-page="subscriptions"],[data-page="usage"]').forEach(el=>{
-  el.style.display=user.role==="admin"?"flex":"none";
- });
- navigate("dashboard");loadDashboard();
-}
-function clearAuth(){
- token="";me=null;localStorage.removeItem("mha_token");
- $("workspace").style.display="none";$("authScreen").style.display="flex";
-}
-$("authForm").addEventListener("submit",async e=>{
- e.preventDefault();
- const username=$("authUsername").value.trim();
- const password=$("authPassword").value;
- const confirm=$("authConfirm").value;
- if(username.length<3||password.length<8){$("authMessage").textContent=tr("fillFields");return}
- if(authMode==="register"&&password!==confirm){$("authMessage").textContent=tr("passwordMismatch");return}
- const button=$("authSubmit");button.disabled=true;button.textContent=tr("wait");
- try{
-  const endpoint=authMode==="register"?"/api/register":"/api/login";
-  const data=await api(endpoint,{method:"POST",body:JSON.stringify({username,password})});
-  if(!data.token||!data.user)throw new Error(data.message||tr("genericError"));
-  token=data.token;localStorage.setItem("mha_token",token);
-  showWorkspace(data.user);toast(authMode==="register"?tr("registerOk"):tr("loginOk"));
- }catch(err){
-  $("authMessage").textContent=err.message||tr("genericError");
- }finally{
-  button.disabled=false;button.textContent=authMode==="register"?tr("createAccount"):tr("login");
- }
-});
-async function logout(){
- try{if(token)await api("/api/logout",{method:"POST",body:"{}"})}catch(e){}
- clearAuth();toast(tr("logoutOk"));
-}
-async function restoreSession(){
- setLanguage(language);
- if(!token)return;
- try{
-  const data=await api("/api/me");
-  if(data.user)showWorkspace(data.user);else clearAuth();
- }catch(e){clearAuth()}
-}
-
-function requireAdmin(){
- if(!me||me.role!=="admin"){toast(tr("adminOnly"));return false}
- return true;
-}
-function escapeHTML(value){
- return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-function safeDate(value){
- if(!value)return "—";
- const d=new Date(value);return isNaN(d)?escapeHTML(value):d.toLocaleDateString();
-}
-function statusBadge(status){
- const active=["active","online","published","فعال"].includes(String(status).toLowerCase());
- return `<span class="badge ${active?"ok":"off"}">${escapeHTML(status||"—")}</span>`;
-}
-function rowActions(type,item){
- const id=encodeURIComponent(item.id);
- return `<div class="actions"><button class="btn secondary small" onclick="editEntity('${type}','${id}')">${tr("edit")}</button><button class="btn danger small" onclick="deleteEntity('${type}','${id}')">${tr("delete")}</button></div>`;
-}
-function fillTable(id,html,span){
- $(id).innerHTML=html||`<tr><td colspan="${span}" class="empty">—</td></tr>`;
-}
-async function getList(path){
- const data=await api(path);
- return Array.isArray(data.items)?data.items:Array.isArray(data.data)?data.data:[];
-}
-async function loadDashboard(){
- if(!me)return;
- try{
-  const data=await api("/api/admin/overview");
-  const s=data.stats||data;
-  $("statUsers").textContent=s.users??"—";
-  $("statConfigs").textContent=s.configs??"—";
-  $("statServers").textContent=s.servers??"—";
-  $("statSubs").textContent=s.activeSubscriptions??s.subscriptions??"—";
-  $("connectionStatus").textContent=tr("connectionOk");
-  $("healthBar").style.width=(s.health??0)+"%";
-  $("recentActivity").textContent=(data.recentActivity||[]).map(x=>x.message).join(" • ")||tr("noActivity");
- }catch(e){
-  $("connectionStatus").textContent=tr("connectionBad");
-  $("recentActivity").textContent=e.message;
- }
-}
-async function loadUsers(){
- if(!requireAdmin())return;
- try{
-  const items=await getList("/api/admin/users");
-  fillTable("usersTable",items.map(x=>`<tr><td>${escapeHTML(x.id)}</td><td>${escapeHTML(x.username)}</td><td>${escapeHTML(x.role)}</td><td>${statusBadge(x.status)}</td><td>${safeDate(x.created_at)}</td><td>${rowActions("user",x)}</td></tr>`).join(""),6);
- }catch(e){toast(e.message||tr("loadError"))}
-}
-async function loadConfigs(){
- if(!requireAdmin())return;
- try{
-  const items=await getList("/api/admin/configs");
-  fillTable("configsTable",items.map(x=>`<tr><td>${escapeHTML(x.id)}</td><td>${escapeHTML(x.name)}</td><td>${escapeHTML(x.protocol)}</td><td>${escapeHTML(x.server_name||x.server_id)}</td><td>${statusBadge(x.status)}</td><td>${rowActions("config",x)}</td></tr>`).join(""),6);
- }catch(e){toast(e.message||tr("loadError"))}
-}
-async function loadServers(){
- if(!requireAdmin())return;
- try{
-  const items=await getList("/api/admin/servers");
-  fillTable("serversTable",items.map(x=>`<tr><td>${escapeHTML(x.id)}</td><td>${escapeHTML(x.name)}</td><td>${escapeHTML(x.country)}</td><td>${escapeHTML(x.address)}</td><td>${escapeHTML(x.capacity??"—")}</td><td>${statusBadge(x.status)}</td><td>${rowActions("server",x)}</td></tr>`).join(""),7);
- }catch(e){toast(e.message||tr("loadError"))}
-}
-async function loadSubscriptions(){
- if(!requireAdmin())return;
- try{
-  const items=await getList("/api/admin/subscriptions");
-  fillTable("subscriptionsTable",items.map(x=>`<tr><td>${escapeHTML(x.id)}</td><td>${escapeHTML(x.username||x.user_id)}</td><td>${escapeHTML(x.volume_gb??"—")} GB</td><td>${escapeHTML(x.used_gb??"—")} GB</td><td>${safeDate(x.expires_at)}</td><td>${statusBadge(x.status)}</td><td>${rowActions("subscription",x)}</td></tr>`).join(""),7);
- }catch(e){toast(e.message||tr("loadError"))}
-}
-async function loadUsage(){
- if(!requireAdmin())return;
- try{
-  const items=await getList("/api/admin/usage");
-  fillTable("usageTable",items.map(x=>`<tr><td>${escapeHTML(x.username)}</td><td>${escapeHTML(x.upload_gb??"—")} GB</td><td>${escapeHTML(x.download_gb??"—")} GB</td><td>${escapeHTML(x.used_gb??"—")} GB</td><td>${safeDate(x.updated_at)}</td></tr>`).join(""),5);
- }catch(e){toast(e.message||tr("loadError"))}
-}
-function loadAll(){loadDashboard();if(me?.role==="admin"){loadUsers();loadConfigs();loadServers();loadSubscriptions();loadUsage()}}
-function filterTable(tableId,query){
- const q=query.toLowerCase();
- $(tableId).querySelectorAll("tr").forEach(row=>{
-  row.style.display=row.textContent.toLowerCase().includes(q)?"":"none";
- });
-}
-
-const entityFields={
- user:[
-  ["username","text","نام کاربری",true],["password","password","رمز عبور",true],
-  ["role","select","نقش",true,["user","admin"]],["status","select","وضعیت",true,["active","disabled"]]
- ],
- config:[
-  ["name","text","نام کانفیگ",true],["protocol","select","پروتکل",true,["VLESS","VMess","Trojan"]],
-  ["server_id","number","شناسه سرور",true],["config_uri","textarea","لینک کانفیگ",true],
-  ["status","select","وضعیت",true,["draft","published","disabled"]]
- ],
- server:[
-  ["name","text","نام سرور",true],["country","text","کشور",true],
-  ["address","text","آدرس سرور",true],["capacity","number","ظرفیت",false],
-  ["status","select","وضعیت",true,["online","offline","maintenance"]]
- ],
- subscription:[
-  ["user_id","number","شناسه کاربر",true],["volume_gb","number","حجم (GB)",true],
-  ["expires_at","date","تاریخ انقضا",true],["status","select","وضعیت",true,["active","expired","disabled"]]
- ]
-};
-function openEntityModal(type){
- if(!requireAdmin())return;
- currentEntity=type;currentEditId=null;
- $("modalTitle").textContent=({user:"کاربر جدید",config:"کانفیگ جدید",server:"سرور جدید",subscription:"اشتراک جدید"})[type];
- renderEntityFields(type,{});
- $("entityModal").classList.add("show");
-}
-function renderEntityFields(type,data){
- const fields=entityFields[type]||[];
- $("modalFields").innerHTML=fields.map(([name,kind,label,required,options])=>{
-  let control="";
-  if(kind==="select"){
-   control=`<select name="${name}" ${required?"required":""}>${options.map(v=>`<option value="${v}" ${data[name]===v?"selected":""}>${v}</option>`).join("")}</select>`;
-  }else if(kind==="textarea"){
-   control=`<textarea name="${name}" ${required?"required":""}>${escapeHTML(data[name]||"")}</textarea>`;
-  }else{
-   control=`<input name="${name}" type="${kind}" value="${escapeHTML(data[name]||"")}" ${required?"required":""} ${kind==="password"?"minlength='8'":""}>`;
-  }
-  return `<div class="field"><label>${label}</label>${control}</div>`;
- }).join("");
-}
-function closeModal(){$("entityModal").classList.remove("show")}
-async function editEntity(type,id){
- if(!requireAdmin())return;
- try{
-  const data=await api(`/api/admin/${type}s/${id}`);
-  const item=data.item||data;
-  currentEntity=type;currentEditId=item.id;
-  $("modalTitle").textContent=tr("edit");
-  renderEntityFields(type,item);
-  $("entityModal").classList.add("show");
- }catch(e){toast(e.message||tr("loadError"))}
-}
-async function deleteEntity(type,id){
- if(!requireAdmin()||!confirm(tr("confirmDelete")))return;
- try{
-  await api(`/api/admin/${type}s/${id}`,{method:"DELETE"});
-  toast(tr("delete")+" ✓");loadAll();
- }catch(e){toast(e.message||tr("genericError"))}
-}
-$("entityForm").addEventListener("submit",async e=>{
- e.preventDefault();
- if(!requireAdmin())return;
- const form=new FormData(e.target),payload=Object.fromEntries(form.entries());
- const base=`/api/admin/${currentEntity}s`;
- const path=currentEditId?`${base}/${encodeURIComponent(currentEditId)}`:base;
- try{
-  await api(path,{method:currentEditId?"PUT":"POST",body:JSON.stringify(payload)});
-  closeModal();toast(tr("save")+" ✓");loadAll();
- }catch(err){toast(err.message||tr("genericError"))}
-});
-async function copyText(text){
- try{await navigator.clipboard.writeText(text);toast(tr("copy")+" ✓")}
- catch(e){toast("Copy unavailable")}
-}
-setLanguage(language);
-setAuthMode("register");
-restoreSession();
-</script>
-</body>
-</html>
+function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.cla
