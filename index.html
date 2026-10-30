@@ -1,540 +1,745 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#140d20">
-<title>MHA.NET | VPN Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07091b">
+<title>MHA.NET | اینترنت آزاد جهانی</title>
+
 <style>
-:root{--bg:#100b19;--bg2:#180f26;--panel:#1d142b;--panel-2:#20172f;--border:#3c2b4b;--orange:#ff702b;--red:#ef345e;--purple:#823cff;--purple-2:#9d6af8;--text:#f7f1ff;--muted:#b9a9c9;--green:#1fbf8f;--gray:#81738f;--shadow:0 14px 30px rgba(0,0,0,.25)}
-*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:radial-gradient(circle at top, rgba(130,60,255,.18), transparent 30%), linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:Tahoma,Arial,sans-serif}a{text-decoration:none;color:inherit}button,input{font:inherit}header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:rgba(18,12,25,.8);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}.logo{display:flex;align-items:center;gap:8px;font-weight:700;letter-spacing:.5px}.logo small{color:var(--muted);font-size:11px;letter-spacing:1.2px}.shell{display:flex;min-height:calc(100vh - 84px)}nav{width:220px;background:rgba(24,15,35,.9);border-left:1px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;gap:8px}nav button,.actions button,.gray,.green,.red,.support{border:none;border-radius:12px;padding:12px 14px;cursor:pointer;transition:.2s ease;color:var(--text);background:transparent}nav button{display:flex;align-items:center;justify-content:flex-start;gap:8px;width:100%;text-align:right;border:1px solid transparent}nav button:hover{background:rgba(255,255,255,.02);border-color:var(--border)}nav button.active{background:linear-gradient(135deg,rgba(130,60,255,.15),rgba(255,112,43,.12));border-color:rgba(130,60,255,.5)}main{flex:1;padding:22px;background:rgba(13,10,19,.25)}.page{display:none;animation:fade .2s ease}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:18px 0}.card,.panel{background:linear-gradient(180deg,rgba(31,21,41,.95),rgba(21,15,31,.95));border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow)}.card{font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:10px}.metric{font-size:1.5rem;color:var(--orange)}.muted{color:var(--muted)}.warning{margin-top:14px;padding:14px;border:1px solid rgba(255,112,43,.35);border-radius:14px;background:rgba(255,112,43,.08);color:#ffd9b3}.panel h3,.panel h2{margin-top:0}.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.form > div{display:flex;flex-direction:column;gap:8px}label{font-size:.9rem;color:var(--muted)}input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.02);color:var(--text);outline:none}input:focus{border-color:rgba(130,96,255,.7);box-shadow:0 0 0 3px rgba(130,96,255,.15)}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}.actions button,.gray,.green,.red,.support{padding:12px 18px;font-weight:700}.actions button,.green{background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff}.gray{background:rgba(255,255,255,.05);border:1px solid var(--border)}.red{background:linear-gradient(135deg,var(--red),#ff5f5f);color:#fff}.support{position:fixed;right:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));font-size:1.5rem;box-shadow:var(--shadow)}footer{padding:18px 22px;color:var(--muted);font-size:.86rem;text-align:center}.auth-shell{max-width:420px;margin:22px auto}.auth-header{display:flex;justify-content:center;align-items:center;margin-bottom:18px}.tab-toggle{display:flex;background:rgba(255,255,255,.03);padding:6px;border-radius:12px;border:1px solid var(--border)}.tab-toggle button{background:transparent;border:none;color:var(--muted);padding:10px 18px;border-radius:10px;cursor:pointer}.tab-toggle button.active{background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff}.mini{font-size:.8rem;color:var(--muted)}table{width:100%;border-collapse:collapse;margin-top:6px}th,td{padding:12px 10px;border-bottom:1px solid var(--border);text-align:right}th{color:var(--muted);font-weight:600}.tablewrap{overflow:auto}.logout-btn{display:none}.menu{display:none}.toast{position:fixed;inset:auto 20px 20px auto;display:none;max-width:320px;padding:12px 16px;border-radius:12px;background:rgba(23,18,30,.95);border:1px solid var(--border);color:var(--text);box-shadow:var(--shadow)}#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:none;max-width:80%;padding:10px 14px;border-radius:999px;background:rgba(14,10,20,.9);border:1px solid var(--border);color:var(--text);font-size:.9rem;text-align:center;z-index:1000}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}@media (max-width:880px){.shell{display:block}.nav{display:none;width:100%;padding:14px}.nav.open{display:flex}.menu{display:inline-flex}.main{padding:18px}.support{bottom:18px;right:18px}}.logo{font-size:1.1rem}
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#07091b;
+  --panel:#0d122b;
+  --blue:#246bff;
+  --purple:#792dff;
+  --orange:#ff7547;
+  --text:#f7f7ff;
+  --muted:#a6add0;
+}
+
+body{
+  font-family:'Vazirmatn',Tahoma,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+body:before{
+  content:"";
+  position:fixed;
+  width:600px;height:600px;
+  background:#4b19c5;
+  filter:blur(180px);
+  opacity:.18;
+  top:-250px;left:-180px;
+  pointer-events:none;
+}
+
+.navbar{
+  height:85px;
+  padding:0 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #25264b;
+  position:relative;
+  z-index:5;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo-icon{
+  font-size:48px;
+  filter:drop-shadow(0 0 12px #923dff);
+}
+
+.logo-name{
+  font-size:27px;
+  font-weight:800;
+  direction:ltr;
+}
+
+.logo-name span{color:var(--orange)}
+
+.logo small{
+  display:block;
+  color:#a8aed4;
+  font-size:11px;
+  direction:ltr;
+}
+
+.nav-links{
+  display:flex;
+  gap:35px;
+  align-items:center;
+}
+
+.nav-links a{
+  color:#c3c5e2;
+  text-decoration:none;
+  font-size:14px;
+  transition:.3s;
+}
+
+.nav-links a:hover{color:#a17aff}
+
+.lang{
+  border:1px solid #343968;
+  border-radius:25px;
+  padding:8px 17px;
+  color:#ddd;
+  background:#10152d;
+}
+
+.main{
+  max-width:1450px;
+  margin:auto;
+  padding:35px 5%;
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:45px;
+  align-items:center;
+  min-height:calc(100vh - 85px);
+}
+
+.hero{
+  position:relative;
+  min-height:620px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.hero h1{
+  font-size:clamp(30px,4vw,55px);
+  line-height:1.6;
+  font-weight:800;
+  margin-bottom:15px;
+}
+
+.gradient-text{
+  background:linear-gradient(90deg,#a14cff,#ff794f);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+.hero-desc{
+  color:#aeb5dc;
+  font-size:16px;
+  line-height:2.3;
+  max-width:570px;
+}
+
+.globe-area{
+  height:310px;
+  position:relative;
+  margin-top:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.globe{
+  width:270px;
+  height:270px;
+  border-radius:50%;
+  position:relative;
+  background:
+    radial-gradient(circle at 35% 30%,#5b9cff 0,#1746a8 28%,#091b56 62%,#03091d 100%);
+  box-shadow:
+    0 0 35px #286dff,
+    0 0 90px #4420ff,
+    inset -25px -20px 50px #020617;
+  overflow:hidden;
+}
+
+.globe:before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  border-radius:50%;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 35px,#70baff55 36px 38px,transparent 39px 65px),
+    repeating-linear-gradient(0deg,transparent 0 35px,#70baff44 36px 38px,transparent 39px 65px);
+  transform:rotate(-20deg);
+  opacity:.65;
+}
+
+.globe:after{
+  content:"";
+  position:absolute;
+  width:100%;height:100%;
+  border-radius:50%;
+  background:linear-gradient(120deg,transparent 25%,#5daaff33 45%,transparent 70%);
+}
+
+.orbit{
+  position:absolute;
+  width:360px;height:130px;
+  border:2px solid #8c5aff;
+  border-radius:50%;
+  transform:rotate(-22deg);
+  box-shadow:0 0 15px #783bff;
+}
+
+.orbit.two{
+  width:390px;height:170px;
+  border-color:#31bfff;
+  transform:rotate(25deg);
+}
+
+.country{
+  position:absolute;
+  background:#101a42dd;
+  border:1px solid #526dff;
+  border-radius:12px;
+  padding:8px 13px;
+  font-size:12px;
+  box-shadow:0 0 18px #345cff55;
+}
+
+.country.one{top:35px;right:10%}
+.country.two{bottom:35px;left:8%}
+.country.three{top:50%;right:0}
+
+.features{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:15px;
+}
+
+.feature{
+  text-align:center;
+  padding:15px 8px;
+  border-left:1px solid #27294e;
+}
+
+.feature:last-child{border:0}
+
+.feature-icon{
+  font-size:27px;
+  margin-bottom:8px;
+}
+
+.feature strong{
+  display:block;
+  font-size:14px;
+}
+
+.feature span{
+  color:#969ec6;
+  font-size:11px;
+  display:block;
+  margin-top:5px;
+}
+
+.auth-wrap{
+  display:flex;
+  justify-content:center;
+  width:100%;
+}
+
+.auth-card{
+  width:100%;
+  max-width:470px;
+  padding:32px;
+  background:linear-gradient(145deg,#101632f5,#080d20f5);
+  border:1px solid #343b78;
+  border-radius:25px;
+  box-shadow:0 0 55px #2426a322;
+  position:relative;
+  overflow:hidden;
+}
+
+.auth-card:before{
+  content:"";
+  position:absolute;
+  top:0;right:0;left:0;
+  height:3px;
+  background:linear-gradient(90deg,#743bff,#278aff,#ff794f);
+}
+
+.auth-logo{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.auth-logo .lion{font-size:53px}
+
+.auth-logo h2{
+  font-size:25px;
+  direction:ltr;
+}
+
+.auth-logo h2 span{color:var(--orange)}
+
+.auth-logo p{
+  color:#a8add0;
+  font-size:12px;
+  margin-top:7px;
+}
+
+.auth-title{
+  text-align:center;
+  font-size:23px;
+  margin-bottom:8px;
+}
+
+.auth-subtitle{
+  text-align:center;
+  font-size:12px;
+  color:#a5acce;
+  margin-bottom:25px;
+}
+
+.tabs{
+  display:flex;
+  padding:5px;
+  background:#080e23;
+  border:1px solid #303967;
+  border-radius:14px;
+  margin-bottom:23px;
+}
+
+.tab{
+  width:50%;
+  padding:12px;
+  border:0;
+  border-radius:10px;
+  color:#a9b0d8;
+  background:transparent;
+  font-family:inherit;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.tab.active{
+  color:white;
+  background:linear-gradient(100deg,#682eff,#a43bff,#ff7547);
+  box-shadow:0 5px 20px #752cff44;
+}
+
+.field{margin-bottom:17px}
+
+.field label{
+  display:block;
+  color:#d6d9f4;
+  font-size:13px;
+  margin-bottom:9px;
+}
+
+.field input{
+  width:100%;
+  padding:15px 16px;
+  color:white;
+  background:#080f27;
+  border:1px solid #343e70;
+  border-radius:12px;
+  outline:none;
+  font-family:inherit;
+  font-size:14px;
+  transition:.3s;
+}
+
+.field input:focus{
+  border-color:#8c52ff;
+  box-shadow:0 0 0 3px #833cff22;
+}
+
+.field input::placeholder{color:#747da8}
+
+.password-box{position:relative}
+
+.password-box input{padding-left:50px}
+
+.eye{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  color:#9ea8d5;
+  user-select:none;
+}
+
+.submit-btn{
+  width:100%;
+  border:0;
+  border-radius:13px;
+  padding:15px;
+  margin-top:8px;
+  color:white;
+  font-family:inherit;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+  background:linear-gradient(100deg,#652dff,#a12bff,#ff7547);
+  box-shadow:0 8px 25px #7c32ff44;
+  transition:.3s;
+}
+
+.submit-btn:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.13);
+}
+
+.switch-text{
+  text-align:center;
+  color:#a7aed4;
+  font-size:12px;
+  margin-top:23px;
+}
+
+.switch-text a{
+  color:#a77aff;
+  text-decoration:none;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.notice{
+  display:none;
+  padding:12px;
+  border-radius:10px;
+  font-size:12px;
+  margin-bottom:15px;
+  text-align:center;
+}
+
+.notice.error{
+  display:block;
+  background:#5b192b66;
+  border:1px solid #c34465;
+  color:#ff9bad;
+}
+
+.notice.success{
+  display:block;
+  background:#155b4566;
+  border:1px solid #2bbf91;
+  color:#7af0c3;
+}
+
+.terms{
+  text-align:center;
+  color:#737da8;
+  font-size:10px;
+  margin-top:22px;
+  line-height:2;
+}
+
+.footer{
+  text-align:center;
+  color:#6f779d;
+  font-size:11px;
+  padding:20px;
+  border-top:1px solid #202344;
+}
+
+@media(max-width:900px){
+  .main{
+    grid-template-columns:1fr;
+    gap:15px;
+    padding:25px 5%;
+  }
+  .hero{
+    min-height:auto;
+    text-align:center;
+    padding:20px 0;
+  }
+  .hero-desc{margin:auto}
+  .globe-area{height:260px}
+  .globe{width:220px;height:220px}
+  .orbit{width:300px;height:110px}
+  .orbit.two{width:320px;height:140px}
+  .auth-card{max-width:520px}
+}
+
+@media(max-width:550px){
+  .navbar{height:70px;padding:0 18px}
+  .logo-icon{font-size:35px}
+  .logo-name{font-size:21px}
+  .nav-links{display:none}
+  .main{padding:15px 16px}
+  .hero h1{font-size:30px}
+  .hero-desc{font-size:13px}
+  .globe-area{height:230px}
+  .globe{width:190px;height:190px}
+  .features{gap:3px}
+  .feature strong{font-size:12px}
+  .feature span{font-size:9px}
+  .auth-card{padding:24px 19px}
+  .auth-title{font-size:21px}
+}
 </style>
 </head>
+
 <body>
 
-<header>
-<button class="menu" onclick="toggleMenu()" aria-label="منو">☰</button>
-<div class="logo">🦁 MHA.NET<small>VPN MANAGEMENT PANEL</small></div>
-<button class="gray logout-btn" onclick="logout()">خروج</button>
+<header class="navbar">
+  <div class="logo">
+    <div class="logo-icon">🦁</div>
+    <div>
+      <div class="logo-name">MHA<span>.NET</span></div>
+      <small>Freedom in Your Hands</small>
+    </div>
+  </div>
+
+  <nav class="nav-links">
+    <a href="#">خانه</a>
+    <a href="#features">ویژگی‌ها</a>
+    <a href="#">قیمت‌ها</a>
+    <a href="#">پشتیبانی</a>
+  </nav>
+
+  <div class="lang">FA 🇮🇷</div>
 </header>
 
-<div class="shell">
-<nav id="nav">
-<button class="active" onclick="page('dashboard',this)">🏠 داشبورد</button>
-<button onclick="page('configs',this)">🔗 کانفیگ‌ها</button>
-<button onclick="page('users',this)">👥 کاربران</button>
-<button onclick="page('servers',this)">🌐 سرورها</button>
-<button onclick="page('subs',this)">📦 اشتراک‌ها</button>
-<button onclick="page('security',this)">🛡️ امنیت</button>
-<button onclick="page('settings',this)">⚙️ تنظیمات</button>
-<button onclick="page('account',this)">👤 حساب کاربری</button>
-</nav>
+<main class="main">
 
-<main>
-<section id="auth" class="page">
-<div class="logo">🦁 MHA.NET</div>
-<div class="panel">
-<div class="auth-shell">
-<div class="auth-header">
-<div class="tab-toggle">
-<button id="loginTabBtn" class="active" onclick="switchAuthMode('login')">ورود</button>
-<button id="registerTabBtn" onclick="switchAuthMode('register')">ثبت‌نام</button>
-</div>
-</div>
+<section class="hero">
 
-<div id="loginForm">
-<h2 id="authTitle">ورود به پنل</h2>
-<p class="muted">به پنل مدیریت MHA.NET خوش آمدی.</p>
-<label>نام کاربری</label>
-<input id="loginUser" autocomplete="username" placeholder="نام کاربری">
-<label>رمز عبور</label>
-<input id="loginPass" type="password" autocomplete="current-password" placeholder="رمز عبور">
-<div class="actions">
-<button onclick="login()">ورود</button>
-</div>
-<p class="mini">نام کاربری پیش‌فرض: admin | رمز عبور: 123456</p>
-</div>
+  <h1>
+    به <span class="gradient-text">دنیای بدون مرز</span><br>
+    با MHA.NET متصل شوید
+  </h1>
 
-<div id="registerForm" style="display:none;">
-<h2>ثبت‌نام در پنل</h2>
-<p class="muted">حساب جدید بساز و به داشبورد دسترسی پیدا کن.</p>
-<label>نام کاربری</label>
-<input id="regUser" autocomplete="username" placeholder="نام کاربری جدید">
-<label>رمز عبور</label>
-<input id="regPass" type="password" autocomplete="new-password" placeholder="رمز عبور جدید">
-<div class="actions">
-<button onclick="register()">ثبت‌نام</button>
-</div>
-</div>
-</div>
+  <p class="hero-desc">
+    با سرویس VPN ما به دنیای اینترنت جهانی متصل شوید.
+    امنیت، سرعت و آزادی را در یک تجربه متفاوت داشته باشید.
+  </p>
+
+  <div class="globe-area">
+    <div class="orbit"></div>
+    <div class="orbit two"></div>
+    <div class="globe"></div>
+    <div class="country one">🇩🇪 Germany</div>
+    <div class="country two">🇺🇸 USA</div>
+    <div class="country three">🇯🇵 Japan</div>
+  </div>
+
+  <div class="features" id="features">
+
+    <div class="feature">
+      <div class="feature-icon">🛡️</div>
+      <strong>امنیت بالا</strong>
+      <span>حفاظت از اطلاعات شما</span>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">🌐</div>
+      <strong>دسترسی جهانی</strong>
+      <span>اتصال به سرورهای جهانی</span>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <strong>سرعت فوق‌العاده</strong>
+      <span>اتصال پایدار و سریع</span>
+    </div>
+
+  </div>
+
+</section>
+
+<section class="auth-wrap">
+
+<div class="auth-card">
+
+  <div class="auth-logo">
+    <div class="lion">🦁</div>
+    <h2>MHA<span>.NET</span></h2>
+    <p>Freedom in Your Hands</p>
+  </div>
+
+  <h2 class="auth-title" id="formTitle">ساخت حساب کاربری</h2>
+
+  <p class="auth-subtitle" id="formSubtitle">
+    برای استفاده از امکانات، حساب خود را بسازید.
+  </p>
+
+  <div class="tabs">
+    <button class="tab active" id="registerTab"
+      onclick="setMode('register')">ثبت‌نام</button>
+
+    <button class="tab" id="loginTab"
+      onclick="setMode('login')">ورود</button>
+  </div>
+
+  <div id="notice" class="notice"></div>
+
+  <form id="authForm">
+
+    <div class="field">
+      <label>نام کاربری</label>
+      <input
+        type="text"
+        id="username"
+        placeholder="نام کاربری خود را وارد کنید"
+        minlength="3"
+        maxlength="32"
+        autocomplete="username"
+        required>
+    </div>
+
+    <div class="field">
+      <label>رمز عبور</label>
+      <div class="password-box">
+        <input
+          type="password"
+          id="password"
+          placeholder="رمز عبور خود را وارد کنید"
+          minlength="8"
+          autocomplete="new-password"
+          required>
+        <span class="eye" onclick="togglePassword('password',this)">👁</span>
+      </div>
+    </div>
+
+    <div class="field" id="confirmField">
+      <label>تکرار رمز عبور</label>
+      <div class="password-box">
+        <input
+          type="password"
+          id="confirmPassword"
+          placeholder="رمز عبور را دوباره وارد کنید"
+          minlength="8"
+          autocomplete="new-password"
+          required>
+        <span class="eye" onclick="togglePassword('confirmPassword',this)">👁</span>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">
+      ثبت‌نام در MHA.NET
+    </button>
+
+  </form>
+
+  <div class="switch-text" id="switchText">
+    قبلاً حساب کاربری دارید؟
+    <a onclick="setMode('login')">وارد شوید</a>
+  </div>
+
+  <div class="terms">
+    با ثبت‌نام، شما شرایط استفاده از خدمات MHA.NET را می‌پذیرید.
+  </div>
+
 </div>
 </section>
 
-<section id="dashboard" class="page active">
-<h2>داشبورد مدیریت</h2>
-<p class="muted">مدیریت سرویس‌های MHA.NET</p>
-<div class="grid">
-<div class="card">👥 کاربران<div class="metric" id="usersCount">—</div></div>
-<div class="card">🔗 کانفیگ‌ها<div class="metric" id="configsCount">—</div></div>
-<div class="card">🌐 سرورها<div class="metric" id="serversCount">—</div></div>
-<div class="card">📦 اشتراک‌ها<div class="metric" id="subsCount">—</div></div>
-</div>
-<div class="panel">
-<h3>وضعیت اتصال</h3>
-<p id="connectionStatus" class="muted">API هنوز تنظیم نشده است.</p>
-<div class="warning">برای ساخت واقعی کاربر، ایجاد کانفیگ VLESS، مدیریت ترافیک و اتصال Xray باید بک‌اند و سرور پیکربندی شوند. این نسخه فرانت‌اند است و اتصال واقعی فقط با بک‌اند و سرور Xray انجام می‌شود.</div>
-</div>
-<div class="panel">
-<h3>پشتیبانی MHA.NET</h3>
-<button class="green" onclick="support()">✈️ پشتیبانی تلگرام</button>
-</div>
-</section>
-
-<section id="configs" class="page">
-<h2>کانفیگ‌های VLESS</h2>
-<div class="panel">
-<div class="form">
-<div><label>نام کانفیگ</label><input id="cName" placeholder="مثلاً VLESS-01"></div>
-<div><label>شناسه کاربر</label><input id="cUser" placeholder="شناسه کاربر"></div>
-<div><label>آدرس سرور</label><input id="cHost" placeholder="server.example.com"></div>
-<div><label>پورت</label><input id="cPort" type="number" placeholder="443"></div>
-</div>
-<div class="actions"><button onclick="apiAction('POST','/api/configs',{name:val('cName'),userId:val('cUser'),host:val('cHost'),port:Number(val('cPort')),protocol:'vless'})">ایجاد کانفیگ</button><button class="gray" onclick="loadResource('configs')">بارگذاری</button></div>
-</div>
-<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>پروتکل</th><th>وضعیت</th></tr></thead><tbody id="configRows"><tr><td colspan="3">برای نمایش اطلاعات، API متصل نشده است.</td></tr></tbody></table></div>
-</section>
-
-<section id="users" class="page">
-<h2>مدیریت کاربران</h2>
-<div class="panel">
-<div class="form">
-<div><label>نام کاربری</label><input id="uName" placeholder="username"></div>
-<div><label>رمز عبور موقت</label><input id="uPass" type="password" placeholder="رمز امن"></div>
-</div>
-<div class="actions"><button onclick="apiAction('POST','/api/users',{username:val('uName'),password:val('uPass')})">ایجاد کاربر</button><button class="gray" onclick="loadResource('users')">بارگذاری</button></div>
-</div>
-<div class="panel tablewrap"><table><thead><tr><th>شناسه</th><th>نام کاربری</th><th>وضعیت</th></tr></thead><tbody id="userRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
-</section>
-
-<section id="servers" class="page">
-<h2>مدیریت سرورها</h2>
-<div class="panel">
-<div class="form">
-<div><label>نام سرور</label><input id="sName" placeholder="سرور اصلی"></div>
-<div><label>آدرس سرور</label><input id="sHost" placeholder="IP یا دامنه"></div>
-<div><label>پورت اتصال</label><input id="sPort" type="number" placeholder="443"></div>
-</div>
-<div class="actions"><button onclick="apiAction('POST','/api/servers',{name:val('sName'),host:val('sHost'),port:Number(val('sPort'))})">ثبت سرور</button><button class="gray" onclick="loadResource('servers')">بارگذاری</button></div>
-</div>
-<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>آدرس</th><th>پورت</th></tr></thead><tbody id="serverRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
-</section>
-
-<section id="subs" class="page">
-<h2>مدیریت اشتراک‌ها</h2>
-<div class="panel">
-<div class="form">
-<div><label>شناسه کاربر</label><input id="subUser" placeholder="شناسه کاربر"></div>
-<div><label>حجم (GB)</label><input id="subVolume" type="number" min="1" placeholder="50"></div>
-<div><label>مدت (روز)</label><input id="subDays" type="number" min="1" placeholder="30"></div>
-</div>
-<div class="actions"><button onclick="apiAction('POST','/api/subscriptions',{userId:val('subUser'),volumeGB:Number(val('subVolume')),days:Number(val('subDays'))})">ایجاد اشتراک</button><button class="gray" onclick="loadResource('subscriptions')">بارگذاری</button></div>
-</div>
-<div class="panel tablewrap"><table><thead><tr><th>شناسه</th><th>کاربر</th><th>وضعیت</th></tr></thead><tbody id="subRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
-</section>
-
-<section id="security" class="page">
-<h2>امنیت</h2>
-<div class="panel">
-<p>🔐 احراز هویت سمت بک‌اند انجام می‌شود.</p>
-<p class="muted">کلید API، رمز عبور مدیر و اطلاعات حساس سرور را در HTML قرار نده.</p>
-<p class="muted">در نسخه نهایی باید سطح دسترسی مدیر و کاربر، اعتبار��نجی ورودی و ثبت رخدادها در سمت سرور پیاده‌سازی شود.</p>
-</div>
-</section>
-
-<section id="settings" class="page">
-<h2>تنظیمات اتصال</h2>
-<div class="panel">
-<label>آدرس API بک‌اند</label>
-<input id="apiBase" placeholder="https://your-worker.workers.dev">
-<p class="muted">اگر بک‌اند روی localhost:3000 اجرا شود، آدرس به‌صورت خودکار تنظیم می‌شود. اگر سرور شما روی دامنه واقعی است، آدرس آن را اینجا وارد کن.</p>
-<div class="actions"><button onclick="saveApi()">ذخیره آدرس API</button><button class="gray" onclick="testApi()">بررسی اتصال</button></div>
-</div>
-</section>
-
-<section id="account" class="page">
-<h2>حساب کاربری</h2>
-<div class="panel">
-<p class="muted" id="accountInfo">وضعیت ورود و حساب کاربری از API دریافت خواهد شد.</p>
-<button class="red" onclick="logout()">خروج از پنل</button>
-</div>
-</section>
-<footer>MHA.NET © VPN MANAGEMENT</footer>
 </main>
-</div>
 
-<button class="support" onclick="support()" aria-label="پشتیبانی">✈</button>
-<div id="toast"></div>
+<footer class="footer">
+  © 2026 MHA.NET — Freedom in Your Hands
+</footer>
 
 <script>
-const API_KEY = 'mha_api_base';
-const AUTH_KEY = 'mha_net_token';
-const USER_KEY = 'mha_net_user';
-const DEFAULT_LOCAL_API = 'http://localhost:3000';
-let API_BASE = '';
-let CURRENT_USER = null;
-let authMode = 'login';
+let currentMode = "register";
 
-function normalizeApiBase(value) {
-  if (!value || typeof value !== 'string') return '';
-  return value.trim().replace(/\/+$/, '');
+const form = document.getElementById("authForm");
+const username = document.getElementById("username");
+const password = document.getElementById("password");
+const confirmPassword = document.getElementById("confirmPassword");
+const confirmField = document.getElementById("confirmField");
+const notice = document.getElementById("notice");
+
+function setMode(mode){
+
+  currentMode = mode;
+  notice.className = "notice";
+  notice.textContent = "";
+
+  const register = mode === "register";
+
+  document.getElementById("registerTab")
+    .classList.toggle("active",register);
+
+  document.getElementById("loginTab")
+    .classList.toggle("active",!register);
+
+  document.getElementById("formTitle").textContent =
+    register ? "ساخت حساب کاربری" : "ورود به حساب کاربری";
+
+  document.getElementById("formSubtitle").textContent =
+    register
+    ? "برای استفاده از امکانات، حساب خود را بسازید."
+    : "برای ورود، نام کاربری و رمز عبور خود را وارد کنید.";
+
+  document.getElementById("submitBtn").textContent =
+    register ? "ثبت‌نام در MHA.NET" : "ورود به حساب";
+
+  document.getElementById("switchText").innerHTML =
+    register
+    ? 'قبلاً حساب کاربری دارید؟ <a onclick="setMode(\'login\')">وارد شوید</a>'
+    : 'حساب کاربری ندارید؟ <a onclick="setMode(\'register\')">ثبت‌نام کنید</a>';
+
+  confirmField.style.display = register ? "block" : "none";
+  confirmPassword.required = register;
+  password.autocomplete = register ? "new-password" : "current-password";
 }
 
-function getDefaultApiBase() {
-  const fromQuery = new URLSearchParams(window.location.search).get('api');
-  if (fromQuery) return normalizeApiBase(fromQuery);
-
-  try {
-    const saved = localStorage.getItem(API_KEY);
-    if (saved) return normalizeApiBase(saved);
-  } catch (e) {}
-
-  const host = window.location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
-    return DEFAULT_LOCAL_API;
-  }
-
-  return DEFAULT_LOCAL_API;
+function togglePassword(id,element){
+  const input = document.getElementById(id);
+  input.type = input.type === "password" ? "text" : "password";
+  element.textContent = input.type === "password" ? "👁" : "🙈";
 }
 
-function val(id){return document.getElementById(id).value.trim()}
-
-function notify(message){
- const el=document.getElementById('toast');
- el.textContent=message;
- el.style.display='block';
- clearTimeout(window.noticeTimer);
- window.noticeTimer=setTimeout(()=>el.style.display='none',3000);
+function showMessage(message,type){
+  notice.textContent = message;
+  notice.className = "notice " + type;
 }
 
-function humanizeServerMessage(value){
-  if (!value || typeof value !== 'string') return '';
-  return value
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+form.addEventListener("submit",function(event){
 
-function switchAuthMode(mode){
-  authMode = mode;
-  const loginForm = document.getElementById('loginForm');
-  const registerForm = document.getElementById('registerForm');
-  const loginTab = document.getElementById('loginTabBtn');
-  const regTab = document.getElementById('registerTabBtn');
-  const title = document.getElementById('authTitle');
+  event.preventDefault();
 
-  if(mode === 'register'){
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'block';
-    title.textContent = 'ثبت‌نام در پنل';
-    loginTab.classList.remove('active');
-    regTab.classList.add('active');
-  } else {
-    loginForm.style.display = 'block';
-    registerForm.style.display = 'none';
-    title.textContent = 'ورود به پنل';
-    regTab.classList.remove('active');
-    loginTab.classList.add('active');
-  }
-}
+  const user = username.value.trim();
+  const pass = password.value;
 
-function toggleMenu(){
- document.getElementById('nav').classList.toggle('open');
-}
-
-function page(id,button){
- const loggedIn = !!CURRENT_USER;
- if(!loggedIn && id !== 'auth'){
-   notify('لطفاً ابتدا وارد شوید.');
-   renderAuthState('auth');
-   return;
- }
- document.querySelectorAll('main .page').forEach(x=>x.classList.remove('active'));
- document.getElementById(id).classList.add('active');
- document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
- if(button)button.classList.add('active');
- document.getElementById('nav').classList.remove('open');
-}
-
-function support(){
- window.open('https://t.me/m_hadiii46333','_blank','noopener');
-}
-
-function saveApi(){
- API_BASE = normalizeApiBase(val('apiBase'));
- if (!API_BASE) {
-   notify('آدرس API را وارد کن.');
-   return false;
- }
- if(!API_BASE.startsWith('http://') && !API_BASE.startsWith('https://')){
-   notify('آدرس API باید با http:// یا https:// شروع شود.');
-   return false;
- }
- try{localStorage.setItem(API_KEY,API_BASE)}catch(e){}
- notify('آدرس API ذخیره شد.');
- return true;
-}
-
-function saveAuth(token, user){
-  CURRENT_USER = user;
-  localStorage.setItem(AUTH_KEY, token);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-}
-
-function clearAuth(){
-  CURRENT_USER = null;
-  localStorage.removeItem(AUTH_KEY);
-  localStorage.removeItem(USER_KEY);
-}
-
-function renderAuthState(forcePage = null){
-  const loggedIn = !!CURRENT_USER;
-  const authPage = document.getElementById('auth');
-  const dashboardPage = document.getElementById('dashboard');
-  const logoutBtn = document.querySelector('.logout-btn');
-
-  if (logoutBtn) logoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
-  if (authPage) authPage.style.display = loggedIn ? 'none' : 'block';
-  if (dashboardPage) dashboardPage.style.display = loggedIn ? 'block' : 'none';
-
-  const activePage = forcePage || (loggedIn ? 'dashboard' : 'auth');
-  page(activePage);
-
-  const accountText = document.getElementById('accountInfo');
-  if (accountText) {
-    accountText.textContent = loggedIn
-      ? `وضعیت: وارد شده‌اید | نام کاربری: ${CURRENT_USER.username}`
-      : 'وضعیت ورود و حساب کاربری از API دریافت خواهد شد.';
-  }
-}
-
-async function request(path,method='GET',body=null){
- if(!API_BASE){
-   API_BASE = getDefaultApiBase();
- }
-
- if(!API_BASE){
-   notify('ابتدا آدرس API را در تنظیمات وارد کن.');
-   throw new Error('API_NOT_CONFIGURED');
- }
-
- const token = localStorage.getItem(AUTH_KEY);
- const options={
-   method,
-   headers:{'Content-Type':'application/json'},
-   credentials:'include'
- };
- if(token) options.headers.Authorization = 'Bearer ' + token;
- if(body!==null)options.body=JSON.stringify(body);
-
- const controller = new AbortController();
- const timeout = setTimeout(()=>controller.abort(),15000);
-
- try {
-   const response = await fetch(API_BASE + path, { ...options, signal: controller.signal });
-   const rawText = await response.text();
-   let data = {};
-
-   if (response.status === 204) {
-     data = { message: 'درخواست با موفقیت انجام شد.' };
-   } else if (!rawText || !rawText.trim()) {
-     data = {
-       message: `پاسخ سرور خالی بود. مسیر ${path} یا بک‌اند شما در حال اجرا نیست.`
-     };
-   } else {
-     const trimmed = rawText.trim();
-     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-       try {
-         data = JSON.parse(trimmed);
-       } catch {
-         data = { message: humanizeServerMessage(trimmed) || 'پاسخ سرور JSON نامعتبر بود.' };
-       }
-     } else {
-       data = { message: humanizeServerMessage(trimmed) || 'Request completed.' };
-     }
-   }
-
-   if(!response.ok) {
-     throw new Error(data.message || data.error || `HTTP ${response.status}`);
-   }
-
-   return data;
- } catch (e) {
-   if (e.name === 'AbortError') {
-     throw new Error('سرور API پاسخ نداد. آدرس بک‌اند را بررسی کن.');
-   }
-   if (e.message && e.message.includes('Failed to fetch')) {
-     throw new Error('اتصال به بک‌اند برقرار نشد. آدرس API را در تنظیمات بررسی کن.');
-   }
-   throw e;
- } finally {
-   clearTimeout(timeout);
- }
-}
-
-async function testApi(){
- try{
-   const result=await request('/api/health');
-   document.getElementById('connectionStatus').textContent='پاسخ API: '+JSON.stringify(result);
-   notify('پاسخ از API دریافت شد.');
- }catch(e){
-   document.getElementById('connectionStatus').textContent='ارتباط با API برقرار نشد. آدرس فعلی: ' + API_BASE;
-   notify(e.message || 'اتصال برقرار نشد.');
- }
-}
-
-async function apiAction(method,path,data){
- for(const [key,value] of Object.entries(data||{})){
-   if(value===''||value===null||value===undefined){
-     notify('لطفاً تمام اطلاعات لازم را وارد کن.');
-     return;
-   }
- }
- try{
-   const result=await request(path,method,data);
-   const msg = result && result.message ? result.message : 'درخواست توسط بک‌اند پردازش شد.';
-   notify(msg);
-   if(path === '/api/users' || path === '/api/servers' || path === '/api/subscriptions' || path === '/api/configs'){
-     const key = path.replace('/api/','').replace(/s$/, '');
-     await loadResource(key.toLowerCase());
-   }
- }catch(e){
-   if(e.message!=='API_NOT_CONFIGURED')notify('عملیات انجام نشد: '+e.message);
- }
-}
-
-async function loadResource(resource){
- const paths={
-   users:['/api/users','userRows',['id','username','status']],
-   servers:['/api/servers','serverRows',['name','host','port']],
-   subscriptions:['/api/subscriptions','subRows',['id','userId','status']],
-   configs:['/api/configs','configRows',['name','protocol','status']]
- };
- const config=paths[resource];
- if(!config)return;
- try{
-   const result=await request(config[0]);
-   const rows=Array.isArray(result)?result:(result.data||[]);
-   const body=document.getElementById(config[1]);
-   body.replaceChildren();
-   rows.forEach(item=>{
-     const tr=document.createElement('tr');
-     config[2].forEach(key=>{
-       const td=document.createElement('td');
-       td.textContent=item[key]??'—';
-       tr.appendChild(td);
-     });
-     body.appendChild(tr);
-   });
-   notify('اطلاعات بارگذاری شد.');
- }catch(e){
-   if(e.message!=='API_NOT_CONFIGURED')notify('دریافت اطلاعات ناموفق بود: '+e.message);
- }
-}
-
-async function register(){
-  const username = val('regUser');
-  const password = val('regPass');
-
-  if(!username || !password){
-    notify('نام کاربری و رمز عبور را وارد کن.');
+  if(user.length < 3){
+    showMessage("نام کاربری باید حداقل ۳ کاراکتر باشد.","error");
     return;
   }
 
-  try{
-    const result = await request('/api/auth/register','POST',{ username, password });
-    if(result && result.token && result.user){
-      saveAuth(result.token, result.user);
-      notify('ثبت‌نام موفق بود.');
-      renderAuthState('dashboard');
-      await loadResource('users');
-      await loadResource('servers');
-      await loadResource('subscriptions');
-      await loadResource('configs');
-    } else if (result && result.message) {
-      notify(result.message);
-    } else {
-      notify('پاسخ سرور معتبر نبود. مطمئن شو بک‌اند در /api/auth/register اجرا می‌شود و JSON با { token, user } برمی‌گرداند.');
-    }
-  }catch(e){
-    notify(e.message || 'ثبت‌نام ناموفق بود.');
+  if(pass.length < 8){
+    showMessage("رمز عبور باید حداقل ۸ کاراکتر باشد.","error");
+    return;
   }
-}
 
-async function login(){
- if(!val('loginUser')||!val('loginPass')){
-   notify('نام کاربری و رمز عبور را وارد کن.');
-   return;
- }
- try{
-   const result=await request('/api/auth/login','POST',{ username:val('loginUser'), password:val('loginPass') });
-   if(result && result.token && result.user){
-     saveAuth(result.token, result.user);
-     notify('ورود موفق بود.');
-     renderAuthState('dashboard');
-     await loadResource('users');
-     await loadResource('servers');
-     await loadResource('subscriptions');
-     await loadResource('configs');
-   } else if (result && result.message) {
-     notify(result.message);
-   } else {
-     notify('پاسخ سرور معتبر نبود. مطمئن شو بک‌اند در /api/auth/login اجرا می‌شود و JSON با { token, user } برمی‌گرداند.');
-   }
- }catch(e){
-   notify(e.message || 'ورود ناموفق بود.');
- }
-}
+  if(currentMode === "register" &&
+     pass !== confirmPassword.value){
+    showMessage("تکرار رمز عبور با رمز اصلی یکسان نیست.","error");
+    return;
+  }
 
-async function logout(){
- try{
-   await request('/api/auth/logout','POST',{});
- }catch(e){}
- clearAuth();
- switchAuthMode('login');
- renderAuthState('auth');
- notify('خارج شدید.');
-}
+  if(currentMode === "register"){
+    showMessage(
+      "ظاهر ثبت‌نام آماده است؛ برای ساخت حساب واقعی باید سرور و پایگاه داده متصل شود.",
+      "success"
+    );
+  }else{
+    showMessage(
+      "ظاهر ورود آماده است؛ برای ورود واقعی باید سیستم احراز هویت متصل شود.",
+      "success"
+    );
+  }
 
-async function initApp(){
- try{
-   API_BASE = normalizeApiBase(localStorage.getItem(API_KEY) || getDefaultApiBase());
-   document.getElementById('apiBase').value = API_BASE;
- }catch(e){
-   API_BASE = getDefaultApiBase();
- }
+});
 
- try{
-   const savedUser = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
-   if(savedUser) CURRENT_USER = savedUser;
-   if(CURRENT_USER){
-     await request('/api/me');
-     renderAuthState('dashboard');
-     await loadResource('users');
-     await loadResource('servers');
-     await loadResource('subscriptions');
-     await loadResource('configs');
-   }else{
-     renderAuthState('auth');
-   }
- }catch(e){
-   clearAuth();
-   renderAuthState('auth');
- }
-}
-
-initApp();
 </script>
+
 </body>
 </html>
