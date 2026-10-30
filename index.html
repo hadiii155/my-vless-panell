@@ -1,1352 +1,1140 @@
-const APP = "MHA.NET";
-const VERSION = "1.0.0";
-const SESSION_DAYS = 7;
-const MAX_BODY = 1024 * 1024;
 
-const HEADERS = {
-  "Content-Type": "application/json; charset=utf-8",
-  "Cache-Control": "no-store"
-};
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#160d27">
+<title>MHA.NET | پنل مدیریت</title>
 
-const SCHEMA = [
-`CREATE TABLE IF NOT EXISTS users (
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- username TEXT NOT NULL UNIQUE,
- password_hash TEXT NOT NULL,
- password_salt TEXT NOT NULL,
- role TEXT NOT NULL DEFAULT 'user',
- status TEXT NOT NULL DEFAULT 'active',
- email TEXT,
- phone TEXT,
- created_at INTEGER NOT NULL,
- updated_at INTEGER NOT NULL
-)`,
-
-`CREATE TABLE IF NOT EXISTS sessions (
- token_hash TEXT PRIMARY KEY,
- user_id INTEGER NOT NULL,
- expires_at INTEGER NOT NULL,
- created_at INTEGER NOT NULL,
- FOREIGN KEY(user_id) REFERENCES users(id)
-)`,
-
-`CREATE TABLE IF NOT EXISTS servers (
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- name TEXT NOT NULL,
- country TEXT,
- city TEXT,
- host TEXT NOT NULL,
- port INTEGER NOT NULL DEFAULT 443,
- protocol TEXT NOT NULL DEFAULT 'vless',
- status TEXT NOT NULL DEFAULT 'offline',
- capacity INTEGER NOT NULL DEFAULT 100,
- current_users INTEGER NOT NULL DEFAULT 0,
- node_secret TEXT,
- created_at INTEGER NOT NULL,
- updated_at INTEGER NOT NULL
-)`,
-
-`CREATE TABLE IF NOT EXISTS plans (
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- name TEXT NOT NULL,
- volume_gb INTEGER NOT NULL,
- duration_days INTEGER NOT NULL,
- device_limit INTEGER NOT NULL DEFAULT 1,
- price INTEGER NOT NULL DEFAULT 0,
- status TEXT NOT NULL DEFAULT 'active',
- created_at INTEGER NOT NULL
-)`,
-
-`CREATE TABLE IF NOT EXISTS subscriptions (
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- user_id INTEGER NOT NULL,
- plan_id INTEGER,
- volume_gb INTEGER NOT NULL,
- used_bytes INTEGER NOT NULL DEFAULT 0,
- expires_at INTEGER NOT NULL,
- status TEXT NOT NULL DEFAULT 'active',
- created_at INTEGER NOT NULL,
- FOREIGN KEY(user_id) REFERENCES users(id)
-)`,
-
-`CREATE TABLE IF NOT EXISTS configs (
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- user_id INTEGER NOT NULL,
- server_id INTEGER,
- subscription_id INTEGER,
- name TEXT NOT NULL,
- protocol TEXT NOT NULL DEFAULT 'vless',
- uuid TEXT NOT NULL,
- config_link TEXT,
- transport TEXT NOT NULL DEFAULT 'tcp',
- security TEXT NOT NULL DEFAULT 'none',
- port INTEGER NOT NULL DEFAULT 443,
- status TEXT NOT NULL DEFAULT 'draft',
- created_at INTEGER NOT NULL,
- updated_at INTEGER NOT NULL,
- FOREIGN KEY(user_id) REFERENCES users(id)
-)`,
-
-`CREATE TABLE IF NOT EXISTS payments (
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- user_id INTEGER NOT NULL,
- amount INTEGER NOT NULL,
- method TEXT,
- reference TEXT,
- status TEXT NOT NULL DEFAULT 'pending',
- created_at INTEGER NOT NULL
-)`,
-
-`CREATE TABLE IF NOT EXISTS tickets (
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- user_id INTEGER NOT NULL,
- subject TEXT NOT NULL,
- message TEXT NOT NULL,
- status TEXT NOT NULL DEFAULT 'open',
- created_at INTEGER NOT NULL,
- updated_at INTEGER NOT NULL
-)`,
-
-`CREATE TABLE IF NOT EXISTS audit_logs (
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- actor_id INTEGER,
- action TEXT NOT NULL,
- target_type TEXT,
- target_id INTEGER,
- details TEXT,
- created_at INTEGER NOT NULL
-)`,
-
-`CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)`,
-`CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires_at)`,
-`CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions(user_id)`,
-`CREATE INDEX IF NOT EXISTS idx_configs_user ON configs(user_id)`,
-`CREATE INDEX IF NOT EXISTS idx_logs_created ON audit_logs(created_at)`
-];
-
-let schemaReady = false;
-let schemaPromise = null;
-
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: HEADERS
-  });
+<style>
+:root {
+  --bg:#100a1c;
+  --panel:#1c1230;
+  --panel2:#25183b;
+  --purple:#8b45d8;
+  --red:#e54459;
+  --orange:#ff7438;
+  --text:#f8f3ff;
+  --muted:#a99bbd;
+  --border:#39294d;
+  --green:#36c98a;
+  --yellow:#f4bd55;
 }
-
-function now() {
-  return Math.floor(Date.now() / 1000);
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Tahoma,Arial,sans-serif;font-size:14px;
 }
-
-function randomHex(length = 32) {
-  const bytes = crypto.getRandomValues(new Uint8Array(length));
-  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+#authPage{
+  min-height:100vh;display:flex;align-items:center;
+  justify-content:center;padding:20px;
+  background:radial-gradient(circle at 20% 20%,#49236a 0,transparent 38%),
+  radial-gradient(circle at 90% 90%,#541b34 0,transparent 35%),var(--bg);
 }
-
-async function hashPassword(password, salt) {
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"]
-  );
-
-  const bits = await crypto.subtle.deriveBits({
-    name: "PBKDF2",
-    salt: enc.encode(salt),
-    iterations: 210000,
-    hash: "SHA-256"
-  }, key, 256);
-
-  return Array.from(new Uint8Array(bits))
-    .map(x => x.toString(16).padStart(2, "0"))
-    .join("");
+.auth-card{
+  width:100%;max-width:420px;background:#1d1430;
+  border:1px solid var(--border);border-radius:22px;
+  padding:28px;box-shadow:0 20px 70px #0008;
 }
-
-async function digest(value) {
-  const bytes = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(value)
-  );
-
-  return Array.from(new Uint8Array(bytes))
-    .map(x => x.toString(16).padStart(2, "0"))
-    .join("");
+.logo{
+  width:65px;height:65px;border-radius:20px;
+  display:grid;place-items:center;margin:0 auto 15px;
+  background:linear-gradient(135deg,var(--orange),var(--red));
+  font-size:32px;box-shadow:0 8px 30px #e5445944;
 }
-
-async function initDB(env) {
-  if (schemaReady) return;
-  if (schemaPromise) return schemaPromise;
-
-  schemaPromise = (async () => {
-    if (!env.DB) throw new Error("D1 binding DB is missing");
-
-    for (const sql of SCHEMA) {
-      await env.DB.prepare(sql).run();
-    }
-
-    schemaReady = true;
-  })();
-
-  try {
-    await schemaPromise;
-  } finally {
-    schemaPromise = null;
+.auth-card h1{text-align:center;margin:8px 0;color:white}
+.auth-card p{text-align:center;color:var(--muted);line-height:1.9}
+.tabs{display:flex;gap:8px;margin:22px 0}
+.tabs button{
+  flex:1;padding:12px;border:1px solid var(--border);
+  border-radius:10px;background:var(--panel2);color:white;
+}
+.tabs button.active{background:var(--purple);border-color:var(--purple)}
+.field{margin:13px 0}
+.field label{display:block;color:#d9cde8;margin-bottom:8px}
+input,select,textarea{
+  width:100%;padding:12px 13px;border-radius:10px;
+  border:1px solid var(--border);background:#120d1e;
+  color:white;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--purple)}
+textarea{min-height:90px;resize:vertical}
+.btn{
+  border:0;border-radius:10px;padding:12px 17px;
+  background:linear-gradient(120deg,var(--purple),var(--red));
+  color:white;font-weight:bold;
+}
+.btn:hover{filter:brightness(1.12)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.secondary{background:#38264e;border:1px solid var(--border)}
+.btn.danger{background:#922d43}
+.btn.green{background:#167b59}
+.btn.small{padding:7px 10px;font-size:12px}
+.full{width:100%}
+.message{
+  padding:11px;border-radius:10px;margin:12px 0;
+  line-height:1.8;background:#352039;color:#ffd5d9;
+}
+.message.success{background:#153d31;color:#a8f4d4}
+#app{min-height:100vh}
+.topbar{
+  height:65px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;background:#1b1229;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:5;
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:bold;font-size:17px}
+.brand-mark{
+  width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(135deg,var(--orange),var(--red));
+  display:grid;place-items:center;font-size:21px;
+}
+.top-actions{display:flex;align-items:center;gap:10px}
+.layout{display:flex;min-height:calc(100vh - 65px)}
+.sidebar{
+  width:245px;background:#191126;border-left:1px solid var(--border);
+  padding:17px 12px;flex-shrink:0;
+}
+.user-box{
+  padding:14px;background:var(--panel);border:1px solid var(--border);
+  border-radius:13px;margin-bottom:17px;
+}
+.user-box strong{display:block;margin-bottom:6px}
+.user-box small{color:var(--muted)}
+.nav-title{font-size:11px;color:#8e7ba5;padding:13px 10px 7px}
+.nav-btn{
+  width:100%;display:flex;align-items:center;gap:10px;
+  text-align:right;border:0;background:transparent;color:#d8cce8;
+  padding:12px;border-radius:10px;margin:2px 0;
+}
+.nav-btn:hover,.nav-btn.active{background:#38234f;color:white}
+.nav-btn.active{border-right:3px solid var(--orange)}
+.main{flex:1;min-width:0;padding:22px}
+.page-head{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;margin-bottom:20px;flex-wrap:wrap;
+}
+.page-head h2{margin:0;font-size:21px}
+.muted{color:var(--muted)}
+.cards{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:13px;margin-bottom:20px;
+}
+.stat{
+  background:var(--panel);border:1px solid var(--border);
+  padding:17px;border-radius:15px;min-width:0;
+}
+.stat span{display:block;color:var(--muted);font-size:12px}
+.stat strong{display:block;font-size:25px;margin-top:12px;overflow-wrap:anywhere}
+.stat .icon{font-size:22px}
+.panel{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:15px;padding:17px;margin-bottom:17px;min-width:0;
+}
+.panel h3{margin:0 0 15px;font-size:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:580px}
+th,td{
+  padding:12px 10px;border-bottom:1px solid var(--border);
+  text-align:right;white-space:nowrap;
+}
+th{font-size:12px;color:#bcaaca;background:#251a36}
+td{font-size:13px}
+.status{
+  display:inline-block;padding:5px 9px;border-radius:20px;
+  font-size:11px;background:#392b47;color:#ddd;
+}
+.status.active,.status.online,.status.paid{background:#164b39;color:#9af0c7}
+.status.blocked,.status.offline,.status.failed,.status.cancelled{background:#592638;color:#ffb4c0}
+.status.pending,.status.draft,.status.suspended{background:#55431f;color:#ffdc8b}
+.actions{display:flex;gap:6px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid .wide{grid-column:1/-1}
+.empty{text-align:center;color:var(--muted);padding:35px 10px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:13px}
+.toolbar input{max-width:260px}
+.notice{
+  padding:12px 14px;background:#332541;border-right:3px solid var(--orange);
+  border-radius:9px;line-height:1.9;color:#e5d8f1;margin-bottom:15px;
+}
+#toast{
+  position:fixed;bottom:20px;left:20px;z-index:20;
+  max-width:90%;padding:13px 17px;border-radius:11px;
+  background:#30203e;border:1px solid var(--border);
+  box-shadow:0 8px 30px #0007;display:none;
+}
+#toast.show{display:block}
+.mobile-menu{display:none}
+.modal-bg{
+  position:fixed;inset:0;background:#0009;z-index:15;
+  display:flex;align-items:center;justify-content:center;padding:15px;
+}
+.modal{
+  width:100%;max-width:560px;max-height:90vh;overflow:auto;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:17px;padding:20px;
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.modal-head h3{margin:0}
+.modal-close{background:none;border:0;color:white;font-size:24px}
+.footer-note{font-size:11px;color:var(--muted);line-height:1.8;margin-top:20px}
+@media(max-width:950px){
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sidebar{width:210px}
+}
+@media(max-width:680px){
+  .sidebar{
+    display:none;position:fixed;right:0;top:65px;bottom:0;
+    z-index:10;width:270px;overflow:auto;box-shadow:0 10px 30px #0008;
   }
+  .sidebar.open{display:block}
+  .mobile-menu{display:inline-block}
+  .main{padding:14px}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .stat{padding:13px}
+  .stat strong{font-size:21px}
+  .grid2,.form-grid{grid-template-columns:1fr}
+  .form-grid .wide{grid-column:auto}
+  .topbar{padding:0 10px}
+}
+</style>
+</head>
+
+<body>
+
+<section id="authPage">
+  <div class="auth-card">
+    <div class="logo">🦁</div>
+    <h1>به پنل MHA.NET خوش آمدید</h1>
+    <p>سامانه مدیریت سرویس و اشتراک VPN</p>
+
+    <div class="tabs">
+      <button id="loginTab" class="active" onclick="setAuthMode('login')">ورود</button>
+      <button id="registerTab" onclick="setAuthMode('register')">ثبت‌نام</button>
+    </div>
+
+    <form id="authForm">
+      <div class="field">
+        <label>نام کاربری</label>
+        <input id="authUsername" required minlength="3" maxlength="32"
+          autocomplete="username" placeholder="نام کاربری">
+      </div>
+      <div class="field">
+        <label>رمز عبور</label>
+        <input id="authPassword" required type="password" minlength="8"
+          autocomplete="current-password" placeholder="حداقل ۸ کاراکتر">
+      </div>
+      <div id="extraRegister" class="hidden">
+        <div class="field">
+          <label>ایمیل (اختیاری)</label>
+          <input id="authEmail" type="email" placeholder="example@email.com">
+        </div>
+        <div class="field">
+          <label>شماره تماس (اختیاری)</label>
+          <input id="authPhone" placeholder="شماره تماس">
+        </div>
+      </div>
+      <div id="authMessage"></div>
+      <button id="authSubmit" class="btn full" type="submit">ورود به پنل</button>
+    </form>
+    <div class="footer-note">MHA.NET · مدیریت هوشمند سرویس‌های VPN</div>
+  </div>
+</section>
+
+<section id="app" class="hidden">
+  <header class="topbar">
+    <div class="brand">
+      <button class="btn secondary mobile-menu" onclick="toggleSidebar()">☰</button>
+      <div class="brand-mark">🦁</div>
+      <span>MHA.NET</span>
+    </div>
+    <div class="top-actions">
+      <span id="topUsername" class="muted"></span>
+      <button class="btn secondary small" onclick="logout()">خروج</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar">
+      <div class="user-box">
+        <strong id="sideUsername">کاربر</strong>
+        <small id="sideRole">حساب کاربری</small>
+      </div>
+
+      <div class="nav-title">داشبورد</div>
+      <button class="nav-btn active" data-page="dashboard" onclick="navigate('dashboard',this)">▦ داشبورد</button>
+      <button class="nav-btn" data-page="subscriptions" onclick="navigate('subscriptions',this)">◷ اشتراک‌های من</button>
+      <button class="nav-btn" data-page="configs" onclick="navigate('configs',this)">⌘ کانفیگ‌های من</button>
+      <button class="nav-btn" data-page="payments" onclick="navigate('payments',this)">＄ پرداخت‌ها</button>
+      <button class="nav-btn" data-page="tickets" onclick="navigate('tickets',this)">✉ پشتیبانی</button>
+
+      <div id="adminNav" class="hidden">
+        <div class="nav-title">مدیریت سیستم</div>
+        <button class="nav-btn" data-page="users" onclick="navigate('users',this)">♙ کاربران</button>
+        <button class="nav-btn" data-page="servers" onclick="navigate('servers',this)">▣ سرورها</button>
+        <button class="nav-btn" data-page="plans" onclick="navigate('plans',this)">▤ پلن‌ها و تعرفه‌ها</button>
+        <button class="nav-btn" data-page="allSubscriptions" onclick="navigate('allSubscriptions',this)">◷ مدیریت اشتراک‌ها</button>
+        <button class="nav-btn" data-page="allConfigs" onclick="navigate('allConfigs',this)">⌘ مدیریت کانفیگ‌ها</button>
+        <button class="nav-btn" data-page="allPayments" onclick="navigate('allPayments',this)">＄ مدیریت پرداخت‌ها</button>
+        <button class="nav-btn" data-page="allTickets" onclick="navigate('allTickets',this)">✉ تیکت‌ها</button>
+        <button class="nav-btn" data-page="logs" onclick="navigate('logs',this)">☷ گزارش فعالیت</button>
+      </div>
+
+      <div class="nav-title">شخصی</div>
+      <button class="nav-btn" data-page="settings" onclick="navigate('settings',this)">⚙ تنظیمات</button>
+      <button class="nav-btn" onclick="openSupport()">ⓘ ارتباط با پشتیبانی</button>
+    </aside>
+
+    <main class="main">
+      <div id="pageContent"></div>
+    </main>
+  </div>
+</section>
+
+<div id="modalRoot"></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+/* آدرس Worker خودت را اینجا قرار بده */
+const API_BASE = "https://YOUR-WORKER-NAME.workers.dev";
+
+let token = sessionStorage.getItem("mha_token") || "";
+let currentUser = null;
+let currentPage = "dashboard";
+let authMode = "login";
+let cached = {};
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[char]);
 }
 
-async function body(request) {
-  const length = Number(request.headers.get("content-length") || 0);
-  if (length > MAX_BODY) throw new Error("درخواست بیش از حد بزرگ است");
+function toast(message) {
+  const el = $("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove("show"), 3500);
+}
 
-  const data = await request.json().catch(() => null);
+function money(value) {
+  return Number(value || 0).toLocaleString("fa-IR") + " تومان";
+}
 
-  if (!data || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("ساختار اطلاعات ارسالی معتبر نیست");
+function date(value) {
+  if (!value) return "—";
+  return new Date(Number(value) * 1000).toLocaleDateString("fa-IR");
+}
+
+function statusLabel(value) {
+  const labels = {
+    active:"فعال",online:"آنلاین",offline:"آفلاین",
+    blocked:"مسدود",suspended:"تعلیق‌شده",
+    expired:"منقضی",cancelled:"لغوشده",
+    pending:"در انتظار",paid:"پرداخت‌شده",
+    failed:"ناموفق",refunded:"برگشت‌خورده",
+    draft:"پیش‌نویس",open:"باز",answered:"پاسخ داده‌شده",
+    closed:"بسته‌شده"
+  };
+  return labels[value] || value || "نامشخص";
+}
+
+function statusHTML(value) {
+  return `<span class="status ${escapeHTML(value)}">${escapeHTML(statusLabel(value))}</span>`;
+}
+
+async function api(path, options = {}) {
+  if (!API_BASE || API_BASE.includes("YOUR-WORKER-NAME")) {
+    throw new Error("ابتدا آدرس Worker را در API_BASE وارد کن.");
+  }
+
+  const headers = {
+    "Content-Type":"application/json",
+    ...(token ? {"Authorization":"Bearer " + token} : {}),
+    ...(options.headers || {})
+  };
+
+  let response;
+  try {
+    response = await fetch(API_BASE.replace(/\/$/,"") + path, {
+      method:options.method || "GET",
+      headers,
+      body:options.body ? JSON.stringify(options.body) : undefined
+    });
+  } catch (error) {
+    throw new Error("ارتباط با Worker برقرار نشد. آدرس و تنظیمات CORS را بررسی کن.");
+  }
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok || data.ok === false) {
+    if (response.status === 401) {
+      token = "";
+      sessionStorage.removeItem("mha_token");
+    }
+    throw new Error(data.message || data.error || "درخواست ناموفق بود.");
   }
 
   return data;
 }
 
-function clean(value, max = 200) {
-  if (typeof value !== "string") return "";
-  return value.trim().slice(0, max);
+function setAuthMode(mode) {
+  authMode = mode;
+  $("loginTab").classList.toggle("active", mode === "login");
+  $("registerTab").classList.toggle("active", mode === "register");
+  $("extraRegister").classList.toggle("hidden", mode !== "register");
+  $("authSubmit").textContent = mode === "login" ? "ورود به پنل" : "ایجاد حساب کاربری";
+  $("authPassword").autocomplete = mode === "login" ? "current-password" : "new-password";
+  $("authMessage").innerHTML = "";
 }
 
-function validUsername(value) {
-  return /^[a-zA-Z0-9_.-]{3,32}$/.test(value);
+$("authForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const button = $("authSubmit");
+  button.disabled = true;
+  button.textContent = "لطفاً صبر کنید...";
+  $("authMessage").innerHTML = "";
+
+  const payload = {
+    username:$("authUsername").value.trim(),
+    password:$("authPassword").value
+  };
+
+  if (authMode === "register") {
+    payload.email = $("authEmail").value.trim();
+    payload.phone = $("authPhone").value.trim();
+  }
+
+  try {
+    const result = await api(
+      authMode === "login" ? "/api/login" : "/api/register",
+      {method:"POST",body:payload}
+    );
+
+    token = result.token;
+    sessionStorage.setItem("mha_token", token);
+    currentUser = result.user;
+    showApp();
+    toast(authMode === "login" ? "ورود موفق بود." : "ثبت‌نام انجام شد.");
+  } catch (error) {
+    $("authMessage").innerHTML =
+      `<div class="message">${escapeHTML(error.message)}</div>`;
+  } finally {
+    button.disabled = false;
+    button.textContent = authMode === "login" ? "ورود به پنل" : "ایجاد حساب کاربری";
+  }
+});
+
+async function startApp() {
+  if (!token) return showAuth();
+
+  try {
+    const result = await api("/api/me");
+    currentUser = result.user;
+    showApp();
+  } catch {
+    token = "";
+    sessionStorage.removeItem("mha_token");
+    showAuth();
+  }
 }
 
-function validPassword(value) {
-  return typeof value === "string" && value.length >= 8 && value.length <= 128;
+function showAuth() {
+  $("authPage").classList.remove("hidden");
+  $("app").classList.add("hidden");
 }
 
-async function audit(env, actor, action, type = null, id = null, details = null) {
-  await env.DB.prepare(`
-    INSERT INTO audit_logs
-    (actor_id, action, target_type, target_id, details, created_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).bind(
-    actor || null,
-    action,
-    type,
-    id,
-    details ? JSON.stringify(details) : null,
-    now()
-  ).run();
+function showApp() {
+  $("authPage").classList.add("hidden");
+  $("app").classList.remove("hidden");
+
+  const username = currentUser?.username || "کاربر";
+  const admin = ["admin","superadmin"].includes(currentUser?.role);
+
+  $("topUsername").textContent = username;
+  $("sideUsername").textContent = username;
+  $("sideRole").textContent = admin ? "مدیر سیستم" : "حساب کاربری";
+  $("adminNav").classList.toggle("hidden", !admin);
+
+  navigate("dashboard");
 }
 
-async function createSession(env, userId) {
-  const token = randomHex(32);
-  const tokenHash = await digest(token);
-  const created = now();
-  const expires = created + SESSION_DAYS * 86400;
-
-  await env.DB.prepare(`
-    INSERT INTO sessions(token_hash, user_id, expires_at, created_at)
-    VALUES (?, ?, ?, ?)
-  `).bind(tokenHash, userId, expires, created).run();
-
-  return { token, expires_at: expires };
+async function logout() {
+  try {
+    await api("/api/logout", {method:"POST"});
+  } catch {}
+  token = "";
+  currentUser = null;
+  cached = {};
+  sessionStorage.removeItem("mha_token");
+  showAuth();
+  toast("از حساب خارج شدی.");
 }
 
-async function getUser(request, env) {
-  const header = request.headers.get("Authorization") || "";
-  const token = header.startsWith("Bearer ")
-    ? header.slice(7).trim()
-    : "";
+function toggleSidebar() {
+  $("sidebar").classList.toggle("open");
+}
 
-  if (!token) return null;
+function navigate(page, button) {
+  currentPage = page;
+  document.querySelectorAll(".nav-btn").forEach(item => item.classList.remove("active"));
 
-  const tokenHash = await digest(token);
+  const selected = button || document.querySelector(`[data-page="${page}"]`);
+  if (selected) selected.classList.add("active");
 
-  const result = await env.DB.prepare(`
-    SELECT
-      users.id,
-      users.username,
-      users.role,
-      users.status,
-      sessions.expires_at
-    FROM sessions
-    JOIN users ON users.id = sessions.user_id
-    WHERE sessions.token_hash = ?
-    LIMIT 1
-  `).bind(tokenHash).first();
+  $("sidebar").classList.remove("open");
+  renderPage();
+}
 
-  if (!result) return null;
-  if (result.expires_at < now()) return null;
-  if (result.status !== "active") return null;
+function pageHead(title, description = "") {
+  return `<div class="page-head">
+    <div><h2>${title}</h2>
+    <div class="muted" style="margin-top:7px">${description}</div></div>
+  </div>`;
+}
 
+function table(headers, rows) {
+  if (!rows.length) return `<div class="empty">هنوز اطلاعاتی ثبت نشده است.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr>${headers.map(x => `<th>${x}</th>`).join("")}</tr></thead>
+    <tbody>${rows.join("")}</tbody>
+  </table></div>`;
+}
+
+function actionButtons(items) {
+  return `<div class="actions">${items.join("")}</div>`;
+}
+
+function button(label, action, type = "secondary") {
+  return `<button class="btn small ${type}" onclick="${action}">${label}</button>`;
+}
+
+async function load(path, key) {
+  const result = await api(path);
+  cached[key] = result;
   return result;
 }
 
-function requireAdmin(user) {
-  return user && ["admin", "superadmin"].includes(user.role);
-}
+async function renderPage() {
+  const root = $("pageContent");
+  root.innerHTML = `<div class="empty">در حال دریافت اطلاعات...</div>`;
 
-async function bootstrapAdmin(env) {
-  if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) return;
-
-  const username = clean(env.ADMIN_USERNAME, 32);
-
-  const existing = await env.DB.prepare(
-    "SELECT id FROM users WHERE username = ?"
-  ).bind(username).first();
-
-  if (existing) return;
-
-  const salt = randomHex(16);
-  const passwordHash = await hashPassword(env.ADMIN_PASSWORD, salt);
-
-  await env.DB.prepare(`
-    INSERT INTO users
-    (username, password_hash, password_salt, role, status, created_at, updated_at)
-    VALUES (?, ?, ?, 'superadmin', 'active', ?, ?)
-  `).bind(username, passwordHash, salt, now(), now()).run();
-}
-
-async function register(request, env) {
-  const data = await body(request);
-
-  const username = clean(data.username, 32);
-  const password = data.password;
-
-  if (!validUsername(username)) {
-    return json({ ok: false, error: "invalid_username" }, 400);
-  }
-
-  if (!validPassword(password)) {
-    return json({
-      ok: false,
-      error: "weak_password",
-      message: "رمز عبور باید حداقل ۸ کاراکتر باشد."
-    }, 400);
-  }
-
-  const exists = await env.DB.prepare(
-    "SELECT id FROM users WHERE username = ?"
-  ).bind(username).first();
-
-  if (exists) {
-    return json({
-      ok: false,
-      error: "username_exists",
-      message: "این نام کاربری قبلاً ثبت شده است."
-    }, 409);
-  }
-
-  const salt = randomHex(16);
-  const passwordHash = await hashPassword(password, salt);
-  const timestamp = now();
-
-  const result = await env.DB.prepare(`
-    INSERT INTO users
-    (username, password_hash, password_salt, role, status, email, phone, created_at, updated_at)
-    VALUES (?, ?, ?, 'user', 'active', ?, ?, ?, ?)
-  `).bind(
-    username,
-    passwordHash,
-    salt,
-    clean(data.email, 150) || null,
-    clean(data.phone, 30) || null,
-    timestamp,
-    timestamp
-  ).run();
-
-  const userId = result.meta.last_row_id;
-  const session = await createSession(env, userId);
-
-  await audit(env, userId, "user.register", "user", userId);
-
-  return json({
-    ok: true,
-    message: "ثبت‌نام با موفقیت انجام شد.",
-    token: session.token,
-    expires_at: session.expires_at,
-    user: {
-      id: userId,
-      username,
-      role: "user"
+  try {
+    switch (currentPage) {
+      case "dashboard": return await renderDashboard();
+      case "subscriptions": return await renderSubscriptions(false);
+      case "configs": return await renderConfigs(false);
+      case "payments": return await renderPayments(false);
+      case "tickets": return await renderTickets(false);
+      case "users": return await renderUsers();
+      case "servers": return await renderServers();
+      case "plans": return await renderPlans();
+      case "allSubscriptions": return await renderSubscriptions(true);
+      case "allConfigs": return await renderConfigs(true);
+      case "allPayments": return await renderPayments(true);
+      case "allTickets": return await renderTickets(true);
+      case "logs": return await renderLogs();
+      case "settings": return renderSettings();
+      default:
+        root.innerHTML = `<div class="panel">این بخش وجود ندارد.</div>`;
     }
-  }, 201);
+  } catch (error) {
+    root.innerHTML = `<div class="panel">
+      <h3>خطا در دریافت اطلاعات</h3>
+      <div class="message">${escapeHTML(error.message)}</div>
+      <button class="btn" onclick="renderPage()">تلاش دوباره</button>
+    </div>`;
+  }
 }
 
-async function login(request, env) {
-  const data = await body(request);
-  const username = clean(data.username, 32);
-  const password = data.password;
+async function renderDashboard() {
+  let stats = null;
 
-  if (!username || typeof password !== "string") {
-    return json({ ok: false, error: "missing_credentials" }, 400);
+  if (["admin","superadmin"].includes(currentUser.role)) {
+    stats = (await load("/api/admin/overview","overview")).overview;
   }
 
-  const user = await env.DB.prepare(`
-    SELECT id, username, password_hash, password_salt, role, status
-    FROM users
-    WHERE username = ?
-    LIMIT 1
-  `).bind(username).first();
+  const subs = (await load("/api/subscriptions","subscriptions")).subscriptions || [];
+  const configs = (await load("/api/configs","configs")).configs || [];
 
-  if (!user || user.status !== "active") {
-    return json({
-      ok: false,
-      error: "invalid_credentials",
-      message: "نام کاربری یا رمز عبور اشتباه است."
-    }, 401);
+  let cards;
+
+  if (stats) {
+    cards = [
+      ["کل کاربران",stats.users],
+      ["کاربران فعال",stats.active_users],
+      ["سرورها",stats.servers],
+      ["اشتراک فعال",stats.active_subscriptions],
+      ["کانفیگ‌ها",stats.configs],
+      ["مجموع درآمد",money(stats.revenue)]
+    ];
+  } else {
+    cards = [
+      ["اشتراک‌ها",subs.length],
+      ["کانفیگ‌ها",configs.length],
+      ["نام کاربری",currentUser.username],
+      ["نقش حساب",currentUser.role === "user" ? "کاربر" : currentUser.role]
+    ];
   }
 
-  const passwordHash = await hashPassword(password, user.password_salt);
+  $("pageContent").innerHTML = `
+    ${pageHead("داشبورد MHA.NET","نمای کلی وضعیت حساب و سرویس‌ها")}
+    <div class="cards">
+      ${cards.map((c,i)=>`<div class="stat">
+        <span>${c[0]}</span><strong>${escapeHTML(c[1])}</strong>
+      </div>`).join("")}
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>اشتراک‌های اخیر</h3>
+        ${subs.length ? table(
+          ["شناسه","حجم","مصرف ثبت‌شده","انقضا","وضعیت"],
+          subs.slice(0,5).map(s=>`<tr>
+            <td>${s.id}</td><td>${s.volume_gb} GB</td>
+            <td>${(Number(s.used_bytes||0)/1073741824).toFixed(2)} GB</td>
+            <td>${date(s.expires_at)}</td><td>${statusHTML(s.status)}</td>
+          </tr>`)
+        ) : `<div class="empty">اشتراکی ثبت نشده است.</div>`}
+      </div>
+      <div class="panel">
+        <h3>کانفیگ‌های اخیر</h3>
+        ${configs.length ? table(
+          ["نام","پروتکل","وضعیت"],
+          configs.slice(0,5).map(c=>`<tr>
+            <td>${escapeHTML(c.name)}</td>
+            <td>${escapeHTML(c.protocol)}</td>
+            <td>${statusHTML(c.status)}</td>
+          </tr>`)
+        ) : `<div class="empty">کانفیگی ثبت نشده است.</div>`}
+      </div>
+    </div>
+    <div class="notice">
+      وضعیت و مصرف فقط زمانی واقعی هستند که نود Xray به بک‌اند متصل شده و اطلاعات ترافیک ارسال کند.
+    </div>`;
+}
 
-  if (passwordHash !== user.password_hash) {
-    return json({
-      ok: false,
-      error: "invalid_credentials",
-      message: "نام کاربری یا رمز عبور اشتباه است."
-    }, 401);
+async function renderUsers() {
+  const data = await load("/api/admin/users","users");
+  const rows = (data.users || []).map(u=>`<tr>
+    <td>${u.id}</td><td>${escapeHTML(u.username)}</td>
+    <td>${escapeHTML(u.email || "—")}</td>
+    <td>${escapeHTML(u.role)}</td><td>${statusHTML(u.status)}</td>
+    <td>${date(u.created_at)}</td>
+    <td>${actionButtons([
+      button("فعال","updateUser("+u.id+",'active')","green"),
+      button("مسدود","updateUser("+u.id+",'blocked')","danger"),
+      button("حذف","deleteUser("+u.id+")","danger")
+    ])}</td>
+  </tr>`);
+
+  $("pageContent").innerHTML = `
+    ${pageHead("مدیریت کاربران","مشاهده، مسدودسازی و مدیریت حساب‌ها")}
+    <div class="panel">
+      ${table(["شناسه","نام کاربری","ایمیل","نقش","وضعیت","تاریخ عضویت","عملیات"],rows)}
+    </div>`;
+}
+
+async function renderServers() {
+  const data = await load("/api/admin/servers","servers");
+  const rows = (data.servers || []).map(s=>`<tr>
+    <td>${s.id}</td><td>${escapeHTML(s.name)}</td>
+    <td>${escapeHTML(s.country || "—")}</td>
+    <td>${escapeHTML(s.host)}</td><td>${s.port}</td>
+    <td>${escapeHTML(s.protocol)}</td>
+    <td>${s.current_users}/${s.capacity}</td>
+    <td>${statusHTML(s.status)}</td>
+    <td>${actionButtons([
+      button("ویرایش","editServer("+s.id+")"),
+      button("حذف","deleteServer("+s.id+")","danger")
+    ])}</td>
+  </tr>`);
+
+  $("pageContent").innerHTML = `
+    ${pageHead("مدیریت سرورها","ثبت و مدیریت نودهای VPN")}
+    <div class="toolbar"><button class="btn" onclick="serverForm()">＋ افزودن سرور</button></div>
+    <div class="panel">${table(
+      ["شناسه","نام","کشور","آدرس","پورت","پروتکل","کاربران","وضعیت","عملیات"],rows
+    )}</div>
+    <div class="notice">ثبت سرور در دیتابیس به‌معنای آنلاین بودن واقعی آن نیست. وضعیت اتصال باید توسط نود گزارش شود.</div>`;
+}
+
+async function renderPlans() {
+  const data = await load("/api/admin/plans","plans");
+  const rows = (data.plans || []).map(p=>`<tr>
+    <td>${p.id}</td><td>${escapeHTML(p.name)}</td>
+    <td>${p.volume_gb} GB</td><td>${p.duration_days} روز</td>
+    <td>${p.device_limit}</td><td>${money(p.price)}</td>
+    <td>${statusHTML(p.status)}</td>
+    <td>${button("حذف","deletePlan("+p.id+")","danger")}</td>
+  </tr>`);
+
+  $("pageContent").innerHTML = `
+    ${pageHead("پلن‌ها و تعرفه‌ها","تعریف حجم، مدت و قیمت اشتراک")}
+    <div class="toolbar"><button class="btn" onclick="planForm()">＋ ساخت پلن</button></div>
+    <div class="panel">${table(
+      ["شناسه","نام","حجم","مدت","دستگاه","قیمت","وضعیت","عملیات"],rows
+    )}</div>`;
+}
+
+async function renderSubscriptions(admin) {
+  const data = await load("/api/subscriptions","subscriptions");
+  const rows = (data.subscriptions || []).map(s=>`<tr>
+    <td>${s.id}</td>${admin ? `<td>${escapeHTML(s.username || "")}</td>` : ""}
+    <td>${escapeHTML(s.plan_name || "—")}</td>
+    <td>${s.volume_gb} GB</td>
+    <td>${(Number(s.used_bytes||0)/1073741824).toFixed(2)} GB</td>
+    <td>${date(s.expires_at)}</td><td>${statusHTML(s.status)}</td>
+    ${admin ? `<td>${button("ویرایش","editSubscription("+s.id+")")}</td>` : ""}
+  </tr>`);
+
+  $("pageContent").innerHTML = `
+    ${pageHead(admin ? "مدیریت اشتراک‌ها" : "اشتراک‌های من","مدیریت حجم، مصرف و تاریخ انقضا")}
+    ${admin ? `<div class="toolbar"><button class="btn" onclick="subscriptionForm()">＋ ایجاد اشتراک</button></div>` : ""}
+    <div class="panel">${table(
+      admin
+        ? ["شناسه","کاربر","پلن","حجم","مصرف ثبت‌شده","انقضا","وضعیت","عملیات"]
+        : ["شناسه","پلن","حجم","مصرف ثبت‌شده","انقضا","وضعیت"],
+      rows
+    )}</div>
+    <div class="notice">مصرف فعلی از داده‌های ثبت‌شده در دیتابیس خوانده می‌شود؛ برای مصرف زنده باید اتصال Xray تکمیل شود.</div>`;
+}
+
+async function renderConfigs(admin) {
+  const data = await load("/api/configs","configs");
+  const rows = (data.configs || []).map(c=>`<tr>
+    <td>${c.id}</td>${admin ? `<td>${escapeHTML(c.username || "")}</td>` : ""}
+    <td>${escapeHTML(c.name)}</td><td>${escapeHTML(c.protocol)}</td>
+    <td>${escapeHTML(c.server_name || "—")}</td>
+    <td>${escapeHTML(c.transport)}</td><td>${escapeHTML(c.security)}</td>
+    <td>${statusHTML(c.status)}</td>
+    <td>${admin ? button("حذف","deleteConfig("+c.id+")","danger") : "—"}</td>
+  </tr>`);
+
+  $("pageContent").innerHTML = `
+    ${pageHead(admin ? "مدیریت کانفیگ‌ها" : "کانفیگ‌های من","مدیریت کانفیگ‌های ثبت‌شده")}
+    ${admin ? `<div class="toolbar"><button class="btn" onclick="configForm()">＋ ساخت کانفیگ</button></div>` : ""}
+    <div class="panel">${table(
+      admin
+       ? ["شناسه","کاربر","نام","پروتکل","سرور","انتقال","امنیت","وضعیت","عملیات"]
+       : ["شناسه","نام","پروتکل","سرور","انتقال","امنیت","وضعیت","عملیات"],
+      rows
+    )}</div>
+    <div class="notice">
+      کانفیگ‌های ساخته‌شده در این نسخه به‌صورت پیش‌نویس ذخیره می‌شوند. ساخت و فعال‌سازی واقعی روی سرور Xray هنوز نیازمند نصب و اتصال Node Agent است.
+    </div>`;
+}
+
+async function renderPayments(admin) {
+  const data = await load("/api/payments","payments");
+  const rows = (data.payments || []).map(p=>`<tr>
+    <td>${p.id}</td>${admin ? `<td>${escapeHTML(p.username || "")}</td>` : ""}
+    <td>${money(p.amount)}</td><td>${escapeHTML(p.method || "—")}</td>
+    <td>${escapeHTML(p.reference || "—")}</td>
+    <td>${statusHTML(p.status)}</td>
+    ${admin ? `<td>${actionButtons([
+      button("تأیید","updatePayment("+p.id+",'paid')","green"),
+      button("رد","updatePayment("+p.id+",'failed')","danger")
+    ])}</td>` : ""}
+  </tr>`);
+
+  $("pageContent").innerHTML = `
+    ${pageHead(admin ? "مدیریت پرداخت‌ها" : "پرداخت‌های من","مشاهده درخواست‌های پرداخت")}
+    ${!admin ? `<div class="toolbar"><button class="btn" onclick="paymentForm()">＋ ثبت درخواست پرداخت</button></div>` : ""}
+    <div class="panel">${table(
+      admin
+       ? ["شناسه","کاربر","مبلغ","روش","شناسه پیگیری","وضعیت","عملیات"]
+       : ["شناسه","مبلغ","روش","شناسه پیگیری","وضعیت"],
+      rows
+    )}</div>
+    <div class="notice">تغییر وضعیت دستی است و این نسخه هنوز به درگاه پرداخت بانکی متصل نیست.</div>`;
+}
+
+async function renderTickets(admin) {
+  const data = await load("/api/tickets","tickets");
+  const rows = (data.tickets || []).map(t=>`<tr>
+    <td>${t.id}</td>${admin ? `<td>${escapeHTML(t.username || "")}</td>` : ""}
+    <td>${escapeHTML(t.subject)}</td><td>${escapeHTML(t.message)}</td>
+    <td>${statusHTML(t.status)}</td><td>${date(t.created_at)}</td>
+    ${admin ? `<td>${button("بستن تیکت","updateTicket("+t.id+")")}</td>` : ""}
+  </tr>`);
+
+  $("pageContent").innerHTML = `
+    ${pageHead(admin ? "مدیریت تیکت‌ها" : "پشتیبانی","ثبت و پیگیری درخواست‌های پشتیبانی")}
+    ${!admin ? `<div class="toolbar"><button class="btn" onclick="ticketForm()">＋ تیکت جدید</button></div>` : ""}
+    <div class="panel">${table(
+      admin
+       ? ["شناسه","کاربر","موضوع","پیام","وضعیت","تاریخ","عملیات"]
+       : ["شناسه","موضوع","پیام","وضعیت","تاریخ"],
+      rows
+    )}</div>`;
+}
+
+async function renderLogs() {
+  const data = await load("/api/admin/logs","logs");
+  const rows = (data.logs || []).map(l=>`<tr>
+    <td>${l.id}</td><td>${escapeHTML(l.username || "سیستم")}</td>
+    <td>${escapeHTML(l.action)}</td><td>${escapeHTML(l.target_type || "—")}</td>
+    <td>${l.target_id || "—"}</td><td>${date(l.created_at)}</td>
+  </tr>`);
+
+  $("pageContent").innerHTML = `
+    ${pageHead("گزارش فعالیت","آخرین عملیات ثبت‌شده در سیستم")}
+    <div class="panel">${table(
+      ["شناسه","کاربر","عملیات","نوع","شناسه هدف","زمان"],rows
+    )}</div>`;
+}
+
+function renderSettings() {
+  $("pageContent").innerHTML = `
+    ${pageHead("تنظیمات","تنظیمات شخصی و اتصال سامانه")}
+    <div class="panel">
+      <h3>حساب کاربری</h3>
+      <p>نام کاربری: <strong>${escapeHTML(currentUser.username)}</strong></p>
+      <p>سطح دسترسی: <strong>${escapeHTML(currentUser.role)}</strong></p>
+    </div>
+    <div class="panel">
+      <h3>تنظیمات زبان</h3>
+      <p class="muted">انتخاب زبان فقط در تنظیمات قرار دارد.</p>
+      <select id="languageSetting">
+        <option value="fa">فارسی</option>
+        <option value="en">English</option>
+        <option value="tr">Türkçe</option>
+      </select>
+      <p class="footer-note">تغییر زبان در این نسخه هنوز به سیستم ترجمه کامل متصل نشده است.</p>
+    </div>
+    <div class="panel">
+      <h3>ارتباط با پشتیبانی</h3>
+      <button class="btn" onclick="openSupport()">ورود به تلگرام پشتیبانی</button>
+    </div>`;
+}
+
+function openSupport() {
+  window.open("https://t.me/m_hadiii46333","_blank");
+}
+
+function openModal(title, content) {
+  $("modalRoot").innerHTML = `
+    <div class="modal-bg" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="modal-head">
+          <h3>${title}</h3>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        ${content}
+      </div>
+    </div>`;
+}
+
+function closeModal() {
+  $("modalRoot").innerHTML = "";
+}
+
+function formField(label, name, type = "text", value = "", required = true) {
+  return `<div class="field">
+    <label>${label}</label>
+    <input name="${name}" type="${type}" value="${escapeHTML(value)}"
+      ${required ? "required" : ""}>
+  </div>`;
+}
+
+function formSelect(label, name, options) {
+  return `<div class="field"><label>${label}</label>
+    <select name="${name}">${options.map(o=>
+      `<option value="${o[0]}">${o[1]}</option>`).join("")}</select>
+  </div>`;
+}
+
+function formShell(fields, submitText, callback) {
+  return `<form onsubmit="${callback}(event)">
+    <div class="form-grid">${fields}</div>
+    <button class="btn full" type="submit">${submitText}</button>
+  </form>`;
+}
+
+function formValues(event) {
+  return Object.fromEntries(new FormData(event.target).entries());
+}
+
+async function serverForm(id = null) {
+  let s = {};
+  if (id) {
+    const data = await load("/api/admin/servers","servers");
+    s = (data.servers || []).find(x=>x.id === id) || {};
   }
 
-  const session = await createSession(env, user.id);
-  await audit(env, user.id, "user.login", "user", user.id);
-
-  return json({
-    ok: true,
-    token: session.token,
-    expires_at: session.expires_at,
-    user: {
-      id: user.id,
-      username: user.username,
-      role: user.role
-    }
-  });
-}
-
-async function logout(request, env, user) {
-  const header = request.headers.get("Authorization") || "";
-  const token = header.startsWith("Bearer ")
-    ? header.slice(7).trim()
-    : "";
-
-  if (token) {
-    await env.DB.prepare(
-      "DELETE FROM sessions WHERE token_hash = ?"
-    ).bind(await digest(token)).run();
-  }
-
-  if (user) await audit(env, user.id, "user.logout");
-
-  return json({ ok: true, message: "خروج انجام شد." });
-}
-
-async function me(user, env) {
-  const stats = await env.DB.prepare(`
-    SELECT COUNT(*) AS total
-    FROM subscriptions
-    WHERE user_id = ?
-  `).bind(user.id).first();
-
-  return json({
-    ok: true,
-    user: {
-      id: user.id,
-      username: user.username,
-      role: user.role,
-      status: user.status
-    },
-    subscriptions_count: stats.total
-  });
-}
-
-async function adminOverview(env) {
-  const users = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM users"
-  ).first();
-
-  const activeUsers = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM users WHERE status = 'active'"
-  ).first();
-
-  const servers = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM servers"
-  ).first();
-
-  const subscriptions = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM subscriptions"
-  ).first();
-
-  const activeSubscriptions = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM subscriptions WHERE status = 'active' AND expires_at > ?"
-  ).bind(now()).first();
-
-  const configs = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM configs"
-  ).first();
-
-  const revenue = await env.DB.prepare(
-    "SELECT COALESCE(SUM(amount), 0) AS n FROM payments WHERE status = 'paid'"
-  ).first();
-
-  return json({
-    ok: true,
-    overview: {
-      users: users.n,
-      active_users: activeUsers.n,
-      servers: servers.n,
-      subscriptions: subscriptions.n,
-      active_subscriptions: activeSubscriptions.n,
-      configs: configs.n,
-      revenue: revenue.n
-    }
-  });
-}
-
-async function listUsers(env, url) {
-  const limit = Math.min(
-    Math.max(Number(url.searchParams.get("limit")) || 50, 1),
-    100
+  openModal(id ? "ویرایش سرور" : "افزودن سرور",
+    formShell(
+      formField("نام سرور","name","text",s.name || "") +
+      formField("کشور","country","text",s.country || "",false) +
+      formField("شهر","city","text",s.city || "",false) +
+      formField("آدرس IP یا دامنه","host","text",s.host || "") +
+      formField("پورت","port","number",s.port || 443) +
+      formField("ظرفیت","capacity","number",s.capacity || 100) +
+      formSelect("پروتکل","protocol",[
+        ["vless","VLESS"],["vmess","VMess"],["trojan","Trojan"]
+      ]),
+      "ذخیره سرور","submitServer"
+    )
   );
-
-  const offset = Math.max(Number(url.searchParams.get("offset")) || 0, 0);
-
-  const result = await env.DB.prepare(`
-    SELECT id, username, email, phone, role, status, created_at
-    FROM users
-    ORDER BY id DESC
-    LIMIT ? OFFSET ?
-  `).bind(limit, offset).all();
-
-  return json({ ok: true, users: result.results });
 }
 
-async function updateUser(request, env, actor, id) {
-  const data = await body(request);
-  const target = await env.DB.prepare(
-    "SELECT id, role FROM users WHERE id = ?"
-  ).bind(id).first();
+async function editServer(id) { serverForm(id); }
 
-  if (!target) return json({ ok: false, error: "user_not_found" }, 404);
+async function submitServer(event) {
+  event.preventDefault();
+  const data = formValues(event);
+  data.port = Number(data.port);
+  data.capacity = Number(data.capacity);
 
-  if (target.role === "superadmin" && actor.role !== "superadmin") {
-    return json({ ok: false, error: "forbidden" }, 403);
-  }
-
-  const status = ["active", "blocked", "suspended"].includes(data.status)
-    ? data.status
-    : null;
-
-  const role = ["user", "support", "sales", "admin"].includes(data.role)
-    ? data.role
-    : null;
-
-  if (status) {
-    await env.DB.prepare(
-      "UPDATE users SET status = ?, updated_at = ? WHERE id = ?"
-    ).bind(status, now(), id).run();
-  }
-
-  if (role) {
-    await env.DB.prepare(
-      "UPDATE users SET role = ?, updated_at = ? WHERE id = ?"
-    ).bind(role, now(), id).run();
-  }
-
-  await audit(env, actor.id, "user.update", "user", id, data);
-
-  return json({ ok: true, message: "اطلاعات کاربر به‌روزرسانی شد." });
+  try {
+    await api("/api/admin/servers",{method:"POST",body:data});
+    closeModal();toast("سرور ثبت شد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function deleteUser(env, actor, id) {
-  if (Number(id) === actor.id) {
-    return json({ ok: false, error: "cannot_delete_self" }, 400);
-  }
+async function deleteServer(id) {
+  if (!confirm("سرور حذف شود؟")) return;
+  try {
+    await api("/api/admin/servers/"+id,{method:"DELETE"});
+    toast("سرور حذف شد.");renderPage();
+  } catch(e) { toast(e.message); }
+}
 
-  const target = await env.DB.prepare(
-    "SELECT id, role FROM users WHERE id = ?"
-  ).bind(id).first();
+function planForm() {
+  openModal("ساخت پلن اشتراک",
+    formShell(
+      formField("نام پلن","name") +
+      formField("حجم به گیگابایت","volume_gb","number") +
+      formField("مدت به روز","duration_days","number") +
+      formField("تعداد دستگاه","device_limit","number") +
+      formField("قیمت به تومان","price","number"),
+      "ثبت پلن","submitPlan"
+    )
+  );
+}
 
-  if (!target) return json({ ok: false, error: "user_not_found" }, 404);
+async function submitPlan(event) {
+  event.preventDefault();
+  const data = formValues(event);
+  for (const k of ["volume_gb","duration_days","device_limit","price"]) data[k] = Number(data[k]);
 
-  if (target.role === "superadmin") {
-    return json({ ok: false, error: "cannot_delete_superadmin" }, 403);
-  }
+  try {
+    await api("/api/admin/plans",{method:"POST",body:data});
+    closeModal();toast("پلن ایجاد شد.");renderPage();
+  } catch(e) { toast(e.message); }
+}
 
-  await env.DB.batch([
-    env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(id),
-    env.DB.prepare("DELETE FROM configs WHERE user_id = ?").bind(id),
-    env.DB.prepare("DELETE FROM subscriptions WHERE user_id = ?").bind(id),
-    env.DB.prepare("DELETE FROM tickets WHERE user_id = ?").bind(id),
-    env.DB.prepare("DELETE FROM payments WHERE user_id = ?").bind(id),
-    env.DB.prepare("DELETE FROM users WHERE id = ?").bind(id)
+async function deletePlan(id) {
+  if (!confirm("این پلن حذف شود؟")) return;
+  try {
+    await api("/api/admin/plans/"+id,{method:"DELETE"});
+    toast("پلن حذف شد.");renderPage();
+  } catch(e) { toast(e.message); }
+}
+
+async function subscriptionForm() {
+  const [usersData,plansData] = await Promise.all([
+    api("/api/admin/users"),api("/api/admin/plans")
   ]);
 
-  await audit(env, actor.id, "user.delete", "user", id);
+  const users = usersData.users || [];
+  const plans = plansData.plans || [];
 
-  return json({ ok: true, message: "کاربر حذف شد." });
-}
-
-async function listServers(env) {
-  const result = await env.DB.prepare(`
-    SELECT id, name, country, city, host, port, protocol,
-           status, capacity, current_users, created_at
-    FROM servers
-    ORDER BY id DESC
-  `).all();
-
-  return json({ ok: true, servers: result.results });
-}
-
-async function saveServer(request, env, actor, id = null) {
-  const data = await body(request);
-
-  const name = clean(data.name, 100);
-  const host = clean(data.host, 255);
-  const port = Number(data.port || 443);
-  const capacity = Number(data.capacity || 100);
-
-  if (!name || !host || !Number.isInteger(port) || port < 1 || port > 65535) {
-    return json({ ok: false, error: "invalid_server_data" }, 400);
-  }
-
-  if (!Number.isInteger(capacity) || capacity < 1) {
-    return json({ ok: false, error: "invalid_capacity" }, 400);
-  }
-
-  const values = [
-    name,
-    clean(data.country, 80),
-    clean(data.city, 80),
-    host,
-    port,
-    ["vless", "vmess", "trojan"].includes(data.protocol)
-      ? data.protocol : "vless",
-    capacity
-  ];
-
-  if (id) {
-    const existing = await env.DB.prepare(
-      "SELECT id FROM servers WHERE id = ?"
-    ).bind(id).first();
-
-    if (!existing) return json({ ok: false, error: "server_not_found" }, 404);
-
-    await env.DB.prepare(`
-      UPDATE servers
-      SET name=?, country=?, city=?, host=?, port=?, protocol=?,
-          capacity=?, updated_at=?
-      WHERE id=?
-    `).bind(...values, now(), id).run();
-
-    await audit(env, actor.id, "server.update", "server", id);
-
-    return json({ ok: true, message: "سرور ویرایش شد." });
-  }
-
-  const result = await env.DB.prepare(`
-    INSERT INTO servers
-    (name, country, city, host, port, protocol, capacity, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(...values, now(), now()).run();
-
-  await audit(env, actor.id, "server.create", "server", result.meta.last_row_id);
-
-  return json({
-    ok: true,
-    id: result.meta.last_row_id,
-    message: "سرور ثبت شد."
-  }, 201);
-}
-
-async function deleteServer(env, actor, id) {
-  const used = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM configs WHERE server_id = ?"
-  ).bind(id).first();
-
-  if (used.n > 0) {
-    return json({
-      ok: false,
-      error: "server_has_configs",
-      message: "ابتدا کانفیگ‌های این سرور را منتقل یا حذف کنید."
-    }, 409);
-  }
-
-  await env.DB.prepare("DELETE FROM servers WHERE id = ?").bind(id).run();
-  await audit(env, actor.id, "server.delete", "server", id);
-
-  return json({ ok: true, message: "سرور حذف شد." });
-}
-
-async function listPlans(env) {
-  const result = await env.DB.prepare(
-    "SELECT * FROM plans ORDER BY id DESC"
-  ).all();
-
-  return json({ ok: true, plans: result.results });
-}
-
-async function savePlan(request, env, actor, id = null) {
-  const data = await body(request);
-
-  const name = clean(data.name, 100);
-  const volume = Number(data.volume_gb);
-  const duration = Number(data.duration_days);
-  const devices = Number(data.device_limit || 1);
-  const price = Number(data.price || 0);
-
-  if (!name || !Number.isInteger(volume) || volume < 1 ||
-      !Number.isInteger(duration) || duration < 1 ||
-      !Number.isInteger(devices) || devices < 1 ||
-      !Number.isSafeInteger(price) || price < 0) {
-    return json({ ok: false, error: "invalid_plan_data" }, 400);
-  }
-
-  if (id) {
-    await env.DB.prepare(`
-      UPDATE plans
-      SET name=?, volume_gb=?, duration_days=?, device_limit=?, price=?
-      WHERE id=?
-    `).bind(name, volume, duration, devices, price, id).run();
-
-    await audit(env, actor.id, "plan.update", "plan", id);
-
-    return json({ ok: true, message: "پلن ویرایش شد." });
-  }
-
-  const result = await env.DB.prepare(`
-    INSERT INTO plans
-    (name, volume_gb, duration_days, device_limit, price, created_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).bind(name, volume, duration, devices, price, now()).run();
-
-  await audit(env, actor.id, "plan.create", "plan", result.meta.last_row_id);
-
-  return json({ ok: true, id: result.meta.last_row_id }, 201);
-}
-
-async function deletePlan(env, actor, id) {
-  const used = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM subscriptions WHERE plan_id = ?"
-  ).bind(id).first();
-
-  if (used.n > 0) {
-    return json({ ok: false, error: "plan_in_use" }, 409);
-  }
-
-  await env.DB.prepare("DELETE FROM plans WHERE id = ?").bind(id).run();
-  await audit(env, actor.id, "plan.delete", "plan", id);
-
-  return json({ ok: true });
-}
-
-async function listSubscriptions(env, user, isAdmin) {
-  const result = isAdmin
-    ? await env.DB.prepare(`
-        SELECT s.*, u.username, p.name AS plan_name
-        FROM subscriptions s
-        JOIN users u ON u.id = s.user_id
-        LEFT JOIN plans p ON p.id = s.plan_id
-        ORDER BY s.id DESC
-      `).all()
-    : await env.DB.prepare(`
-        SELECT s.*, p.name AS plan_name
-        FROM subscriptions s
-        LEFT JOIN plans p ON p.id = s.plan_id
-        WHERE s.user_id = ?
-        ORDER BY s.id DESC
-      `).bind(user.id).all();
-
-  return json({ ok: true, subscriptions: result.results });
-}
-
-async function createSubscription(request, env, actor) {
-  const data = await body(request);
-
-  const userId = Number(data.user_id);
-  const planId = Number(data.plan_id);
-
-  if (!Number.isInteger(userId) || !Number.isInteger(planId)) {
-    return json({ ok: false, error: "invalid_subscription_data" }, 400);
-  }
-
-  const user = await env.DB.prepare(
-    "SELECT id FROM users WHERE id = ? AND status = 'active'"
-  ).bind(userId).first();
-
-  const plan = await env.DB.prepare(
-    "SELECT * FROM plans WHERE id = ? AND status = 'active'"
-  ).bind(planId).first();
-
-  if (!user || !plan) {
-    return json({ ok: false, error: "user_or_plan_not_found" }, 404);
-  }
-
-  const created = now();
-  const expires = created + plan.duration_days * 86400;
-
-  const result = await env.DB.prepare(`
-    INSERT INTO subscriptions
-    (user_id, plan_id, volume_gb, used_bytes, expires_at, status, created_at)
-    VALUES (?, ?, ?, 0, ?, 'active', ?)
-  `).bind(
-    userId,
-    planId,
-    plan.volume_gb,
-    expires,
-    created
-  ).run();
-
-  await audit(
-    env,
-    actor.id,
-    "subscription.create",
-    "subscription",
-    result.meta.last_row_id
+  openModal("ایجاد اشتراک",
+    formShell(
+      formSelect("کاربر","user_id",users.map(u=>[u.id,u.username])) +
+      formSelect("پلن","plan_id",plans.map(p=>[p.id,p.name])),
+      "ایجاد اشتراک","submitSubscription"
+    )
   );
-
-  return json({
-    ok: true,
-    id: result.meta.last_row_id,
-    expires_at: expires,
-    message: "اشتراک ایجاد شد."
-  }, 201);
 }
 
-async function updateSubscription(request, env, actor, id) {
-  const data = await body(request);
+async function submitSubscription(event) {
+  event.preventDefault();
+  const data = formValues(event);
+  data.user_id = Number(data.user_id);
+  data.plan_id = Number(data.plan_id);
 
-  const subscription = await env.DB.prepare(
-    "SELECT * FROM subscriptions WHERE id = ?"
-  ).bind(id).first();
-
-  if (!subscription) {
-    return json({ ok: false, error: "subscription_not_found" }, 404);
-  }
-
-  const status = ["active", "expired", "suspended", "cancelled"].includes(data.status)
-    ? data.status
-    : subscription.status;
-
-  const volume = data.volume_gb === undefined
-    ? subscription.volume_gb
-    : Number(data.volume_gb);
-
-  const expires = data.expires_at === undefined
-    ? subscription.expires_at
-    : Number(data.expires_at);
-
-  if (!Number.isInteger(volume) || volume < 1 ||
-      !Number.isInteger(expires) || expires < 1) {
-    return json({ ok: false, error: "invalid_subscription_values" }, 400);
-  }
-
-  await env.DB.prepare(`
-    UPDATE subscriptions
-    SET status=?, volume_gb=?, expires_at=?
-    WHERE id=?
-  `).bind(status, volume, expires, id).run();
-
-  await audit(env, actor.id, "subscription.update", "subscription", id);
-
-  return json({ ok: true, message: "اشتراک ویرایش شد." });
+  try {
+    await api("/api/admin/subscriptions",{method:"POST",body:data});
+    closeModal();toast("اشتراک ایجاد شد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function listConfigs(env, user, isAdmin) {
-  const result = isAdmin
-    ? await env.DB.prepare(`
-        SELECT c.*, u.username, s.name AS server_name
-        FROM configs c
-        JOIN users u ON u.id = c.user_id
-        LEFT JOIN servers s ON s.id = c.server_id
-        ORDER BY c.id DESC
-      `).all()
-    : await env.DB.prepare(`
-        SELECT c.*, s.name AS server_name
-        FROM configs c
-        LEFT JOIN servers s ON s.id = c.server_id
-        WHERE c.user_id = ?
-        ORDER BY c.id DESC
-      `).bind(user.id).all();
+async function editSubscription(id) {
+  const all = await api("/api/subscriptions");
+  const s = (all.subscriptions || []).find(x=>x.id === id);
+  if (!s) return toast("اشتراک پیدا نشد.");
 
-  return json({ ok: true, configs: result.results });
+  openModal("ویرایش اشتراک",
+    formShell(
+      formSelect("وضعیت","status",[
+        ["active","فعال"],["suspended","تعلیق"],["expired","منقضی"],["cancelled","لغو"]
+      ]) +
+      formField("حجم GB","volume_gb","number",s.volume_gb) +
+      formField("تاریخ انقضا (Unix timestamp)","expires_at","number",s.expires_at),
+      "ذخیره تغییرات","submitSubscriptionEdit"
+    )
+  );
+  window.editingSubscriptionId = id;
 }
 
-async function createConfig(request, env, actor) {
-  const data = await body(request);
+async function submitSubscriptionEdit(event) {
+  event.preventDefault();
+  const data = formValues(event);
+  data.volume_gb = Number(data.volume_gb);
+  data.expires_at = Number(data.expires_at);
 
-  const userId = Number(data.user_id);
-  const serverId = Number(data.server_id);
-  const subscriptionId = Number(data.subscription_id);
-  const name = clean(data.name, 100);
-  const protocol = ["vless", "vmess", "trojan"].includes(data.protocol)
-    ? data.protocol
-    : "vless";
-
-  if (!userId || !serverId || !name) {
-    return json({ ok: false, error: "missing_config_fields" }, 400);
-  }
-
-  const targetUser = await env.DB.prepare(
-    "SELECT id FROM users WHERE id = ? AND status = 'active'"
-  ).bind(userId).first();
-
-  const server = await env.DB.prepare(
-    "SELECT * FROM servers WHERE id = ?"
-  ).bind(serverId).first();
-
-  if (!targetUser || !server) {
-    return json({ ok: false, error: "user_or_server_not_found" }, 404);
-  }
-
-  if (server.status !== "online") {
-    return json({
-      ok: false,
-      error: "server_not_online",
-      message: "سرور انتخاب‌شده آنلاین نیست."
-    }, 409);
-  }
-
-  let subscription = null;
-
-  if (subscriptionId) {
-    subscription = await env.DB.prepare(`
-      SELECT * FROM subscriptions
-      WHERE id=? AND user_id=? AND status='active' AND expires_at>?
-    `).bind(subscriptionId, userId, now()).first();
-
-    if (!subscription) {
-      return json({ ok: false, error: "invalid_subscription" }, 400);
-    }
-  }
-
-  const uuid = crypto.randomUUID();
-  const transport = ["tcp", "ws", "grpc", "xhttp"].includes(data.transport)
-    ? data.transport
-    : "tcp";
-
-  const security = ["none", "tls", "reality"].includes(data.security)
-    ? data.security
-    : "tls";
-
-  const result = await env.DB.prepare(`
-    INSERT INTO configs
-    (user_id, server_id, subscription_id, name, protocol, uuid,
-     transport, security, port, status, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?)
-  `).bind(
-    userId,
-    serverId,
-    subscriptionId || null,
-    name,
-    protocol,
-    uuid,
-    transport,
-    security,
-    server.port,
-    now(),
-    now()
-  ).run();
-
-  await audit(env, actor.id, "config.create", "config", result.meta.last_row_id);
-
-  return json({
-    ok: true,
-    id: result.meta.last_row_id,
-    uuid,
-    status: "draft",
-    message: "کانفیگ به‌صورت پیش‌نویس ثبت شد. برای فعال‌سازی باید به نود Xray متصل شود."
-  }, 201);
+  try {
+    await api("/api/admin/subscriptions/"+window.editingSubscriptionId,
+      {method:"PATCH",body:data});
+    closeModal();toast("اشتراک ویرایش شد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function deleteConfig(env, actor, id) {
-  await env.DB.prepare(
-    "DELETE FROM configs WHERE id = ?"
-  ).bind(id).run();
+async function configForm() {
+  const [usersData,serversData,subsData] = await Promise.all([
+    api("/api/admin/users"),api("/api/admin/servers"),api("/api/subscriptions")
+  ]);
 
-  await audit(env, actor.id, "config.delete", "config", id);
+  const users = usersData.users || [];
+  const servers = serversData.servers || [];
+  const subs = subsData.subscriptions || [];
 
-  return json({ ok: true, message: "کانفیگ حذف شد." });
+  openModal("ساخت کانفیگ",
+    `<div class="notice">این فرم کانفیگ را به‌صورت پیش‌نویس در دیتابیس ذخیره می‌کند. برای فعال‌سازی واقعی باید Node Agent نصب و متصل شود.</div>` +
+    formShell(
+      formSelect("کاربر","user_id",users.map(u=>[u.id,u.username])) +
+      formSelect("سرور","server_id",servers.map(s=>[s.id,s.name+" ("+s.status+")"])) +
+      formSelect("اشتراک","subscription_id",[
+        ["","بدون اشتراک"],
+        ...subs.map(s=>[s.id,"اشتراک #"+s.id+" - "+(s.username || "")])
+      ]) +
+      formField("نام کانفیگ","name") +
+      formSelect("پروتکل","protocol",[
+        ["vless","VLESS"],["vmess","VMess"],["trojan","Trojan"]
+      ]) +
+      formSelect("انتقال","transport",[
+        ["tcp","TCP"],["ws","WebSocket"],["grpc","gRPC"],["xhttp","XHTTP"]
+      ]) +
+      formSelect("امنیت","security",[
+        ["tls","TLS"],["reality","REALITY"],["none","بدون امنیت"]
+      ]),
+      "ثبت پیش‌نویس","submitConfig"
+    )
+  );
 }
 
-async function listPayments(env, user, isAdmin) {
-  const result = isAdmin
-    ? await env.DB.prepare(`
-        SELECT p.*, u.username
-        FROM payments p
-        JOIN users u ON u.id = p.user_id
-        ORDER BY p.id DESC
-      `).all()
-    : await env.DB.prepare(`
-        SELECT * FROM payments
-        WHERE user_id=?
-        ORDER BY id DESC
-      `).bind(user.id).all();
+async function submitConfig(event) {
+  event.preventDefault();
+  const data = formValues(event);
+  data.user_id = Number(data.user_id);
+  data.server_id = Number(data.server_id);
+  data.subscription_id = data.subscription_id ? Number(data.subscription_id) : null;
 
-  return json({ ok: true, payments: result.results });
+  try {
+    const result = await api("/api/admin/configs",{method:"POST",body:data});
+    closeModal();
+    toast("پیش‌نویس کانفیگ ثبت شد. شناسه: "+result.id);
+    renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function createPayment(request, env, user) {
-  const data = await body(request);
-  const amount = Number(data.amount);
-
-  if (!Number.isSafeInteger(amount) || amount < 1) {
-    return json({ ok: false, error: "invalid_amount" }, 400);
-  }
-
-  const result = await env.DB.prepare(`
-    INSERT INTO payments
-    (user_id, amount, method, reference, status, created_at)
-    VALUES (?, ?, ?, ?, 'pending', ?)
-  `).bind(
-    user.id,
-    amount,
-    clean(data.method, 40) || null,
-    clean(data.reference, 120) || null,
-    now()
-  ).run();
-
-  return json({
-    ok: true,
-    id: result.meta.last_row_id,
-    status: "pending",
-    message: "درخواست پرداخت ثبت شد و هنوز تأیید نشده است."
-  }, 201);
+async function deleteConfig(id) {
+  if (!confirm("کانفیگ حذف شود؟")) return;
+  try {
+    await api("/api/admin/configs/"+id,{method:"DELETE"});
+    toast("کانفیگ حذف شد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function updatePayment(request, env, actor, id) {
-  const data = await body(request);
-  const status = ["paid", "failed", "refunded", "pending"].includes(data.status)
-    ? data.status
-    : null;
-
-  if (!status) return json({ ok: false, error: "invalid_status" }, 400);
-
-  await env.DB.prepare(
-    "UPDATE payments SET status=? WHERE id=?"
-  ).bind(status, id).run();
-
-  await audit(env, actor.id, "payment.update", "payment", id, { status });
-
-  return json({
-    ok: true,
-    message: "وضعیت پرداخت تغییر کرد. تأیید پرداخت فقط از مسیر درگاه معتبر باید انجام شود."
-  });
+async function updateUser(id,status) {
+  try {
+    await api("/api/admin/users/"+id,{method:"PATCH",body:{status}});
+    toast("وضعیت کاربر تغییر کرد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function createTicket(request, env, user) {
-  const data = await body(request);
-  const subject = clean(data.subject, 150);
-  const message = clean(data.message, 5000);
-
-  if (!subject || !message) {
-    return json({ ok: false, error: "missing_ticket_fields" }, 400);
-  }
-
-  const result = await env.DB.prepare(`
-    INSERT INTO tickets
-    (user_id, subject, message, status, created_at, updated_at)
-    VALUES (?, ?, ?, 'open', ?, ?)
-  `).bind(user.id, subject, message, now(), now()).run();
-
-  return json({
-    ok: true,
-    id: result.meta.last_row_id,
-    message: "تیکت ثبت شد."
-  }, 201);
+async function deleteUser(id) {
+  if (!confirm("کاربر و اطلاعات وابسته او حذف شود؟")) return;
+  try {
+    await api("/api/admin/users/"+id,{method:"DELETE"});
+    toast("کاربر حذف شد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function listTickets(env, user, isAdmin) {
-  const result = isAdmin
-    ? await env.DB.prepare(`
-        SELECT t.*, u.username
-        FROM tickets t
-        JOIN users u ON u.id=t.user_id
-        ORDER BY t.id DESC
-      `).all()
-    : await env.DB.prepare(
-        "SELECT * FROM tickets WHERE user_id=? ORDER BY id DESC"
-      ).bind(user.id).all();
-
-  return json({ ok: true, tickets: result.results });
+function paymentForm() {
+  openModal("ثبت درخواست پرداخت",
+    formShell(
+      formField("مبلغ به تومان","amount","number") +
+      formField("روش پرداخت","method","text","",false) +
+      formField("شناسه پیگیری","reference","text","",false),
+      "ثبت درخواست","submitPayment"
+    )
+  );
 }
 
-async function updateTicket(request, env, actor, id) {
-  const data = await body(request);
-  const status = ["open", "pending", "answered", "closed"].includes(data.status)
-    ? data.status
-    : null;
+async function submitPayment(event) {
+  event.preventDefault();
+  const data = formValues(event);
+  data.amount = Number(data.amount);
 
-  if (!status) return json({ ok: false, error: "invalid_ticket_status" }, 400);
-
-  await env.DB.prepare(
-    "UPDATE tickets SET status=?, updated_at=? WHERE id=?"
-  ).bind(status, now(), id).run();
-
-  await audit(env, actor.id, "ticket.update", "ticket", id);
-
-  return json({ ok: true });
+  try {
+    await api("/api/payments",{method:"POST",body:data});
+    closeModal();toast("درخواست پرداخت ثبت شد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function adminLogs(env) {
-  const result = await env.DB.prepare(`
-    SELECT l.*, u.username
-    FROM audit_logs l
-    LEFT JOIN users u ON u.id=l.actor_id
-    ORDER BY l.id DESC
-    LIMIT 200
-  `).all();
-
-  return json({ ok: true, logs: result.results });
+async function updatePayment(id,status) {
+  if (status === "paid" && !confirm("آیا پرداخت را واقعاً بررسی و تأیید کرده‌ای؟")) return;
+  try {
+    await api("/api/admin/payments/"+id,{method:"PATCH",body:{status}});
+    toast("وضعیت پرداخت به‌روزرسانی شد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function health(env) {
-  const result = await env.DB.prepare("SELECT 1 AS ok").first();
-
-  return json({
-    ok: true,
-    app: APP,
-    version: VERSION,
-    database: result && result.ok === 1 ? "connected" : "error",
-    time: now()
-  });
+function ticketForm() {
+  openModal("ثبت تیکت پشتیبانی",
+    formShell(
+      formField("موضوع","subject") +
+      `<div class="field wide"><label>شرح درخواست</label>
+      <textarea name="message" required></textarea></div>`,
+      "ارسال تیکت","submitTicket"
+    )
+  );
 }
 
-function routeNotFound() {
-  return json({
-    ok: false,
-    error: "route_not_found",
-    message: "مسیر API وجود ندارد."
-  }, 404);
+async function submitTicket(event) {
+  event.preventDefault();
+  const data = formValues(event);
+
+  try {
+    await api("/api/tickets",{method:"POST",body:data});
+    closeModal();toast("تیکت ثبت شد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-async function router(request, env) {
-  const url = new URL(request.url);
-  const path = url.pathname.replace(/\/+$/, "") || "/";
-  const method = request.method.toUpperCase();
-
-  if (method === "GET" && path === "/") {
-    return json({
-      ok: true,
-      app: APP,
-      version: VERSION,
-      message: "MHA.NET API is running"
+async function updateTicket(id) {
+  if (!confirm("این تیکت بسته شود؟")) return;
+  try {
+    await api("/api/admin/tickets/"+id,{
+      method:"PATCH",body:{status:"closed"}
     });
-  }
-
-  if (method === "GET" && path === "/api/health") {
-    return health(env);
-  }
-
-  if (method === "POST" && path === "/api/register") {
-    return register(request, env);
-  }
-
-  if (method === "POST" && path === "/api/login") {
-    return login(request, env);
-  }
-
-  if (method === "GET" && path === "/api/me") {
-    const user = await getUser(request, env);
-    if (!user) return json({ ok: false, error: "unauthorized" }, 401);
-    return me(user, env);
-  }
-
-  const user = await getUser(request, env);
-
-  if (path === "/api/logout" && method === "POST") {
-    return logout(request, env, user);
-  }
-
-  if (!user) {
-    return json({
-      ok: false,
-      error: "unauthorized",
-      message: "ابتدا وارد حساب شوید."
-    }, 401);
-  }
-
-  const admin = requireAdmin(user);
-
-  if (path.startsWith("/api/admin/") && !admin) {
-    return json({ ok: false, error: "forbidden" }, 403);
-  }
-
-  if (method === "GET" && path === "/api/admin/overview") {
-    return adminOverview(env);
-  }
-
-  if (method === "GET" && path === "/api/admin/users") {
-    return listUsers(env, url);
-  }
-
-  let match = path.match(/^\/api\/admin\/users\/(\d+)$/);
-
-  if (match && method === "PATCH") {
-    return updateUser(request, env, user, Number(match[1]));
-  }
-
-  if (match && method === "DELETE") {
-    return deleteUser(env, user, Number(match[1]));
-  }
-
-  if (method === "GET" && path === "/api/admin/servers") {
-    return listServers(env);
-  }
-
-  if (path === "/api/admin/servers" && method === "POST") {
-    return saveServer(request, env, user);
-  }
-
-  match = path.match(/^\/api\/admin\/servers\/(\d+)$/);
-
-  if (match && method === "PUT") {
-    return saveServer(request, env, user, Number(match[1]));
-  }
-
-  if (match && method === "DELETE") {
-    return deleteServer(env, user, Number(match[1]));
-  }
-
-  if (method === "GET" && path === "/api/admin/plans") {
-    return listPlans(env);
-  }
-
-  if (path === "/api/admin/plans" && method === "POST") {
-    return savePlan(request, env, user);
-  }
-
-  match = path.match(/^\/api\/admin\/plans\/(\d+)$/);
-
-  if (match && method === "PUT") {
-    return savePlan(request, env, user, Number(match[1]));
-  }
-
-  if (match && method === "DELETE") {
-    return deletePlan(env, user, Number(match[1]));
-  }
-
-  if (method === "GET" && path === "/api/subscriptions") {
-    return listSubscriptions(env, user, admin);
-  }
-
-  if (path === "/api/admin/subscriptions" && method === "POST") {
-    return createSubscription(request, env, user);
-  }
-
-  match = path.match(/^\/api\/admin\/subscriptions\/(\d+)$/);
-
-  if (match && method === "PATCH") {
-    return updateSubscription(request, env, user, Number(match[1]));
-  }
-
-  if (method === "GET" && path === "/api/configs") {
-    return listConfigs(env, user, admin);
-  }
-
-  if (path === "/api/admin/configs" && method === "POST") {
-    return createConfig(request, env, user);
-  }
-
-  match = path.match(/^\/api\/admin\/configs\/(\d+)$/);
-
-  if (match && method === "DELETE") {
-    return deleteConfig(env, user, Number(match[1]));
-  }
-
-  if (method === "GET" && path === "/api/payments") {
-    return listPayments(env, user, admin);
-  }
-
-  if (path === "/api/payments" && method === "POST") {
-    return createPayment(request, env, user);
-  }
-
-  match = path.match(/^\/api\/admin\/payments\/(\d+)$/);
-
-  if (match && method === "PATCH") {
-    return updatePayment(request, env, user, Number(match[1]));
-  }
-
-  if (path === "/api/tickets" && method === "GET") {
-    return listTickets(env, user, admin);
-  }
-
-  if (path === "/api/tickets" && method === "POST") {
-    return createTicket(request, env, user);
-  }
-
-  match = path.match(/^\/api\/admin\/tickets\/(\d+)$/);
-
-  if (match && method === "PATCH") {
-    return updateTicket(request, env, user, Number(match[1]));
-  }
-
-  if (method === "GET" && path === "/api/admin/logs") {
-    return adminLogs(env);
-  }
-
-  return routeNotFound();
+    toast("تیکت بسته شد.");renderPage();
+  } catch(e) { toast(e.message); }
 }
 
-export default {
-  async fetch(request, env) {
-    const origin = request.headers.get("Origin") || "";
-
-    const allowed = (env.ALLOWED_ORIGINS || "")
-      .split(",")
-      .map(x => x.trim())
-      .filter(Boolean);
-
-    const originAllowed =
-      !origin ||
-      allowed.length === 0 ||
-      allowed.includes(origin);
-
-    const cors = {
-      "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Max-Age": "86400",
-      "Vary": "Origin"
-    };
-
-    if (origin && originAllowed) {
-      cors["Access-Control-Allow-Origin"] = origin;
-    }
-
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: originAllowed ? 204 : 403,
-        headers: cors
-      });
-    }
-
-    if (!originAllowed) {
-      return json({ ok: false, error: "origin_not_allowed" }, 403);
-    }
-
-    try {
-      await initDB(env);
-      await bootstrapAdmin(env);
-
-      const response = await router(request, env);
-      const headers = new Headers(response.headers);
-
-      for (const [key, value] of Object.entries(cors)) {
-        headers.set(key, value);
-      }
-
-      return new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers
-      });
-    } catch (error) {
-      console.error("MHA.NET ERROR:", error);
-
-      return json({
-        ok: false,
-        error: "internal_error",
-        message: "خطای داخلی سرور رخ داد."
-      }, 500);
-    }
-  }
-};
+startApp();
+</script>
+</body>
+</html>
