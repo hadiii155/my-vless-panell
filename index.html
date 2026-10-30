@@ -1,359 +1,1352 @@
+const APP = "MHA.NET";
+const VERSION = "1.0.0";
+const SESSION_DAYS = 7;
+const MAX_BODY = 1024 * 1024;
 
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#100b20">
-<title>MHA.NET | VPN Management</title>
-<style>
-:root{
- --bg:#0c0915;--panel:#171126;--panel2:#211832;--border:#342448;
- --purple:#8b45d6;--purple2:#b36bff;--red:#fa405c;--orange:#ff762f;
- --text:#f5efff;--muted:#a99bbd;--green:#35d69b;--yellow:#ffc45c;
- --blue:#59a9ff;--radius:17px
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.app{display:flex;min-height:100vh}
-.sidebar{width:255px;background:#120d1e;border-left:1px solid var(--border);padding:20px 14px;position:fixed;right:0;top:0;bottom:0;overflow:auto;z-index:20;transition:.25s}
-.brand{display:flex;align-items:center;gap:12px;padding:8px 9px 22px;border-bottom:1px solid var(--border)}
-.logo{width:47px;height:47px;border-radius:15px;background:linear-gradient(135deg,var(--orange),var(--red),var(--purple));display:grid;place-items:center;font-size:25px;box-shadow:0 0 25px #ff5c4b44}
-.brand h2{margin:0;font-size:20px;letter-spacing:1px}
-.brand small{color:var(--muted);font-size:10px}
-.nav-title{font-size:10px;color:#806e99;margin:22px 10px 8px}
-.nav button{width:100%;border:0;background:transparent;color:#c7bad8;text-align:right;padding:12px 13px;border-radius:11px;margin:2px 0;display:flex;align-items:center;gap:12px;font-size:13px}
-.nav button:hover,.nav button.active{background:linear-gradient(90deg,#7d3cc533,#ed385522);color:white}
-.nav .ico{width:22px;text-align:center;font-size:17px}
-.main{margin-right:255px;width:calc(100% - 255px);padding:22px 26px 50px}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:25px}
-.top-left,.top-right{display:flex;align-items:center;gap:10px}
-.menu-btn{display:none}
-.pill{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:12px;padding:10px 13px}
-.lang{min-width:125px}
-.page{display:none}.page.active{display:block}
-h1{font-size:24px;margin:0 0 7px}
-h2{font-size:17px;margin:0 0 15px}
-h3{font-size:14px;margin:0 0 10px}
-.subtitle{color:var(--muted);font-size:12px;margin-bottom:22px}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:17px 0}
-.card{background:linear-gradient(145deg,var(--panel),#171020);border:1px solid var(--border);border-radius:var(--radius);padding:17px;min-width:0}
-.stat{display:flex;justify-content:space-between;align-items:center}
-.stat .symbol{width:42px;height:42px;border-radius:13px;background:#8c4bd329;display:grid;place-items:center;font-size:21px}
-.stat small{color:var(--muted);font-size:11px}
-.stat strong{display:block;font-size:25px;margin-top:9px}
-.stat em{font-size:10px;color:var(--yellow);font-style:normal}
-.two{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px}
-.three{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
-.btn{border:0;border-radius:11px;padding:11px 15px;color:white;background:linear-gradient(110deg,var(--purple),#a13e9c);font-size:12px}
-.btn:hover{filter:brightness(1.13)}
-.btn.red{background:linear-gradient(110deg,#c72d4b,var(--red))}
-.btn.green{background:linear-gradient(110deg,#15966c,#31c895)}
-.btn.gray{background:#30253e;border:1px solid var(--border)}
-.btn.small{padding:7px 10px;font-size:11px}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.actions{display:flex;flex-wrap:wrap;gap:8px}
-.field{margin-bottom:13px}
-.field label{display:block;color:#c8b8db;font-size:11px;margin-bottom:7px}
-.field input,.field select,.field textarea,input,select,textarea{width:100%;background:#100b1a;color:white;border:1px solid var(--border);border-radius:10px;padding:11px;outline:none}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple2)}
-.field textarea{min-height:90px;resize:vertical}
-.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
-.table-wrap{overflow:auto}
-table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:11px}
-th,td{text-align:right;padding:12px 10px;border-bottom:1px solid var(--border)}
-th{color:#a995c0;font-weight:normal}
-td{color:#e8dff2}
-.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:10px;background:#7772;color:#ddd}
-.status.ok{background:#35d69b1b;color:var(--green)}
-.status.bad{background:#fa405c22;color:#ff8294}
-.status.wait{background:#ffc45c20;color:var(--yellow)}
-.muted{color:var(--muted);font-size:11px}
-.notice{padding:12px 14px;border-radius:12px;background:#ffc45c13;border:1px solid #ffc45c44;color:#ffdb9b;font-size:11px;line-height:1.9;margin:12px 0}
-.success{background:#35d69b12;border-color:#35d69b44;color:#79e8bd}
-.danger{background:#fa405c12;border-color:#fa405c44;color:#ff9bab}
-.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 13px}
-.section-head h2{margin:0}
-.chart{height:155px;display:flex;align-items:end;gap:9px;padding:15px 5px 0}
-.bar{flex:1;min-width:8px;border-radius:7px 7px 2px 2px;background:linear-gradient(0deg,#7138b8,#d36cff);position:relative}
-.bar span{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted)}
-.globe-area{display:grid;place-items:center;min-height:300px;overflow:hidden;position:relative}
-.globe{width:min(260px,70vw);aspect-ratio:1;border-radius:50%;position:relative;background:
- radial-gradient(circle at 35% 30%,#8edbff 0,#297cae 23%,#16426f 55%,#07182e 75%);
- box-shadow:inset -25px -15px 50px #020817,inset 10px 8px 30px #b5e8ff55,0 0 35px #4baaff33;
- border:1px solid #8acfff66;animation:float 5s ease-in-out infinite}
-.globe:before{content:"";position:absolute;inset:0;border-radius:50%;background:
- radial-gradient(ellipse at 28% 30%,transparent 25%,#ffffff15 26%,transparent 27%),
- repeating-linear-gradient(90deg,transparent 0 28px,#b6e9ff25 29px 30px,transparent 31px 58px);
-}
-.globe:after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid #b9eaff55;transform:scaleX(.48)}
-@keyframes float{50%{transform:translateY(-8px)}}
-.flag{position:absolute;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#16132a;border:1px solid #ffffff66;box-shadow:0 0 14px #69caff88;font-size:19px;z-index:3;animation:pulse 3s infinite}
-@keyframes pulse{50%{box-shadow:0 0 22px #b46cff}}
-.f1{top:12%;left:32%}.f2{top:24%;left:67%}.f3{top:39%;left:17%}.f4{top:48%;left:48%}
-.f5{top:64%;left:75%}.f6{top:75%;left:35%}.f7{top:17%;left:50%}.f8{top:55%;left:28%}
-.f9{top:33%;left:80%}.f10{top:78%;left:58%}.f11{top:43%;left:63%}.f12{top:9%;left:76%}
-.f13{top:65%;left:10%}.f14{top:87%;left:45%}.f15{top:28%;left:38%}
-.country-list{display:flex;flex-wrap:wrap;gap:7px}
-.country{font-size:10px;padding:7px 9px;border:1px solid var(--border);border-radius:20px;color:#d8c9e9;background:#120d1e}
-.modal{display:none;position:fixed;inset:0;background:#000b;z-index:50;align-items:center;justify-content:center;padding:15px}
-.modal.show{display:flex}
-.modal-box{width:min(650px,100%);max-height:90vh;overflow:auto;background:#1a1328;border:1px solid var(--border);border-radius:18px;padding:20px}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-.close{border:0;background:#34253f;color:white;border-radius:9px;padding:8px 12px}
-.login-screen{position:fixed;inset:0;z-index:100;background:radial-gradient(circle at 50% 20%,#442060,#100a1c 60%);display:none;align-items:center;justify-content:center;padding:18px}
-.login-screen.show{display:flex}
-.login-box{width:min(410px,100%);background:#171126;border:1px solid var(--border);padding:27px;border-radius:20px;box-shadow:0 20px 70px #0008}
-.toast{position:fixed;bottom:20px;left:20px;background:#261c36;border:1px solid var(--border);padding:13px 17px;border-radius:12px;z-index:200;display:none;font-size:12px;max-width:90vw}
-.toast.show{display:block}
-.progress{height:7px;border-radius:20px;background:#32253e;overflow:hidden;margin:10px 0}
-.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--orange));border-radius:20px}
-.qr{width:120px;height:120px;background:white;color:#111;display:grid;place-items:center;font-size:11px;margin:12px auto;border-radius:8px}
-.footer{margin-top:35px;padding-top:15px;border-top:1px solid var(--border);color:#756783;font-size:10px;text-align:center}
-@media(max-width:1050px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:750px){
- .sidebar{transform:translateX(100%);width:270px;box-shadow:-15px 0 35px #0007}
- .sidebar.open{transform:translateX(0)}
- .main{margin:0;width:100%;padding:15px}
- .menu-btn{display:block}
- .two{grid-template-columns:1fr}
- .three{grid-template-columns:1fr}
- h1{font-size:20px}
- .topbar{margin-bottom:18px}
-}
-@media(max-width:430px){.grid{grid-template-columns:1fr 1fr;gap:8px}.card{padding:12px}.stat strong{font-size:20px}.form-grid{grid-template-columns:1fr}.lang{min-width:90px}}
-</style>
-</head>
-<body>
-<div class="app">
-<aside class="sidebar" id="sidebar">
- <div class="brand"><div class="logo">🦁</div><div><h2>MHA.NET</h2><small>SMART VPN MANAGEMENT</small></div></div>
- <nav class="nav">
-  <div class="nav-title" data-i="mainMenu">منوی اصلی</div>
-  <button class="active" data-page="dashboard"><span class="ico">▦</span><span data-i="dashboard">داشبورد</span></button>
-  <button data-page="configs"><span class="ico">⚙</span><span data-i="configs">مدیریت کانفیگ</span></button>
-  <button data-page="users"><span class="ico">♙</span><span data-i="users">کاربران</span></button>
-  <button data-page="servers"><span class="ico">◉</span><span data-i="servers">سرورها</span></button>
-  <button data-page="subscriptions"><span class="ico">▤</span><span data-i="subscriptions">اشتراک‌ها</span></button>
-  <button data-page="plans"><span class="ico">◇</span><span data-i="plans">پلن‌ها و قیمت‌ها</span></button>
-  <div class="nav-title" data-i="business">مالی و ارتباط با مشتری</div>
-  <button data-page="finance"><span class="ico">＄</span><span data-i="finance">مالی و پرداخت‌ها</span></button>
-  <button data-page="support"><span class="ico">✉</span><span data-i="support">پشتیبانی</span></button>
-  <button data-page="announcements"><span class="ico">◈</span><span data-i="announcements">اطلاع‌رسانی</span></button>
-  <div class="nav-title" data-i="system">سیستم</div>
-  <button data-page="analytics"><span class="ico">▥</span><span data-i="analytics">گزارش‌ها و آمار</span></button>
-  <button data-page="admins"><span class="ico">♜</span><span data-i="admins">مدیران و دسترسی‌ها</span></button>
-  <button data-page="security"><span class="ico">♢</span><span data-i="security">امنیت و گزارش فعالیت</span></button>
-  <button data-page="settings"><span class="ico">⚒</span><span data-i="settings">تنظیمات</span></button>
-  <button data-page="profile"><span class="ico">☻</span><span data-i="profile">حساب کاربری</span></button>
-  <button id="logoutBtn"><span class="ico">⇥</span><span data-i="logout">خروج</span></button>
- </nav>
-</aside>
-
-<main class="main">
- <header class="topbar">
-  <div class="top-left"><button class="pill menu-btn" id="menuBtn">☰</button><div><strong>MHA.NET</strong><div class="muted" data-i="controlCenter">مرکز کنترل مدیریت</div></div></div>
-  <div class="top-right">
-   <select class="pill lang" id="language">
-    <option value="fa">🇮🇷 فارسی</option><option value="tr">🇹🇷 Türkçe</option><option value="en">🇬🇧 English</option>
-   </select>
-   <button class="pill" id="notifBtn">♧</button>
-   <button class="pill" data-page="profile">☻ <span id="adminName">مدیر</span></button>
-  </div>
- </header>
-
-<section class="page active" id="page-dashboard">
- <h1 data-i="welcome">به پنل MHA.NET خوش آمدید</h1>
- <div class="subtitle" data-i="overviewSubtitle">نمای کلی وضعیت سرویس و مدیریت کاربران</div>
- <div class="notice" id="connectionNotice">وضعیت API: هنوز بررسی نشده است. برای عملکرد واقعی، Worker و API باید متصل باشند.</div>
- <div class="grid">
-  <div class="card stat"><div><small data-i="totalUsers">کل کاربران</small><strong id="statUsers">—</strong><em data-i="liveApi">نیازمند API واقعی</em></div><div class="symbol">♙</div></div>
-  <div class="card stat"><div><small data-i="onlineUsers">کاربران آنلاین</small><strong id="statOnline">—</strong><em data-i="liveApi">نیازمند API واقعی</em></div><div class="symbol">◉</div></div>
-  <div class="card stat"><div><small data-i="activeSubs">اشتراک فعال</small><strong id="statSubs">—</strong><em data-i="liveApi">نیازمند API واقعی</em></div><div class="symbol">▤</div></div>
-  <div class="card stat"><div><small data-i="totalRevenue">درآمد کل</small><strong id="statRevenue">—</strong><em data-i="liveApi">نیازمند API واقعی</em></div><div class="symbol">＄</div></div>
- </div>
- <div class="two">
-  <div class="card">
-   <div class="section-head"><h2 data-i="serverWorld">نقشه جهانی سرورها</h2><span class="status wait" data-i="demoMap">نمایش موقعیت نمونه</span></div>
-   <div class="globe-area"><div class="globe">
-    <span class="flag f1">🇩🇪</span><span class="flag f2">🇫🇮</span><span class="flag f3">🇺🇸</span><span class="flag f4">🇹🇷</span><span class="flag f5">🇯🇵</span>
-    <span class="flag f6">🇸🇬</span><span class="flag f7">🇬🇧</span><span class="flag f8">🇫🇷</span><span class="flag f9">🇳🇱</span><span class="flag f10">🇨🇦</span>
-    <span class="flag f11">🇦🇪</span><span class="flag f12">🇸🇪</span><span class="flag f13">🇮🇹</span><span class="flag f14">🇵🇱</span><span class="flag f15">🇮🇷</span>
-   </div></div>
-   <div class="country-list"><span class="country">🇩🇪 Germany</span><span class="country">🇫🇮 Finland</span><span class="country">🇺🇸 USA</span><span class="country">🇹🇷 Türkiye</span><span class="country">🇯🇵 Japan</span><span class="country">🇬🇧 UK</span><span class="country">🇳🇱 Netherlands</span></div>
-   <p class="muted" data-i="mapNote">پرچم‌ها نمایشی‌اند؛ وضعیت زنده فقط پس از اتصال API مانیتورینگ نمایش داده می‌شود.</p>
-  </div>
-  <div class="card">
-   <h2 data-i="quickActions">دسترسی سریع</h2>
-   <div class="actions">
-    <button class="btn" data-action="new-config" data-i="createConfig">＋ ساخت کانفیگ</button>
-    <button class="btn" data-action="new-user" data-i="addUser">＋ افزودن کاربر</button>
-    <button class="btn" data-action="new-server" data-i="addServer">＋ افزودن سرور</button>
-    <button class="btn gray" data-page="subscriptions" data-i="manageSubs">مدیریت اشتراک‌ها</button>
-    <button class="btn gray" data-page="support" data-i="support">پشتیبانی</button>
-   </div>
-   <div class="section-head"><h2 data-i="systemHealth">سلامت سیستم</h2></div>
-   <div class="muted" data-i="apiStatus">ارتباط API</div><div class="progress"><i id="apiProgress" style="width:12%"></i></div>
-   <div class="muted" data-i="dbStatus">اتصال دیتابیس</div><div class="progress"><i id="dbProgress" style="width:12%"></i></div>
-   <div class="muted" data-i="nodeStatus">اتصال نودهای Xray</div><div class="progress"><i style="width:0%"></i></div>
-   <span class="status wait" data-i="notVerified">هنوز تأیید نشده</span>
-  </div>
- </div>
- <div class="two">
-  <div class="card"><h2 data-i="usageChart">نمودار مصرف</h2><div class="chart" id="usageChart"></div><p class="muted" data-i="chartDemo">نمودار نمونه؛ داده واقعی باید از API دریافت شود.</p></div>
-  <div class="card"><h2 data-i="recentActivity">فعالیت‌های اخیر</h2><div id="recentActivity" class="muted">برای مشاهده گزارش واقعی، API گزارش فعالیت لازم است.</div></div>
- </div>
-</section>
-
-<section class="page" id="page-configs">
- <h1 data-i="configManagement">مدیریت کانفیگ‌ها</h1><p class="subtitle" data-i="configSubtitle">ساخت، ویرایش، انتشار و مدیریت دسترسی کانفیگ‌ها</p>
- <div class="notice" data-i="xrayNotice">ساخت لینک به‌تنهایی کانفیگ را روی سرور فعال نمی‌کند. برای عملیات واقعی، API امن نود Xray باید متصل باشد.</div>
- <div class="card">
-  <div class="section-head"><h2 data-i="smartBuilder">سازنده هوشمند کانفیگ</h2><button class="btn" id="openConfig">＋ <span data-i="newConfig">کانفیگ جدید</span></button></div>
-  <div class="form-grid">
-   <div class="field"><label data-i="protocol">پروتکل</label><select id="quickProtocol"><option>VLESS</option><option>VMess</option><option>Trojan</option></select></div>
-   <div class="field"><label data-i="server">سرور</label><select id="quickServer"><option value="">انتخاب سرور</option></select></div>
-   <div class="field"><label data-i="security">امنیت</label><select id="quickSecurity"><option>REALITY</option><option>TLS</option><option>None</option></select></div>
-   <div class="field"><label data-i="transport">نوع انتقال</label><select id="quickTransport"><option>TCP</option><option>WS</option><option>gRPC</option><option>XHTTP</option></select></div>
-   <div class="field"><label data-i="volume">حجم (GB)</label><input id="quickVolume" type="number" min="1" value="50"></div>
-   <div class="field"><label data-i="duration">مدت (روز)</label><input id="quickDuration" type="number" min="1" value="30"></div>
-   <div class="field"><label data-i="deviceLimit">محدودیت دستگاه</label><input id="quickDevices" type="number" min="1" value="2"></div>
-   <div class="field"><label data-i="username">نام کاربر</label><input id="quickUser" placeholder="username"></div>
-  </div>
-  <button class="btn" id="quickCreate" data-i="createAndPublish">ساخت و انتشار کانفیگ</button>
- </div>
- <div class="card" style="margin-top:14px"><div class="section-head"><h2 data-i="configList">فهرست کانفیگ‌ها</h2><input id="configSearch" style="max-width:210px" placeholder="Search..."></div>
-  <div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="username">کاربر</th><th data-i="protocol">پروتکل</th><th data-i="server">سرور</th><th data-i="volume">حجم</th><th data-i="status">وضعیت</th><th data-i="actions">عملیات</th></tr></thead><tbody id="configRows"><tr><td colspan="7" class="muted">داده‌ای از API دریافت نشده است.</td></tr></tbody></table></div>
- </div>
- <div class="card" style="margin-top:14px"><h2 data-i="configTools">ابزارهای کانفیگ</h2><div class="actions">
- <button class="btn gray" data-action="bulk-config" data-i="bulkCreate">ساخت گروهی</button><button class="btn gray" data-action="templates" data-i="templates">قالب‌های ذخیره‌شده</button><button class="btn gray" data-action="export-configs" data-i="exportJson">خروجی JSON</button><button class="btn gray" data-action="subscription-link" data-i="subscriptionLink">لینک اشتراک</button></div></div>
-</section>
-
-<section class="page" id="page-users">
- <h1 data-i="userManagement">مدیریت کاربران</h1><p class="subtitle" data-i="usersSubtitle">اطلاعات، وضعیت، دسترسی و دستگاه‌های کاربران</p>
- <div class="card"><div class="section-head"><h2 data-i="usersList">فهرست کاربران</h2><button class="btn" id="openUser">＋ <span data-i="addUser">افزودن کاربر</span></button></div>
- <input id="userSearch" placeholder="Search users..." style="max-width:260px;margin-bottom:12px">
- <div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="username">نام کاربری</th><th data-i="role">نقش</th><th data-i="status">وضعیت</th><th data-i="created">تاریخ ایجاد</th><th data-i="actions">عملیات</th></tr></thead><tbody id="userRows"><tr><td colspan="6">برای نمایش کاربران، API لازم است.</td></tr></tbody></table></div></div>
- <div class="three" style="margin-top:14px"><div class="card"><h3 data-i="deviceControl">مدیریت دستگاه‌ها</h3><p class="muted" data-i="deviceDesc">محدودیت دستگاه و مشاهده نشست‌های فعال</p></div><div class="card"><h3 data-i="userBlock">مسدودسازی کاربر</h3><p class="muted" data-i="blockDesc">تعلیق موقت یا دائمی حساب و دسترسی</p></div><div class="card"><h3 data-i="userHistory">تاریخچه کاربر</h3><p class="muted" data-i="historyDesc">مشاهده ورود، تمدید و مصرف اشتراک</p></div></div>
-</section>
-
-<section class="page" id="page-servers">
- <h1 data-i="serverManagement">مدیریت سرورها</h1><p class="subtitle" data-i="serversSubtitle">نودهای Xray، ظرفیت، موقعیت و سلامت سرویس</p>
- <div class="notice" data-i="nodeNotice">اطلاعات آنلاین، پینگ و ظرفیت فقط با نصب Agent امن روی سرور و اتصال آن به Worker قابل دریافت است.</div>
- <div class="card"><div class="section-head"><h2 data-i="serverList">فهرست سرورها</h2><button class="btn" id="openServer">＋ <span data-i="addServer">افزودن سرور</span></button></div>
- <div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="server">سرور</th><th data-i="country">کشور</th><th data-i="address">آدرس</th><th data-i="capacity">ظرفیت</th><th data-i="status">وضعیت</th><th data-i="actions">عملیات</th></tr></thead><tbody id="serverRows"><tr><td colspan="7">سروری ثبت نشده یا API متصل نیست.</td></tr></tbody></table></div></div>
- <div class="card" style="margin-top:14px"><h2 data-i="monitoring">مانیتورینگ</h2><div class="three"><div><strong>Ping</strong><p class="muted">نیازمند Agent</p></div><div><strong>CPU / RAM</strong><p class="muted">نیازمند Agent</p></div><div><strong>Traffic</strong><p class="muted">نیازمند آمار Xray</p></div></div></div>
-</section>
-
-<section class="page" id="page-subscriptions">
- <h1 data-i="subscriptionManagement">مدیریت اشتراک‌ها</h1><p class="subtitle" data-i="subsSubtitle">تمدید، انقضا، حجم و لینک‌های اختصاصی</p>
- <div class="grid"><div class="card"><small data-i="activeSubs">اشتراک فعال</small><h2 id="activeSubCount">—</h2></div><div class="card"><small data-i="expiredSubs">منقضی‌شده</small><h2 id="expiredSubCount">—</h2></div><div class="card"><small data-i="nearExpiry">نزدیک انقضا</small><h2>—</h2></div><div class="card"><small data-i="lowVolume">حجم رو به اتمام</small><h2>—</h2></div></div>
- <div class="card"><div class="section-head"><h2 data-i="subscriptionList">فهرست اشتراک‌ها</h2><button class="btn" id="openSub">＋ <span data-i="newSubscription">اشتراک جدید</span></button></div>
- <div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="username">کاربر</th><th data-i="volume">حجم</th><th data-i="used">مصرف‌شده</th><th data-i="expiry">انقضا</th><th data-i="status">وضعیت</th><th data-i="actions">عملیات</th></tr></thead><tbody id="subRows"><tr><td colspan="7">اطلاعات اشتراک از API دریافت نشده است.</td></tr></tbody></table></div></div>
- <div class="card" style="margin-top:14px"><h2 data-i="renewalOptions">امکانات تمدید</h2><div class="actions"><button class="btn gray" data-action="renew-selected" data-i="renew">تمدید</button><button class="btn gray" data-action="disable-selected" data-i="disable">غیرفعال‌سازی</button><button class="btn gray" data-action="send-expiry-alert" data-i="expiryAlert">ارسال هشدار انقضا</button></div></div>
-</section>
-
-<section class="page" id="page-plans">
- <h1 data-i="plansPricing">پلن‌ها و قیمت‌گذاری</h1><p class="subtitle" data-i="plansSubtitle">تعریف بسته‌های فروش و محدودیت‌های اشتراک</p>
- <div class="card"><div class="section-head"><h2 data-i="planList">فهرست پلن‌ها</h2><button class="btn" id="openPlan">＋ <span data-i="newPlan">پلن جدید</span></button></div><div id="planCards" class="three"><p class="muted">پلنی ثبت نشده است.</p></div></div>
- <div class="notice" data-i="paymentNote">ثبت پلن به معنی دریافت پول نیست. درگاه پرداخت باید جداگانه و امن به بک‌اند متصل شود.</div>
-</section>
-
-<section class="page" id="page-finance">
- <h1 data-i="financeTitle">مالی و پرداخت‌ها</h1><p class="subtitle" data-i="financeSubtitle">گزارش فروش، تراکنش و کیف پول کاربران</p>
- <div class="grid"><div class="card"><small data-i="salesToday">فروش امروز</small><h2>—</h2></div><div class="card"><small data-i="salesMonth">فروش ماه</small><h2>—</h2></div><div class="card"><small data-i="wallets">موجودی کیف پول‌ها</small><h2>—</h2></div><div class="card"><small data-i="pendingPayments">پرداخت‌های در انتظار</small><h2>—</h2></div></div>
- <div class="card"><h2 data-i="transactions">تراکنش‌ها</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i="username">کاربر</th><th data-i="amount">مبلغ</th><th data-i="date">تاریخ</th><th data-i="status">وضعیت</th></tr></thead><tbody><tr><td colspan="5">داده پرداخت در دسترس نیست.</td></tr></tbody></table></div></div>
- <div class="card" style="margin-top:14px"><h2 data-i="discounts">تخفیف و کد هدیه</h2><button class="btn" data-action="create-coupon" data-i="createCoupon">ساخت کد تخفیف</button></div>
-</section>
-
-<section class="page" id="page-support">
- <h1 data-i="supportCenter">مرکز پشتیبانی</h1><p class="subtitle" data-i="supportSubtitle">مدیریت درخواست‌ها و ارتباط با کاربران</p>
- <div class="card"><div class="section-head"><h2 data-i="tickets">تیکت‌ها</h2><button class="btn" data-action="new-ticket" data-i="newTicket">تیکت جدید</button></div><p class="muted">تیکت‌ها پس از اتصال API نمایش داده می‌شوند.</p><div class="actions"><a class="btn" href="https://t.me/m_hadiii46333" target="_blank" rel="noopener">✈ <span data-i="telegramSupport">پشتیبانی تلگرام</span></a><span class="status ok" data-i="alwaysAvailable">پشتیبانی ۲۴ ساعته</span></div></div>
-</section>
-
-<section class="page" id="page-announcements">
- <h1 data-i="announcementsTitle">اطلاع‌رسانی و پیام‌ها</h1><p class="subtitle" data-i="announcementsSubtitle">پیام گروهی و هشدارهای خودکار</p>
- <div class="card"><div class="field"><label data-i="messageTitle">عنوان پیام</label><input id="announcementTitle"></div><div class="field"><label data-i="messageBody">متن پیام</label><textarea id="announcementBody"></textarea></div><div class="field"><label data-i="audience">مخاطبان</label><select id="audience"><option value="all">همه کاربران</option><option value="active">کاربران فعال</option><option value="expired">اشتراک‌های منقضی</option></select></div><button class="btn" id="sendAnnouncement" data-i="sendMessage">ارسال پیام</button></div>
- <div class="card" style="margin-top:14px"><h2 data-i="automaticAlerts">هشدارهای خودکار</h2><p class="muted" data-i="alertsDesc">هشدار نزدیک انقضا، اتمام حجم و قطعی سرور پس از پیاده‌سازی API قابل فعال‌سازی است.</p></div>
-</section>
-
-<section class="page" id="page-analytics">
- <h1 data-i="reports">گزارش‌ها و آمار</h1><p class="subtitle" data-i="reportsSubtitle">تحلیل مصرف، رشد کاربران، درآمد و وضعیت سرویس</p>
- <div class="card"><h2 data-i="trafficReport">گزارش ترافیک</h2><div class="chart" id="trafficChart"></div><p class="muted">داده نمونه؛ برای گزارش دقیق باید آمار نودهای Xray جمع‌آوری شود.</p></div>
- <div class="card" style="margin-top:14px"><h2 data-i="exportReports">خروجی گزارش</h2><div class="actions"><button class="btn gray" data-action="export-users">خروجی کاربران CSV</button><button class="btn gray" data-action="export-usage">خروجی مصرف</button><button class="btn gray" data-action="export-finance">خروجی مالی</button></div></div>
-</section>
-
-<section class="page" id="page-admins">
- <h1 data-i="adminManagement">مدیران و سطح دسترسی</h1><p class="subtitle" data-i="adminsSubtitle">تفکیک مسئولیت مدیر فنی، فروش و پشتیبانی</p>
- <div class="card"><h2 data-i="roles">نقش‌ها</h2><div class="three"><div class="card"><h3>Super Admin</h3><p class="muted" data-i="superAdminDesc">دسترسی کامل به تنظیمات و مدیریت</p></div><div class="card"><h3>Sales Admin</h3><p class="muted" data-i="salesAdminDesc">مدیریت فروش و اشتراک‌ها</p></div><div class="card"><h3>Support Admin</h3><p class="muted" data-i="supportAdminDesc">رسیدگی به تیکت‌ها و کاربران</p></div></div><button class="btn" data-action="invite-admin" data-i="inviteAdmin">افزودن مدیر</button></div>
- <div class="notice" data-i="permissionNotice">اعمال دسترسی باید در سمت Worker بررسی شود؛ مخفی کردن دکمه در مرورگر امنیت ایجاد نمی‌کند.</div>
-</section>
-
-<section class="page" id="page-security">
- <h1 data-i="securityCenter">مرکز امنیت</h1><p class="subtitle" data-i="securitySubtitle">نشست‌ها، ورودها، کنترل سوءاستفاده و گزارش فعالیت</p>
- <div class="grid"><div class="card"><h3 data-i="twoFactor">ورود دومرحله‌ای</h3><p class="muted">نیازمند پیاده‌سازی امن در بک‌اند</p></div><div class="card"><h3 data-i="loginHistory">تاریخچه ورود</h3><p class="muted">نیازمند API گزارش ورود</p></div><div class="card"><h3 data-i="abuseDetection">شناسایی رفتار غیرعادی</h3><p class="muted">نیازمند داده IP و نشست‌ها</p></div><div class="card"><h3 data-i="auditLog">گزارش فعالیت مدیر</h3><p class="muted">نیازمند API ثبت رویداد</p></div></div>
- <div class="card"><h2 data-i="securityActions">عملیات امنیتی</h2><div class="actions"><button class="btn gray" data-action="revoke-sessions" data-i="revokeSessions">لغو نشست‌ها</button><button class="btn gray" data-action="backup" data-i="backup">پشتیبان‌گیری</button><button class="btn gray" data-action="restore" data-i="restore">بازیابی اطلاعات</button></div></div>
-</section>
-
-<section class="page" id="page-settings">
- <h1 data-i="settingsTitle">تنظیمات پنل</h1><p class="subtitle" data-i="settingsSubtitle">تنظیمات عمومی و اتصال سرویس‌ها</p>
- <div class="card"><h2 data-i="apiSettings">اتصال API</h2><div class="field"><label>Worker API URL</label><input id="apiUrl" value="https://my-vless-panell.hadiabdoli20088.workers.dev"></div><div class="field"><label data-i="apiToken">توکن نشست</label><input id="apiToken" type="password" placeholder="توکن فقط در حافظه مرورگر"></div><div class="actions"><button class="btn" id="saveApi" data-i="saveSettings">ذخیره تنظیمات</button><button class="btn gray" id="testApi" data-i="testConnection">تست ارتباط</button></div><div class="muted" id="apiResult" style="margin-top:12px"></div></div>
- <div class="card" style="margin-top:14px"><h2 data-i="preferences">ترجیحات</h2><div class="field"><label data-i="currency">واحد پول</label><select id="currency"><option>USD</option><option>EUR</option><option>IRT</option><option>TRY</option></select></div><div class="field"><label data-i="timezone">منطقه زمانی</label><select><option>Asia/Tehran</option><option>Europe/Istanbul</option><option>Europe/Berlin</option><option>UTC</option></select></div><button class="btn gray" data-action="backup" data-i="backup">پشتیبان‌گیری</button></div>
-</section>
-
-<section class="page" id="page-profile">
- <h1 data-i="profileTitle">حساب کاربری</h1><p class="subtitle" data-i="profileSubtitle">اطلاعات حساب مدیر</p>
- <div class="card"><div class="field"><label data-i="username">نام کاربری</label><input id="profileUsername" value="admin"></div><div class="field"><label data-i="email">ایمیل</label><input id="profileEmail" type="email"></div><div class="field"><label data-i="newPassword">رمز عبور جدید</label><input id="profilePassword" type="password"></div><button class="btn" data-action="update-profile" data-i="saveChanges">ذخیره تغییرات</button></div>
-</section>
-<div class="footer">MHA.NET • Secure VPN Management Platform • <span data-i="footerText">نسخه رابط کاربری</span></div>
-</main>
-</div>
-
-<div class="modal" id="modal"><div class="modal-box"><div class="modal-head"><h2 id="modalTitle">فرم</h2><button class="close" id="closeModal">✕</button></div><div id="modalContent"></div></div></div>
-<div class="toast" id="toast"></div>
-
-<div class="login-screen" id="loginScreen">
- <div class="login-box">
-  <div style="text-align:center;margin-bottom:22px"><div class="logo" style="margin:auto">🦁</div><h2 style="margin:14px 0 5px">MHA.NET</h2><div class="muted" data-i="loginWelcome">به پنل MHA.NET خوش آمدید</div></div>
-  <div class="field"><label data-i="username">نام کاربری</label><input id="loginUsername" autocomplete="username"></div>
-  <div class="field"><label data-i="password">رمز عبور</label><input id="loginPassword" type="password" autocomplete="current-password"></div>
-  <button class="btn" style="width:100%" id="loginBtn" data-i="login">ورود</button>
-  <div class="muted" id="loginMessage" style="margin-top:12px"></div>
-  <p class="muted" style="text-align:center">MHA.NET • Secure Access</p>
- </div>
-</div>
-
-<script>
-/* ================= CONFIGURATION =================
-   Worker URL را با آدرس دقیق Worker خودت تطبیق بده.
-   توکن فقط در حافظه صفحه نگهداری می‌شود.
-*/
-const CONFIG={
- API_BASE:"https://my-vless-panell.hadiabdoli20088.workers.dev",
- REQUEST_TIMEOUT:12000
+const HEADERS = {
+  "Content-Type": "application/json; charset=utf-8",
+  "Cache-Control": "no-store"
 };
-let token=sessionStorage.getItem("mha_token")||"";
-let currentUser=null;
-let currentLang=localStorage.getItem("mha_lang")||"fa";
-let cached={users:[],configs:[],servers:[],subscriptions:[],plans:[]};
-const $=id=>document.getElementById(id);
-const translations={
- fa:{
- mainMenu:"منوی اصلی",dashboard:"داشبورد",configs:"مدیریت کانفیگ",users:"کاربران",servers:"سرورها",subscriptions:"اشتراک‌ها",plans:"پلن‌ها و قیمت‌ها",finance:"مالی و پرداخت‌ها",support:"پشتیبانی",announcements:"اطلاع‌رسانی",analytics:"گزارش‌ها و آمار",admins:"مدیران و دسترسی‌ها",security:"امنیت و گزارش فعالیت",settings:"تنظیمات",profile:"حساب کاربری",logout:"خروج",business:"مالی و ارتباط با مشتری",system:"سیستم",controlCenter:"مرکز کنترل مدیریت",welcome:"به پنل MHA.NET خوش آمدید",overviewSubtitle:"نمای کلی وضعیت سرویس و مدیریت کاربران",totalUsers:"کل کاربران",onlineUsers:"کاربران آنلاین",activeSubs:"اشتراک فعال",totalRevenue:"درآمد کل",liveApi:"نیازمند API واقعی",serverWorld:"نقشه جهانی سرورها",demoMap:"نمایش موقعیت نمونه",mapNote:"پرچم‌ها نمایشی‌اند؛ وضعیت زنده فقط پس از اتصال API مانیتورینگ نمایش داده می‌شود.",quickActions:"دسترسی سریع",createConfig:"＋ ساخت کانفیگ",addUser:"＋ افزودن کاربر",addServer:"＋ افزودن سرور",manageSubs:"مدیریت اشتراک‌ها",systemHealth:"سلامت سیستم",apiStatus:"ارتباط API",dbStatus:"اتصال دیتابیس",nodeStatus:"اتصال نودهای Xray",notVerified:"هنوز تأیید نشده",usageChart:"نمودار مصرف",chartDemo:"نمودار نمونه؛ داده واقعی باید از API دریافت شود.",recentActivity:"فعالیت‌های اخیر",configManagement:"مدیریت کانفیگ‌ها",configSubtitle:"ساخت، ویرایش، انتشار و مدیریت دسترسی کانفیگ‌ها",xrayNotice:"ساخت لینک به‌تنهایی کانفیگ را روی سرور فعال نمی‌کند. برای عملیات واقعی، API امن نود Xray باید متصل باشد.",smartBuilder:"سازنده هوشمند کانفیگ",newConfig:"کانفیگ جدید",protocol:"پروتکل",server:"سرور",security:"امنیت",transport:"نوع انتقال",volume:"حجم (GB)",duration:"مدت (روز)",deviceLimit:"محدودیت دستگاه",username:"نام کاربر",createAndPublish:"ساخت و انتشار کانفیگ",configList:"فهرست کانفیگ‌ها",status:"وضعیت",actions:"عملیات",configTools:"ابزارهای کانفیگ",bulkCreate:"ساخت گروهی",templates:"قالب‌های ذخیره‌شده",exportJson:"خروجی JSON",subscriptionLink:"لینک اشتراک",userManagement:"مدیریت کاربران",usersSubtitle:"اطلاعات، وضعیت، دسترسی و دستگاه‌های کاربران",usersList:"فهرست کاربران",role:"نقش",created:"تاریخ ایجاد",deviceControl:"مدیریت دستگاه‌ها",deviceDesc:"محدودیت دستگاه و مشاهده نشست‌های فعال",userBlock:"مسدودسازی کاربر",blockDesc:"تعلیق موقت یا دائمی حساب و دسترسی",userHistory:"تاریخچه کاربر",historyDesc:"مشاهده ورود، تمدید و مصرف اشتراک",serverManagement:"مدیریت سرورها",serversSubtitle:"نودهای Xray، ظرفیت، موقعیت و سلامت سرویس",nodeNotice:"اطلاعات آنلاین، پینگ و ظرفیت فقط با نصب Agent امن روی سرور و اتصال آن به Worker قابل دریافت است.",serverList:"فهرست سرورها",country:"کشور",address:"آدرس",capacity:"ظرفیت",monitoring:"مانیتورینگ",subscriptionManagement:"مدیریت اشتراک‌ها",subsSubtitle:"تمدید، انقضا، حجم و لینک‌های اختصاصی",expiredSubs:"منقضی‌شده",nearExpiry:"نزدیک انقضا",lowVolume:"حجم رو به اتمام",subscriptionList:"فهرست اشتراک‌ها",newSubscription:"اشتراک جدید",used:"مصرف‌شده",expiry:"انقضا",renewalOptions:"امکانات تمدید",renew:"تمدید",disable:"غیرفعال‌سازی",expiryAlert:"ارسال هشدار انقضا",plansPricing:"پلن‌ها و قیمت‌گذاری",plansSubtitle:"تعریف بسته‌های فروش و محدودیت‌های اشتراک",planList:"فهرست پلن‌ها",newPlan:"پلن جدید",paymentNote:"ثبت پلن به معنی دریافت پول نیست. درگاه پرداخت باید جداگانه و امن به بک‌اند متصل شود.",financeTitle:"مالی و پرداخت‌ها",financeSubtitle:"گزارش فروش، تراکنش و کیف پول کاربران",salesToday:"فروش امروز",salesMonth:"فروش ماه",wallets:"موجودی کیف پول‌ها",pendingPayments:"پرداخت‌های در انتظار",transactions:"تراکنش‌ها",amount:"مبلغ",date:"تاریخ",discounts:"تخفیف و کد هدیه",createCoupon:"ساخت کد تخفیف",supportCenter:"مرکز پشتیبانی",supportSubtitle:"مدیریت درخواست‌ها و ارتباط با کاربران",tickets:"تیکت‌ها",newTicket:"تیکت جدید",telegramSupport:"پشتیبانی تلگرام",alwaysAvailable:"پشتیبانی ۲۴ ساعته",announcementsTitle:"اطلاع‌رسانی و پیام‌ها",announcementsSubtitle:"پیام گروهی و هشدارهای خودکار",messageTitle:"عنوان پیام",messageBody:"متن پیام",audience:"مخاطبان",sendMessage:"ارسال پیام",automaticAlerts:"هشدارهای خودکار",alertsDesc:"هشدار نزدیک انقضا، اتمام حجم و قطعی سرور پس از پیاده‌سازی API قابل فعال‌سازی است.",reports:"گزارش‌ها و آمار",reportsSubtitle:"تحلیل مصرف، رشد کاربران، درآمد و وضعیت سرویس",trafficReport:"گزارش ترافیک",exportReports:"خروجی گزارش",adminManagement:"مدیران و سطح دسترسی",adminsSubtitle:"تفکیک مسئولیت مدیر فنی، فروش و پشتیبانی",roles:"نقش‌ها",superAdminDesc:"دسترسی کامل به تنظیمات و مدیریت",salesAdminDesc:"مدیریت فروش و اشتراک‌ها",supportAdminDesc:"رسیدگی به تیکت‌ها و کاربران",inviteAdmin:"افزودن مدیر",permissionNotice:"اعمال دسترسی باید در سمت Worker بررسی شود؛ مخفی کردن دکمه در مرورگر امنیت ایجاد نمی‌کند.",securityCenter:"مرکز امنیت",securitySubtitle:"نشست‌ها، ورودها، کنترل سوءاستفاده و گزارش فعالیت",twoFactor:"ورود دومرحله‌ای",loginHistory:"تاریخچه ورود",abuseDetection:"شناسایی رفتار غیرعادی",auditLog:"گزارش فعالیت مدیر",securityActions:"عملیات امنیتی",revokeSessions:"لغو نشست‌ها",backup:"پشتیبان‌گیری",restore:"بازیابی اطلاعات",settingsTitle:"تنظیمات پنل",settingsSubtitle:"تنظیمات عمومی و اتصال سرویس‌ها",apiSettings:"اتصال API",apiToken:"توکن نشست",saveSettings:"ذخیره تنظیمات",testConnection:"تست ارتباط",preferences:"ترجیحات",currency:"واحد پول",timezone:"منطقه زمانی",profileTitle:"حساب کاربری",profileSubtitle:"اطلاعات حساب مدیر",email:"ایمیل",newPassword:"رمز عبور جدید",saveChanges:"ذخیره تغییرات",footerText:"نسخه رابط کاربری",loginWelcome:"به پنل MHA.NET خوش آمدید",password:"رمز عبور",login:"ورود",apiRequired:"این عملیات به API بک‌اند نیاز دارد.",connectionOk:"ارتباط با API برقرار شد.",connectionFail:"ارتباط برقرار نشد؛ آدرس Worker و مسیر API را بررسی کن.",saveOk:"تنظیمات ذخیره شد.",needLogin:"ابتدا وارد حساب شوید.",confirmDelete:"از حذف این مورد مطمئنی؟",create:"ایجاد",cancel:"انصراف",name:"نام",price:"قیمت",days:"روز",description:"توضیحات",noData:"داده‌ای وجود ندارد."
- },
- en:{
- mainMenu:"MAIN MENU",dashboard:"Dashboard",configs:"Configurations",users:"Users",servers:"Servers",subscriptions:"Subscriptions",plans:"Plans & Pricing",finance:"Finance & Payments",support:"Support",announcements:"Announcements",analytics:"Analytics & Reports",admins:"Admins & Permissions",security:"Security & Audit",settings:"Settings",profile:"Profile",logout:"Logout",business:"BUSINESS",system:"SYSTEM",controlCenter:"Management control center",welcome:"Welcome to MHA.NET",overviewSubtitle:"Service overview and user management",totalUsers:"Total users",onlineUsers:"Online users",activeSubs:"Active subscriptions",totalRevenue:"Total revenue",liveApi:"Requires live API",serverWorld:"Global server map",demoMap:"Illustrative locations",mapNote:"Flags are illustrative; live status requires a monitoring API.",quickActions:"Quick actions",createConfig:"＋ Create config",addUser:"＋ Add user",addServer:"＋ Add server",manageSubs:"Manage subscriptions",systemHealth:"System health",apiStatus:"API connection",dbStatus:"Database connection",nodeStatus:"Xray node connection",notVerified:"Not verified",usageChart:"Usage chart",chartDemo:"Illustrative chart; live data must come from API.",recentActivity:"Recent activity",configManagement:"Configuration management",configSubtitle:"Create, edit, publish and manage configurations",xrayNotice:"Creating a link does not activate a config on the server. A secure Xray node API is required.",smartBuilder:"Smart config builder",newConfig:"New config",protocol:"Protocol",server:"Server",security:"Security",transport:"Transport",volume:"Volume (GB)",duration:"Duration (days)",deviceLimit:"Device limit",username:"Username",createAndPublish:"Create and publish config",configList:"Configurations",status:"Status",actions:"Actions",configTools:"Config tools",bulkCreate:"Bulk create",templates:"Saved templates",exportJson:"Export JSON",subscriptionLink:"Subscription link",userManagement:"User management",usersSubtitle:"User details, status, permissions and devices",usersList:"Users list",role:"Role",created:"Created",deviceControl:"Device management",deviceDesc:"Device limits and active sessions",userBlock:"Block user",blockDesc:"Temporarily or permanently suspend access",userHistory:"User history",historyDesc:"Login, renewal and usage history",serverManagement:"Server management",serversSubtitle:"Xray nodes, capacity, location and health",nodeNotice:"Live status, ping and capacity require a secure node agent connected to Worker.",serverList:"Servers",country:"Country",address:"Address",capacity:"Capacity",monitoring:"Monitoring",subscriptionManagement:"Subscription management",subsSubtitle:"Renewal, expiry, quota and dedicated links",expiredSubs:"Expired",nearExpiry:"Near expiry",lowVolume:"Low quota",subscriptionList:"Subscriptions",newSubscription:"New subscription",used:"Used",expiry:"Expiry",renewalOptions:"Renewal tools",renew:"Renew",disable:"Disable",expiryAlert:"Send expiry alert",plansPricing:"Plans & pricing",plansSubtitle:"Define products and subscription limits",planList:"Plans",newPlan:"New plan",paymentNote:"Creating a plan does not collect payment. A secure payment gateway must be integrated.",financeTitle:"Finance & payments",financeSubtitle:"Sales, transactions and user wallets",salesToday:"Today's sales",salesMonth:"Monthly sales",wallets:"Wallet balances",pendingPayments:"Pending payments",transactions:"Transactions",amount:"Amount",date:"Date",discounts:"Discounts & gift codes",createCoupon:"Create coupon",supportCenter:"Support center",supportSubtitle:"Manage requests and communicate with users",tickets:"Tickets",newTicket:"New ticket",telegramSupport:"Telegram support",alwaysAvailable:"24/7 support",announcementsTitle:"Announcements",announcementsSubtitle:"Bulk messages and automatic alerts",messageTitle:"Message title",messageBody:"Message body",audience:"Audience",sendMessage:"Send message",automaticAlerts:"Automatic alerts",alertsDesc:"Expiry, quota and server outage alerts require backend implementation.",reports:"Analytics & reports",reportsSubtitle:"Usage, user growth, revenue and service health",trafficReport:"Traffic report",exportReports:"Export reports",adminManagement:"Admin roles & permissions",adminsSubtitle:"Separate technical, sales and support responsibilities",roles:"Roles",superAdminDesc:"Full access to settings and management",salesAdminDesc:"Sales and subscription management",supportAdminDesc:"Handle tickets and users",inviteAdmin:"Invite admin",permissionNotice:"Permissions must be enforced by Worker; hiding browser buttons is not security.",securityCenter:"Security center",securitySubtitle:"Sessions, logins, abuse prevention and audit",twoFactor:"Two-factor authentication",loginHistory:"Login history",abuseDetection:"Abuse detection",auditLog:"Admin audit log",securityActions:"Security actions",revokeSessions:"Revoke sessions",backup:"Backup",restore:"Restore",settingsTitle:"Panel settings",settingsSubtitle:"General settings and service connections",apiSettings:"API connection",apiToken:"Session token",saveSettings:"Save settings",testConnection:"Test connection",preferences:"Preferences",currency:"Currency",timezone:"Timezone",profileTitle:"Account",profileSubtitle:"Administrator account details",email:"Email",newPassword:"New password",saveChanges:"Save changes",footerText:"User interface edition",loginWelcome:"Welcome to MHA.NET",password:"Password",login:"Login",apiRequired:"This action requires a backend API.",connectionOk:"API connection successful.",connectionFail:"Connection failed. Check Worker URL and API route.",saveOk:"Settings saved.",needLogin:"Please sign in first.",confirmDelete:"Are you sure you want to delete this?",create:"Create",cancel:"Cancel",name:"Name",price:"Price",days:"Days",description:"Description",noData:"No data available."
- },
- tr:{
- mainMenu:"ANA MENÜ",dashboard:"Kontrol Paneli",configs:"Yapılandırmalar",users:"Kullanıcılar",servers:"Sunucular",subscriptions:"Abonelikler",plans:"Paketler ve Fiyatlar",finance:"Finans ve Ödemeler",support:"Destek",announcements:"Duyurular",analytics:"Analiz ve Raporlar",admins:"Yöneticiler ve Yetkiler",security:"Güvenlik ve Kayıtlar",settings:"Ayarlar",profile:"Hesap",logout:"Çıkış",business:"İŞLEMLER",system:"SİSTEM",controlCenter:"Yönetim merkezi",welcome:"MHA.NET paneline hoş geldiniz",overviewSubtitle:"Hizmet durumu ve kullanıcı yönetimi",totalUsers:"Toplam kullanıcı",onlineUsers:"Çevrimiçi kullanıcı",activeSubs:"Aktif abonelik",totalRevenue:"Toplam gelir",liveApi:"Canlı API gerekli",serverWorld:"Küresel sunucu haritası",demoMap:"Örnek konumlar",mapNote:"Bayraklar örnektir; canlı durum için izleme API'si gerekir.",quickActions:"Hızlı işlemler",createConfig:"＋ Yapılandırma oluştur",addUser:"＋ Kullanıcı ekle",addServer:"＋ Sunucu ekle",manageSubs:"Abonelikleri yönet",systemHealth:"Sistem durumu",apiStatus:"API bağlantısı",dbStatus:"Veritabanı bağlantısı",nodeStatus:"Xray düğüm bağlantısı",notVerified:"Doğrulanmadı",usageChart:"Kullanım grafiği",chartDemo:"Örnek grafik; canlı veri API'den alınmalıdır.",recentActivity:"Son etkinlikler",configManagement:"Yapılandırma yönetimi",configSubtitle:"Yapılandırma oluşturma, düzenleme ve yayınlama",xrayNotice:"Bağlantı oluşturmak sunucuda yapılandırmayı etkinleştirmez. Güvenli Xray API gerekir.",smartBuilder:"Akıllı yapılandırma oluşturucu",newConfig:"Yeni yapılandırma",protocol:"Protokol",server:"Sunucu",security:"Güvenlik",transport:"Taşıma türü",volume:"Kota (GB)",duration:"Süre (gün)",deviceLimit:"Cihaz sınırı",username:"Kullanıcı adı",createAndPublish:"Oluştur ve yayınla",configList:"Yapılandırmalar",status:"Durum",actions:"İşlemler",configTools:"Yapılandırma araçları",bulkCreate:"Toplu oluştur",templates:"Kayıtlı şablonlar",exportJson:"JSON dışa aktar",subscriptionLink:"Abonelik bağlantısı",userManagement:"Kullanıcı yönetimi",usersSubtitle:"Kullanıcı bilgileri, durum ve cihazlar",usersList:"Kullanıcı listesi",role:"Rol",created:"Oluşturulma",deviceControl:"Cihaz yönetimi",deviceDesc:"Cihaz sınırı ve aktif oturumlar",userBlock:"Kullanıcıyı engelle",blockDesc:"Erişimi geçici veya kalıcı durdur",userHistory:"Kullanıcı geçmişi",historyDesc:"Giriş, yenileme ve kullanım geçmişi",serverManagement:"Sunucu yönetimi",serversSubtitle:"Xray düğümleri, kapasite ve konum",nodeNotice:"Canlı durum, ping ve kapasite için güvenli sunucu aracısı gerekir.",serverList:"Sunucular",country:"Ülke",address:"Adres",capacity:"Kapasite",monitoring:"İzleme",subscriptionManagement:"Abonelik yönetimi",subsSubtitle:"Yenileme, süre sonu, kota ve bağlantılar",expiredSubs:"Süresi dolmuş",nearExpiry:"Süre sonu yakın",lowVolume:"Düşük kota",subscriptionList:"Abonelikler",newSubscription:"Yeni abonelik",used:"Kullanılan",expiry:"Bitiş",renewalOptions:"Yenileme araçları",renew:"Yenile",disable:"Devre dışı bırak",expiryAlert:"Süre sonu uyarısı",plansPricing:"Paketler ve fiyatlandırma",plansSubtitle:"Paket ve abonelik sınırlarını tanımla",planList:"Paketler",newPlan:"Yeni paket",paymentNote:"Paket oluşturmak ödeme almak değildir. Güvenli ödeme sistemi ayrıca bağlanmalıdır.",financeTitle:"Finans ve ödemeler",financeSubtitle:"Satışlar, işlemler ve cüzdanlar",salesToday:"Bugünkü satış",salesMonth:"Aylık satış",wallets:"Cüzdan bakiyeleri",pendingPayments:"Bekleyen ödemeler",transactions:"İşlemler",amount:"Tutar",date:"Tarih",discounts:"İndirim kodları",createCoupon:"Kupon oluştur",supportCenter:"Destek merkezi",supportSubtitle:"Talepleri yönet ve kullanıcılarla iletişim kur",tickets:"Destek talepleri",newTicket:"Yeni talep",telegramSupport:"Telegram desteği",alwaysAvailable:"7/24 destek",announcementsTitle:"Duyurular",announcementsSubtitle:"Toplu mesajlar ve otomatik uyarılar",messageTitle:"Mesaj başlığı",messageBody:"Mesaj içeriği",audience:"Alıcılar",sendMessage:"Mesaj gönder",automaticAlerts:"Otomatik uyarılar",alertsDesc:"Süre, kota ve sunucu uyarıları için backend gerekir.",reports:"Analiz ve raporlar",reportsSubtitle:"Kullanım, büyüme, gelir ve hizmet durumu",trafficReport:"Trafik raporu",exportReports:"Raporu dışa aktar",adminManagement:"Yönetici rolleri ve yetkileri",adminsSubtitle:"Teknik, satış ve destek sorumluluklarını ayır",roles:"Roller",superAdminDesc:"Tüm ayarlara ve yönetime erişim",salesAdminDesc:"Satış ve abonelik yönetimi",supportAdminDesc:"Destek talepleri ve kullanıcılar",inviteAdmin:"Yönetici ekle",permissionNotice:"Yetkiler Worker tarafında denetlenmelidir.",securityCenter:"Güvenlik merkezi",securitySubtitle:"Oturumlar, girişler ve denetim kayıtları",twoFactor:"İki aşamalı doğrulama",loginHistory:"Giriş geçmişi",abuseDetection:"Anormal davranış tespiti",auditLog:"Yönetici işlem kaydı",securityActions:"Güvenlik işlemleri",revokeSessions:"Oturumları iptal et",backup:"Yedekle",restore:"Geri yükle",settingsTitle:"Panel ayarları",settingsSubtitle:"Genel ayarlar ve servis bağlantıları",apiSettings:"API bağlantısı",apiToken:"Oturum anahtarı",saveSettings:"Ayarları kaydet",testConnection:"Bağlantıyı test et",preferences:"Tercihler",currency:"Para birimi",timezone:"Saat dilimi",profileTitle:"Hesap",profileSubtitle:"Yönetici hesap bilgileri",email:"E-posta",newPassword:"Yeni parola",saveChanges:"Değişiklikleri kaydet",footerText:"Arayüz sürümü",loginWelcome:"MHA.NET paneline hoş geldiniz",password:"Parola",login:"Giriş",apiRequired:"Bu işlem backend API gerektirir.",connectionOk:"API bağlantısı başarılı.",connectionFail:"Bağlantı başarısız. Worker adresini kontrol et.",saveOk:"Ayarlar kaydedildi.",needLogin:"Önce giriş yapın.",confirmDelete:"Silmek istediğinize emin misiniz?",create:"Oluştur",cancel:"İptal",name:"Ad",price:"Fiyat",days:"Gün",description:"Açıklama",noData:"Veri yok."
- }
-};
-function t(k){return (translations[currentLang]||translations.fa)[k]||translations.fa[k]||k}
-function applyLanguage(){
- document.documentElement.lang=currentLang;document.documentElement.dir=currentLang==="fa"?"rtl":"ltr";
- document.querySelectorAll("[data-i]").forEach(el=>{const k=el.dataset.i;el.textContent=t(k)});
- $("language").value=currentLang;localStorage.setItem("mha_lang",currentLang);
+
+const SCHEMA = [
+`CREATE TABLE IF NOT EXISTS users (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ username TEXT NOT NULL UNIQUE,
+ password_hash TEXT NOT NULL,
+ password_salt TEXT NOT NULL,
+ role TEXT NOT NULL DEFAULT 'user',
+ status TEXT NOT NULL DEFAULT 'active',
+ email TEXT,
+ phone TEXT,
+ created_at INTEGER NOT NULL,
+ updated_at INTEGER NOT NULL
+)`,
+
+`CREATE TABLE IF NOT EXISTS sessions (
+ token_hash TEXT PRIMARY KEY,
+ user_id INTEGER NOT NULL,
+ expires_at INTEGER NOT NULL,
+ created_at INTEGER NOT NULL,
+ FOREIGN KEY(user_id) REFERENCES users(id)
+)`,
+
+`CREATE TABLE IF NOT EXISTS servers (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ name TEXT NOT NULL,
+ country TEXT,
+ city TEXT,
+ host TEXT NOT NULL,
+ port INTEGER NOT NULL DEFAULT 443,
+ protocol TEXT NOT NULL DEFAULT 'vless',
+ status TEXT NOT NULL DEFAULT 'offline',
+ capacity INTEGER NOT NULL DEFAULT 100,
+ current_users INTEGER NOT NULL DEFAULT 0,
+ node_secret TEXT,
+ created_at INTEGER NOT NULL,
+ updated_at INTEGER NOT NULL
+)`,
+
+`CREATE TABLE IF NOT EXISTS plans (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ name TEXT NOT NULL,
+ volume_gb INTEGER NOT NULL,
+ duration_days INTEGER NOT NULL,
+ device_limit INTEGER NOT NULL DEFAULT 1,
+ price INTEGER NOT NULL DEFAULT 0,
+ status TEXT NOT NULL DEFAULT 'active',
+ created_at INTEGER NOT NULL
+)`,
+
+`CREATE TABLE IF NOT EXISTS subscriptions (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ user_id INTEGER NOT NULL,
+ plan_id INTEGER,
+ volume_gb INTEGER NOT NULL,
+ used_bytes INTEGER NOT NULL DEFAULT 0,
+ expires_at INTEGER NOT NULL,
+ status TEXT NOT NULL DEFAULT 'active',
+ created_at INTEGER NOT NULL,
+ FOREIGN KEY(user_id) REFERENCES users(id)
+)`,
+
+`CREATE TABLE IF NOT EXISTS configs (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ user_id INTEGER NOT NULL,
+ server_id INTEGER,
+ subscription_id INTEGER,
+ name TEXT NOT NULL,
+ protocol TEXT NOT NULL DEFAULT 'vless',
+ uuid TEXT NOT NULL,
+ config_link TEXT,
+ transport TEXT NOT NULL DEFAULT 'tcp',
+ security TEXT NOT NULL DEFAULT 'none',
+ port INTEGER NOT NULL DEFAULT 443,
+ status TEXT NOT NULL DEFAULT 'draft',
+ created_at INTEGER NOT NULL,
+ updated_at INTEGER NOT NULL,
+ FOREIGN KEY(user_id) REFERENCES users(id)
+)`,
+
+`CREATE TABLE IF NOT EXISTS payments (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ user_id INTEGER NOT NULL,
+ amount INTEGER NOT NULL,
+ method TEXT,
+ reference TEXT,
+ status TEXT NOT NULL DEFAULT 'pending',
+ created_at INTEGER NOT NULL
+)`,
+
+`CREATE TABLE IF NOT EXISTS tickets (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ user_id INTEGER NOT NULL,
+ subject TEXT NOT NULL,
+ message TEXT NOT NULL,
+ status TEXT NOT NULL DEFAULT 'open',
+ created_at INTEGER NOT NULL,
+ updated_at INTEGER NOT NULL
+)`,
+
+`CREATE TABLE IF NOT EXISTS audit_logs (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ actor_id INTEGER,
+ action TEXT NOT NULL,
+ target_type TEXT,
+ target_id INTEGER,
+ details TEXT,
+ created_at INTEGER NOT NULL
+)`,
+
+`CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)`,
+`CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires_at)`,
+`CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions(user_id)`,
+`CREATE INDEX IF NOT EXISTS idx_configs_user ON configs(user_id)`,
+`CREATE INDEX IF NOT EXISTS idx_logs_created ON audit_logs(created_at)`
+];
+
+let schemaReady = false;
+let schemaPromise = null;
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: HEADERS
+  });
 }
-function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.cla
+
+function now() {
+  return Math.floor(Date.now() / 1000);
+}
+
+function randomHex(length = 32) {
+  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function hashPassword(password, salt) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+
+  const bits = await crypto.subtle.deriveBits({
+    name: "PBKDF2",
+    salt: enc.encode(salt),
+    iterations: 210000,
+    hash: "SHA-256"
+  }, key, 256);
+
+  return Array.from(new Uint8Array(bits))
+    .map(x => x.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function digest(value) {
+  const bytes = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value)
+  );
+
+  return Array.from(new Uint8Array(bytes))
+    .map(x => x.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function initDB(env) {
+  if (schemaReady) return;
+  if (schemaPromise) return schemaPromise;
+
+  schemaPromise = (async () => {
+    if (!env.DB) throw new Error("D1 binding DB is missing");
+
+    for (const sql of SCHEMA) {
+      await env.DB.prepare(sql).run();
+    }
+
+    schemaReady = true;
+  })();
+
+  try {
+    await schemaPromise;
+  } finally {
+    schemaPromise = null;
+  }
+}
+
+async function body(request) {
+  const length = Number(request.headers.get("content-length") || 0);
+  if (length > MAX_BODY) throw new Error("درخواست بیش از حد بزرگ است");
+
+  const data = await request.json().catch(() => null);
+
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("ساختار اطلاعات ارسالی معتبر نیست");
+  }
+
+  return data;
+}
+
+function clean(value, max = 200) {
+  if (typeof value !== "string") return "";
+  return value.trim().slice(0, max);
+}
+
+function validUsername(value) {
+  return /^[a-zA-Z0-9_.-]{3,32}$/.test(value);
+}
+
+function validPassword(value) {
+  return typeof value === "string" && value.length >= 8 && value.length <= 128;
+}
+
+async function audit(env, actor, action, type = null, id = null, details = null) {
+  await env.DB.prepare(`
+    INSERT INTO audit_logs
+    (actor_id, action, target_type, target_id, details, created_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).bind(
+    actor || null,
+    action,
+    type,
+    id,
+    details ? JSON.stringify(details) : null,
+    now()
+  ).run();
+}
+
+async function createSession(env, userId) {
+  const token = randomHex(32);
+  const tokenHash = await digest(token);
+  const created = now();
+  const expires = created + SESSION_DAYS * 86400;
+
+  await env.DB.prepare(`
+    INSERT INTO sessions(token_hash, user_id, expires_at, created_at)
+    VALUES (?, ?, ?, ?)
+  `).bind(tokenHash, userId, expires, created).run();
+
+  return { token, expires_at: expires };
+}
+
+async function getUser(request, env) {
+  const header = request.headers.get("Authorization") || "";
+  const token = header.startsWith("Bearer ")
+    ? header.slice(7).trim()
+    : "";
+
+  if (!token) return null;
+
+  const tokenHash = await digest(token);
+
+  const result = await env.DB.prepare(`
+    SELECT
+      users.id,
+      users.username,
+      users.role,
+      users.status,
+      sessions.expires_at
+    FROM sessions
+    JOIN users ON users.id = sessions.user_id
+    WHERE sessions.token_hash = ?
+    LIMIT 1
+  `).bind(tokenHash).first();
+
+  if (!result) return null;
+  if (result.expires_at < now()) return null;
+  if (result.status !== "active") return null;
+
+  return result;
+}
+
+function requireAdmin(user) {
+  return user && ["admin", "superadmin"].includes(user.role);
+}
+
+async function bootstrapAdmin(env) {
+  if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) return;
+
+  const username = clean(env.ADMIN_USERNAME, 32);
+
+  const existing = await env.DB.prepare(
+    "SELECT id FROM users WHERE username = ?"
+  ).bind(username).first();
+
+  if (existing) return;
+
+  const salt = randomHex(16);
+  const passwordHash = await hashPassword(env.ADMIN_PASSWORD, salt);
+
+  await env.DB.prepare(`
+    INSERT INTO users
+    (username, password_hash, password_salt, role, status, created_at, updated_at)
+    VALUES (?, ?, ?, 'superadmin', 'active', ?, ?)
+  `).bind(username, passwordHash, salt, now(), now()).run();
+}
+
+async function register(request, env) {
+  const data = await body(request);
+
+  const username = clean(data.username, 32);
+  const password = data.password;
+
+  if (!validUsername(username)) {
+    return json({ ok: false, error: "invalid_username" }, 400);
+  }
+
+  if (!validPassword(password)) {
+    return json({
+      ok: false,
+      error: "weak_password",
+      message: "رمز عبور باید حداقل ۸ کاراکتر باشد."
+    }, 400);
+  }
+
+  const exists = await env.DB.prepare(
+    "SELECT id FROM users WHERE username = ?"
+  ).bind(username).first();
+
+  if (exists) {
+    return json({
+      ok: false,
+      error: "username_exists",
+      message: "این نام کاربری قبلاً ثبت شده است."
+    }, 409);
+  }
+
+  const salt = randomHex(16);
+  const passwordHash = await hashPassword(password, salt);
+  const timestamp = now();
+
+  const result = await env.DB.prepare(`
+    INSERT INTO users
+    (username, password_hash, password_salt, role, status, email, phone, created_at, updated_at)
+    VALUES (?, ?, ?, 'user', 'active', ?, ?, ?, ?)
+  `).bind(
+    username,
+    passwordHash,
+    salt,
+    clean(data.email, 150) || null,
+    clean(data.phone, 30) || null,
+    timestamp,
+    timestamp
+  ).run();
+
+  const userId = result.meta.last_row_id;
+  const session = await createSession(env, userId);
+
+  await audit(env, userId, "user.register", "user", userId);
+
+  return json({
+    ok: true,
+    message: "ثبت‌نام با موفقیت انجام شد.",
+    token: session.token,
+    expires_at: session.expires_at,
+    user: {
+      id: userId,
+      username,
+      role: "user"
+    }
+  }, 201);
+}
+
+async function login(request, env) {
+  const data = await body(request);
+  const username = clean(data.username, 32);
+  const password = data.password;
+
+  if (!username || typeof password !== "string") {
+    return json({ ok: false, error: "missing_credentials" }, 400);
+  }
+
+  const user = await env.DB.prepare(`
+    SELECT id, username, password_hash, password_salt, role, status
+    FROM users
+    WHERE username = ?
+    LIMIT 1
+  `).bind(username).first();
+
+  if (!user || user.status !== "active") {
+    return json({
+      ok: false,
+      error: "invalid_credentials",
+      message: "نام کاربری یا رمز عبور اشتباه است."
+    }, 401);
+  }
+
+  const passwordHash = await hashPassword(password, user.password_salt);
+
+  if (passwordHash !== user.password_hash) {
+    return json({
+      ok: false,
+      error: "invalid_credentials",
+      message: "نام کاربری یا رمز عبور اشتباه است."
+    }, 401);
+  }
+
+  const session = await createSession(env, user.id);
+  await audit(env, user.id, "user.login", "user", user.id);
+
+  return json({
+    ok: true,
+    token: session.token,
+    expires_at: session.expires_at,
+    user: {
+      id: user.id,
+      username: user.username,
+      role: user.role
+    }
+  });
+}
+
+async function logout(request, env, user) {
+  const header = request.headers.get("Authorization") || "";
+  const token = header.startsWith("Bearer ")
+    ? header.slice(7).trim()
+    : "";
+
+  if (token) {
+    await env.DB.prepare(
+      "DELETE FROM sessions WHERE token_hash = ?"
+    ).bind(await digest(token)).run();
+  }
+
+  if (user) await audit(env, user.id, "user.logout");
+
+  return json({ ok: true, message: "خروج انجام شد." });
+}
+
+async function me(user, env) {
+  const stats = await env.DB.prepare(`
+    SELECT COUNT(*) AS total
+    FROM subscriptions
+    WHERE user_id = ?
+  `).bind(user.id).first();
+
+  return json({
+    ok: true,
+    user: {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      status: user.status
+    },
+    subscriptions_count: stats.total
+  });
+}
+
+async function adminOverview(env) {
+  const users = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM users"
+  ).first();
+
+  const activeUsers = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM users WHERE status = 'active'"
+  ).first();
+
+  const servers = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM servers"
+  ).first();
+
+  const subscriptions = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM subscriptions"
+  ).first();
+
+  const activeSubscriptions = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM subscriptions WHERE status = 'active' AND expires_at > ?"
+  ).bind(now()).first();
+
+  const configs = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM configs"
+  ).first();
+
+  const revenue = await env.DB.prepare(
+    "SELECT COALESCE(SUM(amount), 0) AS n FROM payments WHERE status = 'paid'"
+  ).first();
+
+  return json({
+    ok: true,
+    overview: {
+      users: users.n,
+      active_users: activeUsers.n,
+      servers: servers.n,
+      subscriptions: subscriptions.n,
+      active_subscriptions: activeSubscriptions.n,
+      configs: configs.n,
+      revenue: revenue.n
+    }
+  });
+}
+
+async function listUsers(env, url) {
+  const limit = Math.min(
+    Math.max(Number(url.searchParams.get("limit")) || 50, 1),
+    100
+  );
+
+  const offset = Math.max(Number(url.searchParams.get("offset")) || 0, 0);
+
+  const result = await env.DB.prepare(`
+    SELECT id, username, email, phone, role, status, created_at
+    FROM users
+    ORDER BY id DESC
+    LIMIT ? OFFSET ?
+  `).bind(limit, offset).all();
+
+  return json({ ok: true, users: result.results });
+}
+
+async function updateUser(request, env, actor, id) {
+  const data = await body(request);
+  const target = await env.DB.prepare(
+    "SELECT id, role FROM users WHERE id = ?"
+  ).bind(id).first();
+
+  if (!target) return json({ ok: false, error: "user_not_found" }, 404);
+
+  if (target.role === "superadmin" && actor.role !== "superadmin") {
+    return json({ ok: false, error: "forbidden" }, 403);
+  }
+
+  const status = ["active", "blocked", "suspended"].includes(data.status)
+    ? data.status
+    : null;
+
+  const role = ["user", "support", "sales", "admin"].includes(data.role)
+    ? data.role
+    : null;
+
+  if (status) {
+    await env.DB.prepare(
+      "UPDATE users SET status = ?, updated_at = ? WHERE id = ?"
+    ).bind(status, now(), id).run();
+  }
+
+  if (role) {
+    await env.DB.prepare(
+      "UPDATE users SET role = ?, updated_at = ? WHERE id = ?"
+    ).bind(role, now(), id).run();
+  }
+
+  await audit(env, actor.id, "user.update", "user", id, data);
+
+  return json({ ok: true, message: "اطلاعات کاربر به‌روزرسانی شد." });
+}
+
+async function deleteUser(env, actor, id) {
+  if (Number(id) === actor.id) {
+    return json({ ok: false, error: "cannot_delete_self" }, 400);
+  }
+
+  const target = await env.DB.prepare(
+    "SELECT id, role FROM users WHERE id = ?"
+  ).bind(id).first();
+
+  if (!target) return json({ ok: false, error: "user_not_found" }, 404);
+
+  if (target.role === "superadmin") {
+    return json({ ok: false, error: "cannot_delete_superadmin" }, 403);
+  }
+
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(id),
+    env.DB.prepare("DELETE FROM configs WHERE user_id = ?").bind(id),
+    env.DB.prepare("DELETE FROM subscriptions WHERE user_id = ?").bind(id),
+    env.DB.prepare("DELETE FROM tickets WHERE user_id = ?").bind(id),
+    env.DB.prepare("DELETE FROM payments WHERE user_id = ?").bind(id),
+    env.DB.prepare("DELETE FROM users WHERE id = ?").bind(id)
+  ]);
+
+  await audit(env, actor.id, "user.delete", "user", id);
+
+  return json({ ok: true, message: "کاربر حذف شد." });
+}
+
+async function listServers(env) {
+  const result = await env.DB.prepare(`
+    SELECT id, name, country, city, host, port, protocol,
+           status, capacity, current_users, created_at
+    FROM servers
+    ORDER BY id DESC
+  `).all();
+
+  return json({ ok: true, servers: result.results });
+}
+
+async function saveServer(request, env, actor, id = null) {
+  const data = await body(request);
+
+  const name = clean(data.name, 100);
+  const host = clean(data.host, 255);
+  const port = Number(data.port || 443);
+  const capacity = Number(data.capacity || 100);
+
+  if (!name || !host || !Number.isInteger(port) || port < 1 || port > 65535) {
+    return json({ ok: false, error: "invalid_server_data" }, 400);
+  }
+
+  if (!Number.isInteger(capacity) || capacity < 1) {
+    return json({ ok: false, error: "invalid_capacity" }, 400);
+  }
+
+  const values = [
+    name,
+    clean(data.country, 80),
+    clean(data.city, 80),
+    host,
+    port,
+    ["vless", "vmess", "trojan"].includes(data.protocol)
+      ? data.protocol : "vless",
+    capacity
+  ];
+
+  if (id) {
+    const existing = await env.DB.prepare(
+      "SELECT id FROM servers WHERE id = ?"
+    ).bind(id).first();
+
+    if (!existing) return json({ ok: false, error: "server_not_found" }, 404);
+
+    await env.DB.prepare(`
+      UPDATE servers
+      SET name=?, country=?, city=?, host=?, port=?, protocol=?,
+          capacity=?, updated_at=?
+      WHERE id=?
+    `).bind(...values, now(), id).run();
+
+    await audit(env, actor.id, "server.update", "server", id);
+
+    return json({ ok: true, message: "سرور ویرایش شد." });
+  }
+
+  const result = await env.DB.prepare(`
+    INSERT INTO servers
+    (name, country, city, host, port, protocol, capacity, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(...values, now(), now()).run();
+
+  await audit(env, actor.id, "server.create", "server", result.meta.last_row_id);
+
+  return json({
+    ok: true,
+    id: result.meta.last_row_id,
+    message: "سرور ثبت شد."
+  }, 201);
+}
+
+async function deleteServer(env, actor, id) {
+  const used = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM configs WHERE server_id = ?"
+  ).bind(id).first();
+
+  if (used.n > 0) {
+    return json({
+      ok: false,
+      error: "server_has_configs",
+      message: "ابتدا کانفیگ‌های این سرور را منتقل یا حذف کنید."
+    }, 409);
+  }
+
+  await env.DB.prepare("DELETE FROM servers WHERE id = ?").bind(id).run();
+  await audit(env, actor.id, "server.delete", "server", id);
+
+  return json({ ok: true, message: "سرور حذف شد." });
+}
+
+async function listPlans(env) {
+  const result = await env.DB.prepare(
+    "SELECT * FROM plans ORDER BY id DESC"
+  ).all();
+
+  return json({ ok: true, plans: result.results });
+}
+
+async function savePlan(request, env, actor, id = null) {
+  const data = await body(request);
+
+  const name = clean(data.name, 100);
+  const volume = Number(data.volume_gb);
+  const duration = Number(data.duration_days);
+  const devices = Number(data.device_limit || 1);
+  const price = Number(data.price || 0);
+
+  if (!name || !Number.isInteger(volume) || volume < 1 ||
+      !Number.isInteger(duration) || duration < 1 ||
+      !Number.isInteger(devices) || devices < 1 ||
+      !Number.isSafeInteger(price) || price < 0) {
+    return json({ ok: false, error: "invalid_plan_data" }, 400);
+  }
+
+  if (id) {
+    await env.DB.prepare(`
+      UPDATE plans
+      SET name=?, volume_gb=?, duration_days=?, device_limit=?, price=?
+      WHERE id=?
+    `).bind(name, volume, duration, devices, price, id).run();
+
+    await audit(env, actor.id, "plan.update", "plan", id);
+
+    return json({ ok: true, message: "پلن ویرایش شد." });
+  }
+
+  const result = await env.DB.prepare(`
+    INSERT INTO plans
+    (name, volume_gb, duration_days, device_limit, price, created_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).bind(name, volume, duration, devices, price, now()).run();
+
+  await audit(env, actor.id, "plan.create", "plan", result.meta.last_row_id);
+
+  return json({ ok: true, id: result.meta.last_row_id }, 201);
+}
+
+async function deletePlan(env, actor, id) {
+  const used = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM subscriptions WHERE plan_id = ?"
+  ).bind(id).first();
+
+  if (used.n > 0) {
+    return json({ ok: false, error: "plan_in_use" }, 409);
+  }
+
+  await env.DB.prepare("DELETE FROM plans WHERE id = ?").bind(id).run();
+  await audit(env, actor.id, "plan.delete", "plan", id);
+
+  return json({ ok: true });
+}
+
+async function listSubscriptions(env, user, isAdmin) {
+  const result = isAdmin
+    ? await env.DB.prepare(`
+        SELECT s.*, u.username, p.name AS plan_name
+        FROM subscriptions s
+        JOIN users u ON u.id = s.user_id
+        LEFT JOIN plans p ON p.id = s.plan_id
+        ORDER BY s.id DESC
+      `).all()
+    : await env.DB.prepare(`
+        SELECT s.*, p.name AS plan_name
+        FROM subscriptions s
+        LEFT JOIN plans p ON p.id = s.plan_id
+        WHERE s.user_id = ?
+        ORDER BY s.id DESC
+      `).bind(user.id).all();
+
+  return json({ ok: true, subscriptions: result.results });
+}
+
+async function createSubscription(request, env, actor) {
+  const data = await body(request);
+
+  const userId = Number(data.user_id);
+  const planId = Number(data.plan_id);
+
+  if (!Number.isInteger(userId) || !Number.isInteger(planId)) {
+    return json({ ok: false, error: "invalid_subscription_data" }, 400);
+  }
+
+  const user = await env.DB.prepare(
+    "SELECT id FROM users WHERE id = ? AND status = 'active'"
+  ).bind(userId).first();
+
+  const plan = await env.DB.prepare(
+    "SELECT * FROM plans WHERE id = ? AND status = 'active'"
+  ).bind(planId).first();
+
+  if (!user || !plan) {
+    return json({ ok: false, error: "user_or_plan_not_found" }, 404);
+  }
+
+  const created = now();
+  const expires = created + plan.duration_days * 86400;
+
+  const result = await env.DB.prepare(`
+    INSERT INTO subscriptions
+    (user_id, plan_id, volume_gb, used_bytes, expires_at, status, created_at)
+    VALUES (?, ?, ?, 0, ?, 'active', ?)
+  `).bind(
+    userId,
+    planId,
+    plan.volume_gb,
+    expires,
+    created
+  ).run();
+
+  await audit(
+    env,
+    actor.id,
+    "subscription.create",
+    "subscription",
+    result.meta.last_row_id
+  );
+
+  return json({
+    ok: true,
+    id: result.meta.last_row_id,
+    expires_at: expires,
+    message: "اشتراک ایجاد شد."
+  }, 201);
+}
+
+async function updateSubscription(request, env, actor, id) {
+  const data = await body(request);
+
+  const subscription = await env.DB.prepare(
+    "SELECT * FROM subscriptions WHERE id = ?"
+  ).bind(id).first();
+
+  if (!subscription) {
+    return json({ ok: false, error: "subscription_not_found" }, 404);
+  }
+
+  const status = ["active", "expired", "suspended", "cancelled"].includes(data.status)
+    ? data.status
+    : subscription.status;
+
+  const volume = data.volume_gb === undefined
+    ? subscription.volume_gb
+    : Number(data.volume_gb);
+
+  const expires = data.expires_at === undefined
+    ? subscription.expires_at
+    : Number(data.expires_at);
+
+  if (!Number.isInteger(volume) || volume < 1 ||
+      !Number.isInteger(expires) || expires < 1) {
+    return json({ ok: false, error: "invalid_subscription_values" }, 400);
+  }
+
+  await env.DB.prepare(`
+    UPDATE subscriptions
+    SET status=?, volume_gb=?, expires_at=?
+    WHERE id=?
+  `).bind(status, volume, expires, id).run();
+
+  await audit(env, actor.id, "subscription.update", "subscription", id);
+
+  return json({ ok: true, message: "اشتراک ویرایش شد." });
+}
+
+async function listConfigs(env, user, isAdmin) {
+  const result = isAdmin
+    ? await env.DB.prepare(`
+        SELECT c.*, u.username, s.name AS server_name
+        FROM configs c
+        JOIN users u ON u.id = c.user_id
+        LEFT JOIN servers s ON s.id = c.server_id
+        ORDER BY c.id DESC
+      `).all()
+    : await env.DB.prepare(`
+        SELECT c.*, s.name AS server_name
+        FROM configs c
+        LEFT JOIN servers s ON s.id = c.server_id
+        WHERE c.user_id = ?
+        ORDER BY c.id DESC
+      `).bind(user.id).all();
+
+  return json({ ok: true, configs: result.results });
+}
+
+async function createConfig(request, env, actor) {
+  const data = await body(request);
+
+  const userId = Number(data.user_id);
+  const serverId = Number(data.server_id);
+  const subscriptionId = Number(data.subscription_id);
+  const name = clean(data.name, 100);
+  const protocol = ["vless", "vmess", "trojan"].includes(data.protocol)
+    ? data.protocol
+    : "vless";
+
+  if (!userId || !serverId || !name) {
+    return json({ ok: false, error: "missing_config_fields" }, 400);
+  }
+
+  const targetUser = await env.DB.prepare(
+    "SELECT id FROM users WHERE id = ? AND status = 'active'"
+  ).bind(userId).first();
+
+  const server = await env.DB.prepare(
+    "SELECT * FROM servers WHERE id = ?"
+  ).bind(serverId).first();
+
+  if (!targetUser || !server) {
+    return json({ ok: false, error: "user_or_server_not_found" }, 404);
+  }
+
+  if (server.status !== "online") {
+    return json({
+      ok: false,
+      error: "server_not_online",
+      message: "سرور انتخاب‌شده آنلاین نیست."
+    }, 409);
+  }
+
+  let subscription = null;
+
+  if (subscriptionId) {
+    subscription = await env.DB.prepare(`
+      SELECT * FROM subscriptions
+      WHERE id=? AND user_id=? AND status='active' AND expires_at>?
+    `).bind(subscriptionId, userId, now()).first();
+
+    if (!subscription) {
+      return json({ ok: false, error: "invalid_subscription" }, 400);
+    }
+  }
+
+  const uuid = crypto.randomUUID();
+  const transport = ["tcp", "ws", "grpc", "xhttp"].includes(data.transport)
+    ? data.transport
+    : "tcp";
+
+  const security = ["none", "tls", "reality"].includes(data.security)
+    ? data.security
+    : "tls";
+
+  const result = await env.DB.prepare(`
+    INSERT INTO configs
+    (user_id, server_id, subscription_id, name, protocol, uuid,
+     transport, security, port, status, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?)
+  `).bind(
+    userId,
+    serverId,
+    subscriptionId || null,
+    name,
+    protocol,
+    uuid,
+    transport,
+    security,
+    server.port,
+    now(),
+    now()
+  ).run();
+
+  await audit(env, actor.id, "config.create", "config", result.meta.last_row_id);
+
+  return json({
+    ok: true,
+    id: result.meta.last_row_id,
+    uuid,
+    status: "draft",
+    message: "کانفیگ به‌صورت پیش‌نویس ثبت شد. برای فعال‌سازی باید به نود Xray متصل شود."
+  }, 201);
+}
+
+async function deleteConfig(env, actor, id) {
+  await env.DB.prepare(
+    "DELETE FROM configs WHERE id = ?"
+  ).bind(id).run();
+
+  await audit(env, actor.id, "config.delete", "config", id);
+
+  return json({ ok: true, message: "کانفیگ حذف شد." });
+}
+
+async function listPayments(env, user, isAdmin) {
+  const result = isAdmin
+    ? await env.DB.prepare(`
+        SELECT p.*, u.username
+        FROM payments p
+        JOIN users u ON u.id = p.user_id
+        ORDER BY p.id DESC
+      `).all()
+    : await env.DB.prepare(`
+        SELECT * FROM payments
+        WHERE user_id=?
+        ORDER BY id DESC
+      `).bind(user.id).all();
+
+  return json({ ok: true, payments: result.results });
+}
+
+async function createPayment(request, env, user) {
+  const data = await body(request);
+  const amount = Number(data.amount);
+
+  if (!Number.isSafeInteger(amount) || amount < 1) {
+    return json({ ok: false, error: "invalid_amount" }, 400);
+  }
+
+  const result = await env.DB.prepare(`
+    INSERT INTO payments
+    (user_id, amount, method, reference, status, created_at)
+    VALUES (?, ?, ?, ?, 'pending', ?)
+  `).bind(
+    user.id,
+    amount,
+    clean(data.method, 40) || null,
+    clean(data.reference, 120) || null,
+    now()
+  ).run();
+
+  return json({
+    ok: true,
+    id: result.meta.last_row_id,
+    status: "pending",
+    message: "درخواست پرداخت ثبت شد و هنوز تأیید نشده است."
+  }, 201);
+}
+
+async function updatePayment(request, env, actor, id) {
+  const data = await body(request);
+  const status = ["paid", "failed", "refunded", "pending"].includes(data.status)
+    ? data.status
+    : null;
+
+  if (!status) return json({ ok: false, error: "invalid_status" }, 400);
+
+  await env.DB.prepare(
+    "UPDATE payments SET status=? WHERE id=?"
+  ).bind(status, id).run();
+
+  await audit(env, actor.id, "payment.update", "payment", id, { status });
+
+  return json({
+    ok: true,
+    message: "وضعیت پرداخت تغییر کرد. تأیید پرداخت فقط از مسیر درگاه معتبر باید انجام شود."
+  });
+}
+
+async function createTicket(request, env, user) {
+  const data = await body(request);
+  const subject = clean(data.subject, 150);
+  const message = clean(data.message, 5000);
+
+  if (!subject || !message) {
+    return json({ ok: false, error: "missing_ticket_fields" }, 400);
+  }
+
+  const result = await env.DB.prepare(`
+    INSERT INTO tickets
+    (user_id, subject, message, status, created_at, updated_at)
+    VALUES (?, ?, ?, 'open', ?, ?)
+  `).bind(user.id, subject, message, now(), now()).run();
+
+  return json({
+    ok: true,
+    id: result.meta.last_row_id,
+    message: "تیکت ثبت شد."
+  }, 201);
+}
+
+async function listTickets(env, user, isAdmin) {
+  const result = isAdmin
+    ? await env.DB.prepare(`
+        SELECT t.*, u.username
+        FROM tickets t
+        JOIN users u ON u.id=t.user_id
+        ORDER BY t.id DESC
+      `).all()
+    : await env.DB.prepare(
+        "SELECT * FROM tickets WHERE user_id=? ORDER BY id DESC"
+      ).bind(user.id).all();
+
+  return json({ ok: true, tickets: result.results });
+}
+
+async function updateTicket(request, env, actor, id) {
+  const data = await body(request);
+  const status = ["open", "pending", "answered", "closed"].includes(data.status)
+    ? data.status
+    : null;
+
+  if (!status) return json({ ok: false, error: "invalid_ticket_status" }, 400);
+
+  await env.DB.prepare(
+    "UPDATE tickets SET status=?, updated_at=? WHERE id=?"
+  ).bind(status, now(), id).run();
+
+  await audit(env, actor.id, "ticket.update", "ticket", id);
+
+  return json({ ok: true });
+}
+
+async function adminLogs(env) {
+  const result = await env.DB.prepare(`
+    SELECT l.*, u.username
+    FROM audit_logs l
+    LEFT JOIN users u ON u.id=l.actor_id
+    ORDER BY l.id DESC
+    LIMIT 200
+  `).all();
+
+  return json({ ok: true, logs: result.results });
+}
+
+async function health(env) {
+  const result = await env.DB.prepare("SELECT 1 AS ok").first();
+
+  return json({
+    ok: true,
+    app: APP,
+    version: VERSION,
+    database: result && result.ok === 1 ? "connected" : "error",
+    time: now()
+  });
+}
+
+function routeNotFound() {
+  return json({
+    ok: false,
+    error: "route_not_found",
+    message: "مسیر API وجود ندارد."
+  }, 404);
+}
+
+async function router(request, env) {
+  const url = new URL(request.url);
+  const path = url.pathname.replace(/\/+$/, "") || "/";
+  const method = request.method.toUpperCase();
+
+  if (method === "GET" && path === "/") {
+    return json({
+      ok: true,
+      app: APP,
+      version: VERSION,
+      message: "MHA.NET API is running"
+    });
+  }
+
+  if (method === "GET" && path === "/api/health") {
+    return health(env);
+  }
+
+  if (method === "POST" && path === "/api/register") {
+    return register(request, env);
+  }
+
+  if (method === "POST" && path === "/api/login") {
+    return login(request, env);
+  }
+
+  if (method === "GET" && path === "/api/me") {
+    const user = await getUser(request, env);
+    if (!user) return json({ ok: false, error: "unauthorized" }, 401);
+    return me(user, env);
+  }
+
+  const user = await getUser(request, env);
+
+  if (path === "/api/logout" && method === "POST") {
+    return logout(request, env, user);
+  }
+
+  if (!user) {
+    return json({
+      ok: false,
+      error: "unauthorized",
+      message: "ابتدا وارد حساب شوید."
+    }, 401);
+  }
+
+  const admin = requireAdmin(user);
+
+  if (path.startsWith("/api/admin/") && !admin) {
+    return json({ ok: false, error: "forbidden" }, 403);
+  }
+
+  if (method === "GET" && path === "/api/admin/overview") {
+    return adminOverview(env);
+  }
+
+  if (method === "GET" && path === "/api/admin/users") {
+    return listUsers(env, url);
+  }
+
+  let match = path.match(/^\/api\/admin\/users\/(\d+)$/);
+
+  if (match && method === "PATCH") {
+    return updateUser(request, env, user, Number(match[1]));
+  }
+
+  if (match && method === "DELETE") {
+    return deleteUser(env, user, Number(match[1]));
+  }
+
+  if (method === "GET" && path === "/api/admin/servers") {
+    return listServers(env);
+  }
+
+  if (path === "/api/admin/servers" && method === "POST") {
+    return saveServer(request, env, user);
+  }
+
+  match = path.match(/^\/api\/admin\/servers\/(\d+)$/);
+
+  if (match && method === "PUT") {
+    return saveServer(request, env, user, Number(match[1]));
+  }
+
+  if (match && method === "DELETE") {
+    return deleteServer(env, user, Number(match[1]));
+  }
+
+  if (method === "GET" && path === "/api/admin/plans") {
+    return listPlans(env);
+  }
+
+  if (path === "/api/admin/plans" && method === "POST") {
+    return savePlan(request, env, user);
+  }
+
+  match = path.match(/^\/api\/admin\/plans\/(\d+)$/);
+
+  if (match && method === "PUT") {
+    return savePlan(request, env, user, Number(match[1]));
+  }
+
+  if (match && method === "DELETE") {
+    return deletePlan(env, user, Number(match[1]));
+  }
+
+  if (method === "GET" && path === "/api/subscriptions") {
+    return listSubscriptions(env, user, admin);
+  }
+
+  if (path === "/api/admin/subscriptions" && method === "POST") {
+    return createSubscription(request, env, user);
+  }
+
+  match = path.match(/^\/api\/admin\/subscriptions\/(\d+)$/);
+
+  if (match && method === "PATCH") {
+    return updateSubscription(request, env, user, Number(match[1]));
+  }
+
+  if (method === "GET" && path === "/api/configs") {
+    return listConfigs(env, user, admin);
+  }
+
+  if (path === "/api/admin/configs" && method === "POST") {
+    return createConfig(request, env, user);
+  }
+
+  match = path.match(/^\/api\/admin\/configs\/(\d+)$/);
+
+  if (match && method === "DELETE") {
+    return deleteConfig(env, user, Number(match[1]));
+  }
+
+  if (method === "GET" && path === "/api/payments") {
+    return listPayments(env, user, admin);
+  }
+
+  if (path === "/api/payments" && method === "POST") {
+    return createPayment(request, env, user);
+  }
+
+  match = path.match(/^\/api\/admin\/payments\/(\d+)$/);
+
+  if (match && method === "PATCH") {
+    return updatePayment(request, env, user, Number(match[1]));
+  }
+
+  if (path === "/api/tickets" && method === "GET") {
+    return listTickets(env, user, admin);
+  }
+
+  if (path === "/api/tickets" && method === "POST") {
+    return createTicket(request, env, user);
+  }
+
+  match = path.match(/^\/api\/admin\/tickets\/(\d+)$/);
+
+  if (match && method === "PATCH") {
+    return updateTicket(request, env, user, Number(match[1]));
+  }
+
+  if (method === "GET" && path === "/api/admin/logs") {
+    return adminLogs(env);
+  }
+
+  return routeNotFound();
+}
+
+export default {
+  async fetch(request, env) {
+    const origin = request.headers.get("Origin") || "";
+
+    const allowed = (env.ALLOWED_ORIGINS || "")
+      .split(",")
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    const originAllowed =
+      !origin ||
+      allowed.length === 0 ||
+      allowed.includes(origin);
+
+    const cors = {
+      "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Max-Age": "86400",
+      "Vary": "Origin"
+    };
+
+    if (origin && originAllowed) {
+      cors["Access-Control-Allow-Origin"] = origin;
+    }
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: originAllowed ? 204 : 403,
+        headers: cors
+      });
+    }
+
+    if (!originAllowed) {
+      return json({ ok: false, error: "origin_not_allowed" }, 403);
+    }
+
+    try {
+      await initDB(env);
+      await bootstrapAdmin(env);
+
+      const response = await router(request, env);
+      const headers = new Headers(response.headers);
+
+      for (const [key, value] of Object.entries(cors)) {
+        headers.set(key, value);
+      }
+
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers
+      });
+    } catch (error) {
+      console.error("MHA.NET ERROR:", error);
+
+      return json({
+        ok: false,
+        error: "internal_error",
+        message: "خطای داخلی سرور رخ داد."
+      }, 500);
+    }
+  }
+};
