@@ -29,6 +29,11 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
+app.options('*', cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -90,6 +95,7 @@ app.post('/api/auth/register', (req, res) => {
   tokens.set(token, user.username);
 
   return res.status(201).json({
+    ok: true,
     token,
     user: { id: user.id, username: user.username, status: user.status }
   });
@@ -99,7 +105,7 @@ app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body || {};
 
   if (!username || !password) {
-    return res.status(400).json({ message: 'نام کاربری و رمز عبور لازم است.' });
+    return res.status(400).json({ message: 'نام کاربری یا رمز عبور اشتباه است.' });
   }
 
   const user = users.find((u) => u.username === username && u.password === password);
@@ -111,6 +117,7 @@ app.post('/api/auth/login', (req, res) => {
   tokens.set(token, user.username);
 
   return res.status(200).json({
+    ok: true,
     token,
     user: { id: user.id, username: user.username, status: user.status }
   });
@@ -124,15 +131,18 @@ app.post('/api/auth/logout', (req, res) => {
     tokens.delete(token);
   }
 
-  return res.status(200).json({ message: 'خارج شدید.' });
+  return res.status(200).json({ ok: true, message: 'خارج شدید.' });
 });
 
 app.get('/api/me', requireAuth, (req, res) => {
   const user = req.user;
   return res.status(200).json({
-    id: user.id,
-    username: user.username,
-    status: user.status
+    ok: true,
+    user: {
+      id: user.id,
+      username: user.username,
+      status: user.status
+    }
   });
 });
 
@@ -212,7 +222,7 @@ app.get('/api/configs', requireAuth, (req, res) => {
 app.post('/api/configs', requireAuth, (req, res) => {
   const { name, userId, host, port, protocol } = req.body || {};
   if (!name || !userId || !host || !port || !protocol) {
-    return res.status(400).json({ message: 'تم��م فیلدهای کانفیگ لازم است.' });
+    return res.status(400).json({ message: 'تمام فیلدهای کانفیگ لازم است.' });
   }
 
   const cfg = {
