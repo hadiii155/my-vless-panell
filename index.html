@@ -1,462 +1,660 @@
 
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#090817">
-<title>MHA.NET | پنل مدیریت</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0818">
+<title>MHA.NET | VPN Management</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
 <style>
-:root {
-  --bg:#090817;
-  --panel:#141128;
-  --panel2:#1c1738;
-  --purple:#842dff;
-  --red:#f04465;
-  --orange:#ff7547;
-  --text:#fff;
-  --muted:#aaa4c1;
-  --border:rgba(255,255,255,.09);
+:root{
+ --bg:#0b0818;--panel:#151128;--panel2:#1e1836;
+ --purple:#873cff;--red:#f04465;--orange:#ff7848;
+ --text:#f8f6ff;--muted:#aaa3c0;--line:#ffffff14;
+ --green:#39d99a;--yellow:#ffc45c;--blue:#53b8ff;
 }
 *{box-sizing:border-box}
-body{
-  margin:0;background:radial-gradient(circle at 50% 0,#251044 0,#090817 55%);
-  color:var(--text);font-family:Vazirmatn,sans-serif;min-height:100vh;
-}
-button,input,select{font-family:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Vazirmatn,sans-serif}
+button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-.container{width:min(1100px,92%);margin:auto}
-header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:18px 0;border-bottom:1px solid var(--border);
+button:disabled{opacity:.5;cursor:not-allowed}
+a{color:inherit;text-decoration:none}
+.app{min-height:100vh}
+.topbar{
+ height:70px;display:flex;align-items:center;justify-content:space-between;
+ padding:0 22px;background:#100d20;border-bottom:1px solid var(--line);
+ position:sticky;top:0;z-index:20
 }
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px}
-.lion{font-size:35px;filter:drop-shadow(0 0 10px #ff7547)}
-.brand span:last-child{color:var(--orange)}
-.header-actions{display:flex;align-items:center;gap:10px}
-.lang-select{
-  background:var(--panel2);color:white;border:1px solid var(--border);
-  border-radius:12px;padding:10px;outline:none;
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:21px}
+.brand .lion{font-size:32px;filter:drop-shadow(0 0 9px #ff7848)}
+.brand b{color:var(--orange)}
+.top-actions{display:flex;align-items:center;gap:10px}
+.lang{background:var(--panel2);color:white;border:1px solid var(--line);border-radius:10px;padding:9px}
+.icon-btn,.hamburger{border:1px solid var(--line);background:var(--panel2);color:white;border-radius:10px;padding:9px 13px}
+.layout{display:flex;min-height:calc(100vh - 70px)}
+.sidebar{
+ width:245px;flex-shrink:0;background:#100d20;border-left:1px solid var(--line);
+ padding:18px 12px;transition:.25s
 }
-.menu-btn{
-  background:var(--panel2);border:1px solid var(--border);
-  color:white;border-radius:12px;padding:10px 14px;font-size:20px;
+.sidebar-title{font-size:11px;color:var(--muted);padding:14px 12px 7px}
+.nav-btn{
+ width:100%;display:flex;align-items:center;gap:12px;text-align:right;
+ border:1px solid transparent;background:transparent;color:#c9c3dc;
+ padding:12px;border-radius:11px;margin:3px 0;font-size:13px
 }
-.hero{text-align:center;padding:35px 0 10px}
-.hero h1{font-size:clamp(27px,5vw,43px);margin:5px 0}
-.hero h1 span{color:var(--orange)}
-.hero p{color:var(--muted);line-height:2;margin:8px auto;max-width:600px}
-.globe-area{
-  width:260px;height:260px;margin:25px auto 30px;
-  position:relative;display:grid;place-items:center;
+.nav-btn:hover,.nav-btn.active{background:linear-gradient(100deg,#873cff30,#f0446520);border-color:#873cff44;color:white}
+.nav-btn .ico{width:22px;text-align:center;font-size:17px}
+.main{flex:1;min-width:0;padding:25px;max-width:1600px;margin:auto;width:100%}
+.page{display:none}.page.active{display:block}
+.page-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+h1{font-size:23px;margin:0 0 5px}
+h2{font-size:18px;margin:0 0 14px}
+h3{font-size:15px;margin:0 0 12px}
+.sub{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{
+ background:linear-gradient(145deg,#1a1530,#131025);
+ border:1px solid var(--line);border-radius:17px;padding:18px;min-width:0
 }
+.stat{display:flex;justify-content:space-between;align-items:center}
+.stat .symbol{width:43px;height:43px;border-radius:13px;display:grid;place-items:center;background:#873cff24;font-size:21px}
+.stat strong{display:block;font-size:25px;margin-top:8px}
+.stat small{color:var(--muted)}
+.orange{color:var(--orange)}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}
+.btn{
+ border:0;border-radius:10px;padding:10px 15px;background:linear-gradient(100deg,var(--purple),var(--red));
+ color:white;font-weight:700;font-size:12px
+}
+.btn.secondary{background:#ffffff0c;border:1px solid var(--line);color:#eee}
+.btn.danger{background:#f0446524;border:1px solid #f0446544;color:#ff8798}
+.btn.success{background:#39d99a20;border:1px solid #39d99a44;color:#6de6b3}
+.btn.small{padding:7px 10px}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px;font-size:12px}
+th,td{padding:13px 10px;text-align:right;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500}
+td{color:#e7e2f4}
+.empty{text-align:center;color:var(--muted);padding:28px}
+.badge{display:inline-block;padding:4px 9px;border-radius:20px;font-size:10px;background:#ffffff12}
+.badge.ok{color:var(--green);background:#39d99a18}
+.badge.warn{color:var(--yellow);background:#ffc45c18}
+.badge.off{color:#ff8798;background:#f0446518}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.field label{font-size:12px;color:#c9c3dc}
+.field input,.field select,.field textarea,.search{
+ width:100%;padding:11px 12px;border-radius:10px;background:#0c0a19;
+ border:1px solid var(--line);color:white;outline:none;min-width:0
+}
+.field input:focus,.field select:focus,.field textarea:focus,.search:focus{border-color:var(--purple)}
+.field select option{background:#17132b}
+.field textarea{min-height:85px;resize:vertical}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
+.modal{
+ display:none;position:fixed;inset:0;background:#000b;z-index:50;
+ align-items:center;justify-content:center;padding:15px
+}
+.modal.show{display:flex}
+.modal-box{
+ width:min(560px,100%);max-height:90vh;overflow:auto;
+ background:#17132b;border:1px solid var(--line);border-radius:18px;padding:21px
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.close{background:none;border:0;color:white;font-size:22px}
+.notice{padding:12px;border:1px solid #ffc45c44;background:#ffc45c12;border-radius:11px;color:#ffd58a;font-size:12px;line-height:1.9;margin-bottom:14px}
+.toast{
+ position:fixed;bottom:20px;left:20px;z-index:80;background:#211a39;
+ border:1px solid var(--line);border-radius:12px;padding:13px 17px;
+ display:none;max-width:min(360px,90vw);font-size:12px
+}
+.toast.show{display:block}
+.auth-screen{
+ min-height:calc(100vh - 70px);display:flex;align-items:center;justify-content:center;
+ padding:25px;background:radial-gradient(ellipse at 50% 10%,#401a6a55,transparent 55%)
+}
+.auth-card{width:min(440px,100%);padding:25px;background:#17132b;border:1px solid var(--line);border-radius:20px}
+.auth-logo{text-align:center;font-size:50px}
+.auth-logo b{color:var(--orange);font-size:25px}
+.auth-tabs{display:flex;gap:6px;background:#0d0a1b;padding:5px;border-radius:11px;margin:20px 0}
+.auth-tabs button{flex:1;padding:10px;border:0;border-radius:8px;background:transparent;color:var(--muted)}
+.auth-tabs button.active{background:linear-gradient(100deg,var(--purple),var(--red));color:white}
+.globe-area{height:190px;display:grid;place-items:center;position:relative;margin:0 auto 10px}
 .globe{
-  width:190px;height:190px;border-radius:50%;position:relative;
-  background:
-    radial-gradient(circle at 35% 28%,#5d9eff 0,#1551a5 38%,#071c50 75%,#030918 100%);
-  box-shadow:0 0 35px #5b31ff88,inset -18px -15px 35px #0009,inset 8px 8px 20px #91c9ff55;
-  overflow:hidden;border:1px solid #7db5ff88;
-  animation:glow 4s ease-in-out infinite;
+ width:145px;height:145px;border-radius:50%;
+ background:radial-gradient(circle at 32% 25%,#71c4ff,#2160ae 45%,#071a49 80%);
+ box-shadow:0 0 38px #873cff77,inset -15px -10px 30px #0009;
+ position:relative;overflow:hidden
 }
 .globe:before{
-  content:"";position:absolute;inset:-15%;
-  background:
-  radial-gradient(ellipse at 35% 30%,#50b76c 0 8%,transparent 9%),
-  radial-gradient(ellipse at 65% 45%,#55bd73 0 13%,transparent 14%),
-  radial-gradient(ellipse at 30% 70%,#42a75e 0 10%,transparent 11%),
-  radial-gradient(ellipse at 78% 75%,#43a96a 0 8%,transparent 9%);
-  filter:blur(2px);transform:rotate(-15deg);
+ content:"";position:absolute;inset:0;
+ background:radial-gradient(ellipse at 35% 35%,#49b875 0 12%,transparent 13%),
+ radial-gradient(ellipse at 65% 55%,#58bd7d 0 16%,transparent 17%),
+ radial-gradient(ellipse at 28% 75%,#50ad69 0 10%,transparent 11%)
 }
-@keyframes glow{50%{box-shadow:0 0 55px #8b35ffbb,inset -18px -15px 35px #0009}}
-.orbit{
-  position:absolute;width:250px;height:95px;border:1px solid #a66cff77;
-  border-radius:50%;transform:rotate(-25deg);
-}
-.orbit.two{transform:rotate(55deg);width:245px;height:105px;border-color:#ff754766}
-.flag{
-  position:absolute;z-index:3;font-size:22px;
-  filter:drop-shadow(0 0 7px #fff);animation:float 3s ease-in-out infinite;
-}
-.flag:nth-child(2){animation-delay:.4s}
-.flag:nth-child(3){animation-delay:.8s}
-.flag:nth-child(4){animation-delay:1.2s}
-.flag:nth-child(5){animation-delay:1.6s}
-.flag:nth-child(6){animation-delay:2s}
-.flag:nth-child(7){animation-delay:2.4s}
-.flag:nth-child(8){animation-delay:2.8s}
+.flag{position:absolute;font-size:20px;filter:drop-shadow(0 0 6px white);animation:float 3s infinite ease-in-out}
+.flag:nth-of-type(2){top:2px;left:40%}.flag:nth-of-type(3){right:8%;top:35%}
+.flag:nth-of-type(4){right:17%;bottom:4%}.flag:nth-of-type(5){bottom:0;left:43%}
+.flag:nth-of-type(6){left:7%;bottom:25%}.flag:nth-of-type(7){left:3%;top:35%}
+.flag:nth-of-type(8){left:20%;top:5%}
 @keyframes float{50%{transform:translateY(-7px)}}
-.f1{top:5px;left:105px}.f2{top:65px;right:0}
-.f3{bottom:25px;right:12px}.f4{bottom:0;left:105px}
-.f5{bottom:50px;left:0}.f6{top:65px;left:0}
-.f7{top:5px;right:30px}.f8{top:120px;right:-10px}
-.auth-card,.dashboard-card,.menu-panel{
-  background:linear-gradient(145deg,#1c1738,#100e23);
-  border:1px solid var(--border);border-radius:22px;
-  padding:24px;box-shadow:0 15px 50px #0005;
+.auth-help{text-align:center;color:var(--muted);font-size:11px;margin-top:15px}
+.profile{display:flex;align-items:center;gap:12px}
+.avatar{width:42px;height:42px;display:grid;place-items:center;background:#873cff33;border-radius:50%;font-size:20px}
+.progress{height:8px;background:#ffffff13;border-radius:20px;overflow:hidden;margin:10px 0}
+.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--orange))}
+.mobile-overlay{display:none}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
+@media(max-width:900px){
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .sidebar{position:fixed;z-index:30;top:70px;bottom:0;right:-260px;width:245px;overflow:auto}
+ .sidebar.open{right:0}
+ .mobile-overlay.show{display:block;position:fixed;inset:70px 0 0;background:#0009;z-index:25}
 }
-.auth-card{max-width:430px;margin:0 auto 35px}
-.tabs{display:flex;background:#0d0b1d;border-radius:13px;padding:5px;gap:5px;margin-bottom:22px}
-.tab{flex:1;border:0;background:transparent;color:var(--muted);padding:11px;border-radius:10px}
-.tab.active{background:linear-gradient(100deg,var(--purple),var(--red));color:white}
-.field{margin:15px 0}
-.field label{display:block;color:#d5cde9;font-size:13px;margin-bottom:8px}
-.field input{
-  width:100%;padding:14px;background:#0c0a1b;color:white;
-  border:1px solid var(--border);border-radius:12px;outline:none;
-}
-.field input:focus{border-color:var(--purple)}
-.password-wrap{position:relative}
-.password-wrap input{padding-left:48px}
-.eye{
-  position:absolute;left:12px;top:50%;transform:translateY(-50%);
-  background:none;border:0;color:#bbb;font-size:18px;
-}
-.primary{
-  width:100%;border:0;border-radius:13px;padding:14px;
-  color:white;font-weight:800;font-size:15px;
-  background:linear-gradient(100deg,var(--purple),var(--red));
-  box-shadow:0 8px 25px #842dff33;
-}
-.primary:disabled{opacity:.6;cursor:wait}
-.message{font-size:13px;line-height:1.9;margin-top:12px;text-align:center}
-.error{color:#ff788c}.success{color:#6de2a0}
-.small-note{text-align:center;color:var(--muted);font-size:12px;margin-top:14px}
-.dashboard{display:none;margin:25px auto 45px}
-.dashboard-card{margin-bottom:15px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.stat{background:#0d0b20;border:1px solid var(--border);padding:18px;border-radius:15px}
-.stat b{display:block;font-size:22px;color:var(--orange);margin-top:7px}
-.stat small{color:var(--muted)}
-.menu-panel{display:none;margin:15px 0}
-.menu-panel button{
-  width:100%;text-align:right;padding:13px;margin:5px 0;
-  background:#0d0b20;border:1px solid var(--border);
-  color:white;border-radius:12px;
-}
-.telegram{color:#62c7ff}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
-.hidden{display:none!important}
-@media(max-width:500px){
-  .brand{font-size:18px}.lion{font-size:29px}
-  .globe-area{transform:scale(.9);margin-top:15px;margin-bottom:5px}
-  .auth-card{padding:19px}
+@media(max-width:560px){
+ .main{padding:15px}
+ .grid,.grid.two,.form-grid{grid-template-columns:1fr}
+ .topbar{padding:0 12px}.brand{font-size:17px}
+ .brand .lion{font-size:26px}
+ .page-head h1{font-size:19px}
+ .lang{max-width:115px;font-size:11px}
 }
 </style>
 </head>
-
 <body>
-<div class="container">
-<header>
-  <div class="brand"><span class="lion">🦁</span><span>MHA.NET</span></div>
-  <div class="header-actions">
-    <select class="lang-select" id="language" aria-label="Language">
-      <option value="fa">🇮🇷 فارسی</option>
-      <option value="en">🇬🇧 English</option>
-      <option value="tr">🇹🇷 Türkçe</option>
-    </select>
-    <button class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
-  </div>
+<div class="app">
+
+<header class="topbar">
+ <div class="brand"><span class="lion">🦁</span><span>MHA.<b>NET</b></span></div>
+ <div class="top-actions">
+  <select id="language" class="lang" aria-label="Language">
+   <option value="fa">🇮🇷 فارسی</option>
+   <option value="en">🇬🇧 English</option>
+   <option value="tr">🇹🇷 Türkçe</option>
+  </select>
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+ </div>
 </header>
 
-<div class="menu-panel" id="menuPanel">
-  <button onclick="showSupport()" data-i18n="support">پشتیبانی ۲۴ ساعته</button>
-  <button onclick="openTelegram()" class="telegram" data-i18n="telegram">پشتیبانی تلگرام</button>
-  <button onclick="logout()" data-i18n="logout">خروج از حساب</button>
+<div class="layout">
+ <aside class="sidebar" id="sidebar">
+  <div class="sidebar-title" data-i18n="navigation">منوی اصلی</div>
+  <button class="nav-btn active" data-page="dashboard" onclick="navigate('dashboard')"><span class="ico">▦</span><span data-i18n="dashboard">داشبورد</span></button>
+  <button class="nav-btn" data-page="users" onclick="navigate('users')"><span class="ico">♙</span><span data-i18n="users">مدیریت کاربران</span></button>
+  <button class="nav-btn" data-page="configs" onclick="navigate('configs')"><span class="ico">⌘</span><span data-i18n="configs">مدیریت کانفیگ‌ها</span></button>
+  <button class="nav-btn" data-page="servers" onclick="navigate('servers')"><span class="ico">▤</span><span data-i18n="servers">مدیریت سرورها</span></button>
+  <button class="nav-btn" data-page="subscriptions" onclick="navigate('subscriptions')"><span class="ico">◷</span><span data-i18n="subscriptions">اشتراک‌ها</span></button>
+  <button class="nav-btn" data-page="usage" onclick="navigate('usage')"><span class="ico">◉</span><span data-i18n="usage">مصرف کاربران</span></button>
+  <button class="nav-btn" data-page="support" onclick="navigate('support')"><span class="ico">✉</span><span data-i18n="support">پشتیبانی</span></button>
+  <div class="sidebar-title" data-i18n="account">حساب کاربری</div>
+  <button class="nav-btn" data-page="profile" onclick="navigate('profile')"><span class="ico">⚙</span><span data-i18n="profile">تنظیمات حساب</span></button>
+  <button class="nav-btn" onclick="logout()"><span class="ico">↪</span><span data-i18n="logout">خروج</span></button>
+ </aside>
+ <div class="mobile-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+ <main class="main">
+  <section id="authScreen" class="auth-screen">
+   <div class="auth-card">
+    <div class="auth-logo">🦁<br><b>MHA.NET</b></div>
+    <div class="globe-area">
+     <div class="globe"></div>
+     <span class="flag" style="top:2px;left:40%">🇮🇷</span>
+     <span class="flag" style="right:8%;top:35%">🇺🇸</span>
+     <span class="flag" style="right:17%;bottom:4%">🇩🇪</span>
+     <span class="flag" style="bottom:0;left:43%">🇬🇧</span>
+     <span class="flag" style="left:7%;bottom:25%">🇹🇷</span>
+     <span class="flag" style="left:3%;top:35%">🇨🇦</span>
+     <span class="flag" style="left:20%;top:5%">🇯🇵</span>
+    </div>
+    <h2 style="text-align:center" data-i18n="welcome">به پنل MHA.NET خوش آمدید</h2>
+    <div class="auth-tabs">
+     <button id="tabRegister" class="active" onclick="setAuthMode('register')" data-i18n="register">ثبت‌نام</button>
+     <button id="tabLogin" onclick="setAuthMode('login')" data-i18n="login">ورود</button>
+    </div>
+    <form id="authForm">
+     <div class="field"><label data-i18n="username">نام کاربری</label><input id="authUsername" required minlength="3" maxlength="32" autocomplete="username"></div>
+     <div class="field"><label data-i18n="password">رمز عبور</label><input id="authPassword" type="password" required minlength="8" autocomplete="new-password"></div>
+     <div class="field" id="confirmWrap"><label data-i18n="confirmPassword">تکرار رمز عبور</label><input id="authConfirm" type="password" minlength="8"></div>
+     <button class="btn" id="authSubmit" style="width:100%" data-i18n="createAccount">ایجاد حساب کاربری</button>
+     <p id="authMessage" class="sub" aria-live="polite"></p>
+    </form>
+    <div class="auth-help" data-i18n="authNote">ثبت‌نام و ورود از طریق سرور انجام می‌شود.</div>
+   </div>
+  </section>
+
+  <div id="workspace" style="display:none">
+   <section class="page active" id="page-dashboard">
+    <div class="page-head"><div><h1 data-i18n="dashboard">داشبورد</h1><div class="sub" data-i18n="overview">نمای کلی وضعیت پنل</div></div><button class="btn secondary" onclick="loadAll()" data-i18n="refresh">به‌روزرسانی</button></div>
+    <div class="grid">
+     <div class="card stat"><div><small data-i18n="totalUsers">کل کاربران</small><strong id="statUsers">—</strong></div><div class="symbol">♙</div></div>
+     <div class="card stat"><div><small data-i18n="activeConfigs">کانفیگ‌های فعال</small><strong id="statConfigs">—</strong></div><div class="symbol">⌘</div></div>
+     <div class="card stat"><div><small data-i18n="totalServers">سرورها</small><strong id="statServers">—</strong></div><div class="symbol">▤</div></div>
+     <div class="card stat"><div><small data-i18n="activeSubs">اشتراک فعال</small><strong id="statSubs">—</strong></div><div class="symbol">◷</div></div>
+    </div>
+    <div class="grid two" style="margin-top:15px">
+     <div class="card"><h2 data-i18n="systemStatus">وضعیت سیستم</h2><p class="sub" id="connectionStatus" data-i18n="checking">در انتظار اتصال به سرور...</p><div class="progress"><span id="healthBar" style="width:0%"></span></div><div class="sub" data-i18n="serverHealthNote">اطلاعات سلامت سرورها از API دریافت می‌شود.</div></div>
+     <div class="card"><h2 data-i18n="quickActions">دسترسی سریع</h2><div class="actions"><button class="btn" onclick="openEntityModal('config')" data-i18n="newConfig">کانفیگ جدید</button><button class="btn secondary" onclick="openEntityModal('user')" data-i18n="newUser">کاربر جدید</button><button class="btn secondary" onclick="openEntityModal('server')" data-i18n="newServer">سرور جدید</button></div></div>
+    </div>
+    <div class="card" style="margin-top:15px"><h2 data-i18n="recentActivity">فعالیت‌های اخیر</h2><div id="recentActivity" class="empty" data-i18n="noActivity">هنوز فعالیتی دریافت نشده است.</div></div>
+   </section>
+
+   <section class="page" id="page-users">
+    <div class="page-head"><div><h1 data-i18n="users">مدیریت کاربران</h1><div class="sub" data-i18n="usersDesc">ساخت، ویرایش و مدیریت دسترسی کاربران</div></div><button class="btn" onclick="openEntityModal('user')" data-i18n="newUser">کاربر جدید</button></div>
+    <div class="card"><div class="toolbar"><input class="search" id="userSearch" placeholder="جست‌وجوی کاربر..." oninput="filterTable('usersTable',this.value)"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i18n="username">نام کاربری</th><th data-i18n="role">نقش</th><th data-i18n="status">وضعیت</th><th data-i18n="created">تاریخ ایجاد</th><th data-i18n="actions">عملیات</th></tr></thead><tbody id="usersTable"><tr><td colspan="6" class="empty">—</td></tr></tbody></table></div></div>
+   </section>
+
+   <section class="page" id="page-configs">
+    <div class="page-head"><div><h1 data-i18n="configs">مدیریت کانفیگ‌ها</h1><div class="sub" data-i18n="configsDesc">مدیریت پروفایل‌ها و کانفیگ‌های VPN</div></div><button class="btn" onclick="openEntityModal('config')" data-i18n="newConfig">کانفیگ جدید</button></div>
+    <div class="card"><div class="toolbar"><input class="search" placeholder="جست‌وجوی کانفیگ..." oninput="filterTable('configsTable',this.value)"></div><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i18n="configName">نام کانفیگ</th><th>Protocol</th><th data-i18n="server">سرور</th><th data-i18n="status">وضعیت</th><th data-i18n="actions">عملیات</th></tr></thead><tbody id="configsTable"><tr><td colspan="6" class="empty">—</td></tr></tbody></table></div></div>
+   </section>
+
+   <section class="page" id="page-servers">
+    <div class="page-head"><div><h1 data-i18n="servers">مدیریت سرورها</h1><div class="sub" data-i18n="serversDesc">مدیریت موقعیت، ظرفیت و سلامت سرورها</div></div><button class="btn" onclick="openEntityModal('server')" data-i18n="newServer">سرور جدید</button></div>
+    <div class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i18n="serverName">نام سرور</th><th data-i18n="country">کشور</th><th>Address</th><th data-i18n="capacity">ظرفیت</th><th data-i18n="status">وضعیت</th><th data-i18n="actions">عملیات</th></tr></thead><tbody id="serversTable"><tr><td colspan="7" class="empty">—</td></tr></tbody></table></div></div>
+   </section>
+
+   <section class="page" id="page-subscriptions">
+    <div class="page-head"><div><h1 data-i18n="subscriptions">اشتراک‌ها</h1><div class="sub" data-i18n="subsDesc">مدیریت لینک، حجم و تاریخ انقضای اشتراک</div></div><button class="btn" onclick="openEntityModal('subscription')" data-i18n="newSubscription">اشتراک جدید</button></div>
+    <div class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th data-i18n="username">کاربر</th><th data-i18n="volume">حجم</th><th data-i18n="used">مصرف</th><th data-i18n="expiry">انقضا</th><th data-i18n="status">وضعیت</th><th data-i18n="actions">عملیات</th></tr></thead><tbody id="subscriptionsTable"><tr><td colspan="7" class="empty">—</td></tr></tbody></table></div></div>
+   </section>
+
+   <section class="page" id="page-usage">
+    <div class="page-head"><div><h1 data-i18n="usage">مصرف کاربران</h1><div class="sub" data-i18n="usageDesc">گزارش حجم مصرفی از سرور</div></div><button class="btn secondary" onclick="loadUsage()" data-i18n="refresh">به‌روزرسانی</button></div>
+    <div class="card"><div class="table-wrap"><table><thead><tr><th data-i18n="username">کاربر</th><th data-i18n="upload">آپلود</th><th data-i18n="download">دانلود</th><th data-i18n="used">مجموع مصرف</th><th data-i18n="updated">آخرین بروزرسانی</th></tr></thead><tbody id="usageTable"><tr><td colspan="5" class="empty">—</td></tr></tbody></table></div></div>
+   </section>
+
+   <section class="page" id="page-support">
+    <div class="page-head"><div><h1 data-i18n="support">پشتیبانی</h1><div class="sub" data-i18n="supportDesc">ارتباط با پشتیبانی MHA.NET</div></div></div>
+    <div class="card"><h2>✈ Telegram</h2><p class="sub" data-i18n="supportText">برای دریافت راهنمایی با پشتیبانی تلگرام در ارتباط باشید.</p><a class="btn" href="https://t.me/m_hadiii46333" target="_blank" rel="noopener" data-i18n="openTelegram">ورود به پشتیبانی تلگرام</a></div>
+   </section>
+
+   <section class="page" id="page-profile">
+    <div class="page-head"><div><h1 data-i18n="profile">تنظیمات حساب</h1><div class="sub" data-i18n="profileDesc">اطلاعات حساب و وضعیت نشست</div></div></div>
+    <div class="card"><div class="profile"><div class="avatar">👤</div><div><b id="profileUsername">—</b><div class="sub" id="profileRole">—</div></div></div><hr style="border-color:var(--line);margin:20px 0"><button class="btn danger" onclick="logout()" data-i18n="logout">خروج از حساب</button></div>
+   </section>
+  </div>
+ </main>
+</div>
+<footer>© MHA.NET — All rights reserved</footer>
 </div>
 
-<section class="hero" id="hero">
-  <h1 data-i18n="welcome">به پنل <span>MHA.NET</span> خوش آمدید</h1>
-  <p data-i18n="subtitle">مدیریت هوشمند سرویس‌های شما، در یک محیط امن و حرفه‌ای</p>
-
-  <div class="globe-area">
-    <div class="orbit"></div>
-    <div class="orbit two"></div>
-    <div class="globe"></div>
-    <span class="flag f1">🇮🇷</span>
-    <span class="flag f2">🇺🇸</span>
-    <span class="flag f3">🇩🇪</span>
-    <span class="flag f4">🇬🇧</span>
-    <span class="flag f5">🇹🇷</span>
-    <span class="flag f6">🇨🇦</span>
-    <span class="flag f7">🇯🇵</span>
-    <span class="flag f8">🇫🇷</span>
-  </div>
-</section>
-
-<section class="auth-card" id="authCard">
-  <div class="tabs">
-    <button class="tab active" id="registerTab" onclick="setMode('register')" data-i18n="register">ثبت‌نام</button>
-    <button class="tab" id="loginTab" onclick="setMode('login')" data-i18n="login">ورود</button>
-  </div>
-
-  <form id="authForm">
-    <div class="field">
-      <label data-i18n="usernameLabel" for="username">نام کاربری</label>
-      <input id="username" name="username" type="text" minlength="3" maxlength="32" autocomplete="username" required placeholder="نام کاربری">
-    </div>
-    <div class="field">
-      <label data-i18n="passwordLabel" for="password">رمز عبور</label>
-      <div class="password-wrap">
-        <input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required placeholder="حداقل ۸ کاراکتر">
-        <button class="eye" type="button" onclick="togglePassword('password',this)">◉</button>
-      </div>
-    </div>
-    <div class="field" id="confirmField">
-      <label data-i18n="confirmLabel" for="confirmPassword">تکرار رمز عبور</label>
-      <div class="password-wrap">
-        <input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="رمز عبور را تکرار کنید">
-        <button class="eye" type="button" onclick="togglePassword('confirmPassword',this)">◉</button>
-      </div>
-    </div>
-    <button class="primary" id="submitBtn" type="submit" data-i18n="createAccount">ایجاد حساب کاربری</button>
-    <div class="message" id="message" role="status" aria-live="polite"></div>
-  </form>
-  <div class="small-note" data-i18n="secureNote">اطلاعات حساب شما از طریق ارتباط امن به سرور ارسال می‌شود.</div>
-</section>
-
-<section class="dashboard" id="dashboard">
-  <div class="dashboard-card">
-    <h2 data-i18n="dashboardTitle">پنل کاربری MHA.NET</h2>
-    <p id="userWelcome"></p>
-    <div class="stats">
-      <div class="stat"><small data-i18n="accountStatus">وضعیت حساب</small><b data-i18n="active">فعال</b></div>
-      <div class="stat"><small data-i18n="serverCount">سرورها</small><b>—</b></div>
-      <div class="stat"><small data-i18n="configCount">کانفیگ‌ها</small><b>—</b></div>
-      <div class="stat"><small data-i18n="subscription">اشتراک</small><b>—</b></div>
-    </div>
-  </div>
-  <div class="dashboard-card">
-    <h3 data-i18n="accountInfo">اطلاعات حساب</h3>
-    <p><span data-i18n="usernameLabel">نام کاربری</span>: <b id="displayUsername"></b></p>
-    <p><span data-i18n="roleLabel">سطح دسترسی</span>: <b id="displayRole">user</b></p>
-  </div>
-</section>
-
-<footer>© MHA.NET — <span data-i18n="footer">تمام حقوق محفوظ است.</span></footer>
+<div class="modal" id="entityModal">
+ <div class="modal-box">
+  <div class="modal-head"><h2 id="modalTitle">افزودن</h2><button class="close" onclick="closeModal()">×</button></div>
+  <div class="notice" data-i18n="apiNotice">ذخیره نهایی اطلاعات با API انجام می‌شود. تا اتصال Worker، این فرم اطلاعات را در سرور ذخیره نمی‌کند.</div>
+  <form id="entityForm"><div id="modalFields" class="form-grid"></div><div class="actions"><button class="btn" type="submit" data-i18n="save">ذخیره</button><button class="btn secondary" type="button" onclick="closeModal()" data-i18n="cancel">انصراف</button></div></form>
+ </div>
 </div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 "use strict";
 
-/* آدرس Worker فعلی؛ در صورت تفاوت، فقط همین خط را اصلاح کن. */
+/* آدرس Worker را با آدرس دقیق Deploy شده خودت هماهنگ کن. */
 const API_BASE = "https://my-vless-panell.hadiabdoli20088.workers.dev";
 
-const translations = {
+const I18N={
  fa:{
-  welcome:'به پنل <span>MHA.NET</span> خوش آمدید',
-  subtitle:'مدیریت هوشمند سرویس‌های شما، در یک محیط امن و حرفه‌ای',
-  register:'ثبت‌نام',login:'ورود',usernameLabel:'نام کاربری',
-  passwordLabel:'رمز عبور',confirmLabel:'تکرار رمز عبور',
-  createAccount:'ایجاد حساب کاربری',loginButton:'ورود به حساب',
-  secureNote:'اطلاعات حساب شما از طریق ارتباط امن به سرور ارسال می‌شود.',
-  support:'پشتیبانی ۲۴ ساعته',telegram:'پشتیبانی تلگرام',
-  logout:'خروج از حساب',dashboardTitle:'پنل کاربری MHA.NET',
-  accountStatus:'وضعیت حساب',active:'فعال',serverCount:'سرورها',
-  configCount:'کانفیگ‌ها',subscription:'اشتراک',accountInfo:'اطلاعات حساب',
-  roleLabel:'سطح دسترسی',footer:'تمام حقوق محفوظ است.',
-  welcomeUser:'خوش آمدی',passwordMismatch:'رمزهای عبور یکسان نیستند.',
-  fillFields:'لطفاً تمام فیلدها را کامل کنید.',
-  waiting:'در حال ارتباط با سرور...',
-  registerSuccess:'ثبت‌نام با موفقیت انجام شد.',
-  loginSuccess:'ورود با موفقیت انجام شد.',
-  genericError:'عملیات ناموفق بود.',
-  connectionError:'ارتباط با سرور برقرار نشد. آدرس Worker و تنظیمات CORS را بررسی کنید.',
-  supportMessage:'برای پشتیبانی با تلگرام در ارتباط باشید.',
-  sessionError:'نشست شما معتبر نیست. دوباره وارد شوید.'
+ navigation:"منوی اصلی",dashboard:"داشبورد",users:"مدیریت کاربران",configs:"مدیریت کانفیگ‌ها",
+ servers:"مدیریت سرورها",subscriptions:"اشتراک‌ها",usage:"مصرف کاربران",support:"پشتیبانی",
+ account:"حساب کاربری",profile:"تنظیمات حساب",logout:"خروج",welcome:"به پنل MHA.NET خوش آمدید",
+ register:"ثبت‌نام",login:"ورود",username:"نام کاربری",password:"رمز عبور",
+ confirmPassword:"تکرار رمز عبور",createAccount:"ایجاد حساب کاربری",authNote:"ثبت‌نام و ورود از طریق سرور انجام می‌شود.",
+ overview:"نمای کلی وضعیت پنل",refresh:"به‌روزرسانی",totalUsers:"کل کاربران",activeConfigs:"کانفیگ‌های فعال",
+ totalServers:"سرورها",activeSubs:"اشتراک فعال",systemStatus:"وضعیت سیستم",checking:"در انتظار اتصال به سرور...",
+ serverHealthNote:"اطلاعات سلامت سرورها از API دریافت می‌شود.",quickActions:"دسترسی سریع",newConfig:"کانفیگ جدید",
+ newUser:"کاربر جدید",newServer:"سرور جدید",recentActivity:"فعالیت‌های اخیر",noActivity:"هنوز فعالیتی دریافت نشده است.",
+ usersDesc:"ساخت، ویرایش و مدیریت دسترسی کاربران",configsDesc:"مدیریت پروفایل‌ها و کانفیگ‌های VPN",
+ serversDesc:"مدیریت موقعیت، ظرفیت و سلامت سرورها",subsDesc:"مدیریت لینک، حجم و تاریخ انقضای اشتراک",
+ usageDesc:"گزارش حجم مصرفی از سرور",supportDesc:"ارتباط با پشتیبانی MHA.NET",
+ supportText:"برای دریافت راهنمایی با پشتیبانی تلگرام در ارتباط باشید.",openTelegram:"ورود به پشتیبانی تلگرام",
+ profileDesc:"اطلاعات حساب و وضعیت نشست",role:"نقش",status:"وضعیت",created:"تاریخ ایجاد",actions:"عملیات",
+ configName:"نام کانفیگ",server:"سرور",serverName:"نام سرور",country:"کشور",capacity:"ظرفیت",
+ volume:"حجم",used:"مصرف",expiry:"انقضا",newSubscription:"اشتراک جدید",upload:"آپلود",download:"دانلود",
+ updated:"آخرین بروزرسانی",apiNotice:"ذخیره نهایی اطلاعات با API انجام می‌شود. تا اتصال Worker، این فرم اطلاعات را در سرور ذخیره نمی‌کند.",
+ save:"ذخیره",cancel:"انصراف",connectionOk:"اتصال به API برقرار است.",connectionBad:"اتصال به API برقرار نشد.",
+ fillFields:"لطفاً همه فیلدهای ضروری را کامل کنید.",passwordMismatch:"رمزهای عبور یکسان نیستند.",
+ genericError:"عملیات ناموفق بود.",authError:"نام کاربری یا رمز عبور اشتباه است.",
+ wait:"در حال ارسال درخواست...",registerOk:"ثبت‌نام موفق بود.",loginOk:"ورود موفق بود.",
+ logoutOk:"از حساب خارج شدید.",adminOnly:"این بخش فقط برای مدیر مجاز است.",
+ loadError:"دریافت اطلاعات ناموفق بود.",confirmDelete:"از حذف این مورد مطمئن هستید؟",
+ delete:"حذف",edit:"ویرایش",copy:"کپی",active:"فعال",inactive:"غیرفعال",
+ supportRole:"پشتیبانی",userRole:"کاربر",adminRole:"مدیر",usernamePlaceholder:"نام کاربری",
+ passwordPlaceholder:"حداقل ۸ کاراکتر",noPermission:"دسترسی غیرمجاز"
  },
  en:{
-  welcome:'Welcome to <span>MHA.NET</span>',
-  subtitle:'Manage your services in a secure and professional environment',
-  register:'Register',login:'Login',usernameLabel:'Username',
-  passwordLabel:'Password',confirmLabel:'Confirm password',
-  createAccount:'Create account',loginButton:'Login',
-  secureNote:'Your account information is sent securely to the server.',
-  support:'24-hour support',telegram:'Telegram support',
-  logout:'Log out',dashboardTitle:'MHA.NET Dashboard',
-  accountStatus:'Account status',active:'Active',serverCount:'Servers',
-  configCount:'Configs',subscription:'Subscription',accountInfo:'Account information',
-  roleLabel:'Access level',footer:'All rights reserved.',
-  welcomeUser:'Welcome',passwordMismatch:'Passwords do not match.',
-  fillFields:'Please complete all fields.',
-  waiting:'Connecting to server...',
-  registerSuccess:'Registration completed successfully.',
-  loginSuccess:'Login successful.',
-  genericError:'The operation failed.',
-  connectionError:'Could not connect to the server. Check Worker URL and CORS settings.',
-  supportMessage:'Contact us through Telegram for support.',
-  sessionError:'Your session is invalid. Please log in again.'
+ navigation:"MAIN MENU",dashboard:"Dashboard",users:"Users",configs:"Configurations",servers:"Servers",
+ subscriptions:"Subscriptions",usage:"Usage",support:"Support",account:"ACCOUNT",profile:"Account settings",
+ logout:"Log out",welcome:"Welcome to MHA.NET",register:"Register",login:"Login",username:"Username",
+ password:"Password",confirmPassword:"Confirm password",createAccount:"Create account",
+ authNote:"Registration and login are processed by the server.",overview:"Panel overview",refresh:"Refresh",
+ totalUsers:"Total users",activeConfigs:"Active configs",totalServers:"Servers",activeSubs:"Active subscriptions",
+ systemStatus:"System status",checking:"Waiting for server connection...",serverHealthNote:"Server health is retrieved from the API.",
+ quickActions:"Quick actions",newConfig:"New config",newUser:"New user",newServer:"New server",
+ recentActivity:"Recent activity",noActivity:"No activity received yet.",usersDesc:"Create, edit and manage user access",
+ configsDesc:"Manage VPN profiles and configurations",serversDesc:"Manage server location, capacity and health",
+ subsDesc:"Manage subscription links, data and expiration",usageDesc:"Traffic usage reports",
+ supportDesc:"Contact MHA.NET support",supportText:"Contact Telegram support for assistance.",
+ openTelegram:"Open Telegram support",profileDesc:"Account details and session status",role:"Role",status:"Status",
+ created:"Created",actions:"Actions",configName:"Config name",server:"Server",serverName:"Server name",
+ country:"Country",capacity:"Capacity",volume:"Volume",used:"Used",expiry:"Expiry",newSubscription:"New subscription",
+ upload:"Upload",download:"Download",updated:"Last update",apiNotice:"Final data storage requires the API. This form will not store data until the Worker is connected.",
+ save:"Save",cancel:"Cancel",connectionOk:"API connected.",connectionBad:"API connection failed.",
+ fillFields:"Please complete required fields.",passwordMismatch:"Passwords do not match.",
+ genericError:"Operation failed.",authError:"Invalid username or password.",wait:"Sending request...",
+ registerOk:"Registration successful.",loginOk:"Login successful.",logoutOk:"You have logged out.",
+ adminOnly:"This section is for administrators only.",loadError:"Could not load data.",
+ confirmDelete:"Are you sure you want to delete this item?",delete:"Delete",edit:"Edit",copy:"Copy",
+ active:"Active",inactive:"Inactive",supportRole:"Support",userRole:"User",adminRole:"Admin",
+ usernamePlaceholder:"Username",passwordPlaceholder:"At least 8 characters",noPermission:"Access denied"
  },
  tr:{
-  welcome:'<span>MHA.NET</span> paneline hoş geldiniz',
-  subtitle:'Hizmetlerinizi güvenli ve profesyonel bir ortamda yönetin',
-  register:'Kayıt ol',login:'Giriş yap',usernameLabel:'Kullanıcı adı',
-  passwordLabel:'Şifre',confirmLabel:'Şifreyi tekrar girin',
-  createAccount:'Hesap oluştur',loginButton:'Giriş yap',
-  secureNote:'Hesap bilgileriniz sunucuya güvenli şekilde gönderilir.',
-  support:'7/24 destek',telegram:'Telegram desteği',
-  logout:'Çıkış yap',dashboardTitle:'MHA.NET Kullanıcı Paneli',
-  accountStatus:'Hesap durumu',active:'Aktif',serverCount:'Sunucular',
-  configCount:'Yapılandırmalar',subscription:'Abonelik',
-  accountInfo:'Hesap bilgileri',roleLabel:'Yetki seviyesi',
-  footer:'Tüm hakları saklıdır.',welcomeUser:'Hoş geldin',
-  passwordMismatch:'Şifreler eşleşmiyor.',
-  fillFields:'Lütfen tüm alanları doldurun.',
-  waiting:'Sunucuya bağlanılıyor...',
-  registerSuccess:'Kayıt başarıyla tamamlandı.',
-  loginSuccess:'Giriş başarılı.',
-  genericError:'İşlem başarısız oldu.',
-  connectionError:'Sunucuya bağlanılamadı. Worker adresini ve CORS ayarlarını kontrol edin.',
-  supportMessage:'Destek için Telegram üzerinden iletişime geçin.',
-  sessionError:'Oturumunuz geçersiz. Lütfen tekrar giriş yapın.'
+ navigation:"ANA MENÜ",dashboard:"Kontrol paneli",users:"Kullanıcılar",configs:"Yapılandırmalar",
+ servers:"Sunucular",subscriptions:"Abonelikler",usage:"Kullanım",support:"Destek",
+ account:"HESAP",profile:"Hesap ayarları",logout:"Çıkış",welcome:"MHA.NET paneline hoş geldiniz",
+ register:"Kayıt ol",login:"Giriş yap",username:"Kullanıcı adı",password:"Şifre",
+ confirmPassword:"Şifreyi tekrar girin",createAccount:"Hesap oluştur",
+ authNote:"Kayıt ve giriş sunucu üzerinden işlenir.",overview:"Panel genel görünümü",refresh:"Yenile",
+ totalUsers:"Toplam kullanıcı",activeConfigs:"Aktif yapılandırmalar",totalServers:"Sunucular",
+ activeSubs:"Aktif abonelikler",systemStatus:"Sistem durumu",checking:"Sunucu bağlantısı bekleniyor...",
+ serverHealthNote:"Sunucu durumu API üzerinden alınır.",quickActions:"Hızlı işlemler",newConfig:"Yeni yapılandırma",
+ newUser:"Yeni kullanıcı",newServer:"Yeni sunucu",recentActivity:"Son etkinlikler",noActivity:"Henüz etkinlik yok.",
+ usersDesc:"Kullanıcı oluşturma ve erişim yönetimi",configsDesc:"VPN profillerini ve yapılandırmalarını yönetin",
+ serversDesc:"Sunucu konumu, kapasitesi ve sağlığı",subsDesc:"Abonelik bağlantıları, veri ve sona erme tarihi",
+ usageDesc:"Trafik kullanım raporları",supportDesc:"MHA.NET destek ile iletişim",
+ supportText:"Yardım için Telegram desteğiyle iletişime geçin.",openTelegram:"Telegram desteğini aç",
+ profileDesc:"Hesap bilgileri ve oturum durumu",role:"Rol",status:"Durum",created:"Oluşturuldu",
+ actions:"İşlemler",configName:"Yapılandırma adı",server:"Sunucu",serverName:"Sunucu adı",
+ country:"Ülke",capacity:"Kapasite",volume:"Veri",used:"Kullanılan",expiry:"Bitiş",
+ newSubscription:"Yeni abonelik",upload:"Yükleme",download:"İndirme",updated:"Son güncelleme",
+ apiNotice:"Verilerin kalıcı kaydı API gerektirir. Worker bağlanana kadar bu form sunucuya veri kaydetmez.",
+ save:"Kaydet",cancel:"İptal",connectionOk:"API bağlantısı kuruldu.",connectionBad:"API bağlantısı başarısız.",
+ fillFields:"Lütfen gerekli alanları doldurun.",passwordMismatch:"Şifreler eşleşmiyor.",
+ genericError:"İşlem başarısız.",authError:"Kullanıcı adı veya şifre hatalı.",wait:"İstek gönderiliyor...",
+ registerOk:"Kayıt başarılı.",loginOk:"Giriş başarılı.",logoutOk:"Çıkış yapıldı.",
+ adminOnly:"Bu bölüm yalnızca yöneticiler içindir.",loadError:"Veriler yüklenemedi.",
+ confirmDelete:"Bu öğeyi silmek istediğinizden emin misiniz?",delete:"Sil",edit:"Düzenle",copy:"Kopyala",
+ active:"Aktif",inactive:"Pasif",supportRole:"Destek",userRole:"Kullanıcı",adminRole:"Yönetici",
+ usernamePlaceholder:"Kullanıcı adı",passwordPlaceholder:"En az 8 karakter",noPermission:"Erişim reddedildi"
  }
 };
 
-let currentMode = "register";
-let currentUser = null;
-let authToken = localStorage.getItem("mha_token") || "";
-let currentLanguage = localStorage.getItem("mha_language") || "fa";
+let language=localStorage.getItem("mha_language")||"fa";
+let authMode="register";
+let token=localStorage.getItem("mha_token")||"";
+let me=null;
+let currentEntity=null;
+let currentEditId=null;
 
-function t(key){return translations[currentLanguage][key] || key;}
+const $=id=>document.getElementById(id);
+const tr=key=>(I18N[language]&&I18N[language][key])||I18N.fa[key]||key;
 
-function applyLanguage(){
-  document.documentElement.lang=currentLanguage;
-  document.documentElement.dir=currentLanguage==="fa"?"rtl":"ltr";
-  document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const key=el.dataset.i18n;
-    if(translations[currentLanguage][key]) el.innerHTML=translations[currentLanguage][key];
-  });
-  document.getElementById("language").value=currentLanguage;
-  document.getElementById("submitBtn").textContent=
-    currentMode==="register"?t("createAccount"):t("loginButton");
+function toast(message){
+ const el=$("toast");el.textContent=message;el.classList.add("show");
+ setTimeout(()=>el.classList.remove("show"),3500);
 }
-document.getElementById("language").addEventListener("change",e=>{
-  currentLanguage=e.target.value;
-  localStorage.setItem("mha_language",currentLanguage);
-  applyLanguage();
-});
-function setMode(mode){
-  currentMode=mode;
-  document.getElementById("registerTab").classList.toggle("active",mode==="register");
-  document.getElementById("loginTab").classList.toggle("active",mode==="login");
-  document.getElementById("confirmField").classList.toggle("hidden",mode==="login");
-  document.getElementById("confirmPassword").required=mode==="register";
-  document.getElementById("submitBtn").textContent=
-    mode==="register"?t("createAccount"):t("loginButton");
-  document.getElementById("message").textContent="";
+function setLanguage(lang){
+ language=lang;localStorage.setItem("mha_language",lang);
+ document.documentElement.lang=lang;
+ document.documentElement.dir=lang==="fa"?"rtl":"ltr";
+ document.querySelectorAll("[data-i18n]").forEach(el=>{
+  const key=el.dataset.i18n;if(tr(key))el.textContent=tr(key);
+ });
+ $("language").value=lang;
+ $("authSubmit").textContent=authMode==="register"?tr("createAccount"):tr("login");
 }
-function togglePassword(id,btn){
-  const input=document.getElementById(id);
-  input.type=input.type==="password"?"text":"password";
-  btn.textContent=input.type==="password"?"◉":"◎";
-}
-function toggleMenu(){
-  const menu=document.getElementById("menuPanel");
-  menu.style.display=menu.style.display==="block"?"none":"block";
-}
-function openTelegram(){
-  window.open("https://t.me/m_hadiii46333","_blank","noopener");
-}
-function showSupport(){alert(t("supportMessage"));}
+$("language").addEventListener("change",e=>setLanguage(e.target.value));
 
-function showMessage(text,type="error"){
-  const el=document.getElementById("message");
-  el.className="message "+type;
-  el.textContent=text;
+function toggleSidebar(){
+ $("sidebar").classList.toggle("open");$("overlay").classList.toggle("show");
 }
-function saveSession(data){
-  if(data.token){
-    authToken=data.token;
-    localStorage.setItem("mha_token",authToken);
-  }
-  if(data.user){
-    currentUser=data.user;
-    showDashboard(data.user);
-  }
+function navigate(page){
+ if(!me){toast(tr("noPermission"));return}
+ const adminPages=["users","configs","servers","subscriptions","usage"];
+ if(adminPages.includes(page)&&me.role!=="admin"){
+  toast(tr("adminOnly"));return;
+ }
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ const target=$("page-"+page);if(target)target.classList.add("active");
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+ $("sidebar").classList.remove("open");$("overlay").classList.remove("show");
+ if(page==="users")loadUsers();
+ if(page==="configs")loadConfigs();
+ if(page==="servers")loadServers();
+ if(page==="subscriptions")loadSubscriptions();
+ if(page==="usage")loadUsage();
 }
-function showDashboard(user){
-  document.getElementById("authCard").style.display="none";
-  document.getElementById("hero").style.display="none";
-  document.getElementById("dashboard").style.display="block";
-  document.getElementById("userWelcome").textContent=
-    t("welcomeUser")+" "+(user.username||"");
-  document.getElementById("displayUsername").textContent=user.username||"";
-  document.getElementById("displayRole").textContent=user.role||"user";
+function setAuthMode(mode){
+ authMode=mode;
+ $("tabRegister").classList.toggle("active",mode==="register");
+ $("tabLogin").classList.toggle("active",mode==="login");
+ $("confirmWrap").style.display=mode==="register"?"block":"none";
+ $("authConfirm").required=mode==="register";
+ $("authSubmit").textContent=mode==="register"?tr("createAccount"):tr("login");
+ $("authMessage").textContent="";
 }
-function clearSession(){
-  authToken="";
-  currentUser=null;
-  localStorage.removeItem("mha_token");
-  document.getElementById("dashboard").style.display="none";
-  document.getElementById("authCard").style.display="block";
-  document.getElementById("hero").style.display="block";
+async function api(path,options={}){
+ const headers={"Content-Type":"application/json",...(options.headers||{})};
+ if(token)headers.Authorization="Bearer "+token;
+ const response=await fetch(API_BASE+path,{...options,headers,mode:"cors"});
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(data.message||data.error||tr("genericError"));
+ return data;
 }
-async function apiRequest(path,options={}){
-  const headers={"Content-Type":"application/json",...(options.headers||{})};
-  if(authToken) headers.Authorization="Bearer "+authToken;
-  const response=await fetch(API_BASE+path,{
-    ...options,headers,mode:"cors"
-  });
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok){
-    throw new Error(data.message||data.error||t("genericError"));
-  }
-  return data;
+function showWorkspace(user){
+ me=user;
+ $("authScreen").style.display="none";$("workspace").style.display="block";
+ $("profileUsername").textContent=user.username||"";
+ $("profileRole").textContent=user.role||"user";
+ document.querySelectorAll('[data-page="users"],[data-page="configs"],[data-page="servers"],[data-page="subscriptions"],[data-page="usage"]').forEach(el=>{
+  el.style.display=user.role==="admin"?"flex":"none";
+ });
+ navigate("dashboard");loadDashboard();
 }
-document.getElementById("authForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  const username=document.getElementById("username").value.trim();
-  const password=document.getElementById("password").value;
-  const confirm=document.getElementById("confirmPassword").value;
-  if(!username||!password){showMessage(t("fillFields"));return;}
-  if(currentMode==="register"&&password!==confirm){
-    showMessage(t("passwordMismatch"));return;
-  }
-  if(password.length<8){showMessage(t("genericError"));return;}
-
-  const btn=document.getElementById("submitBtn");
-  btn.disabled=true;
-  btn.textContent=t("waiting");
-  showMessage(t("waiting"),"");
-  try{
-    /* این مسیرها باید با مسیرهای Worker هماهنگ باشند. */
-    const endpoint=currentMode==="register"?"/api/register":"/api/login";
-    const data=await apiRequest(endpoint,{
-      method:"POST",
-      body:JSON.stringify({username,password})
-    });
-    if(!data.token||!data.user){
-      throw new Error(data.message||t("genericError"));
-    }
-    saveSession(data);
-    showMessage(currentMode==="register"?t("registerSuccess"):t("loginSuccess"),"success");
-  }catch(error){
-    showMessage(error.message||t("connectionError"));
-  }finally{
-    btn.disabled=false;
-    btn.textContent=currentMode==="register"?t("createAccount"):t("loginButton");
-  }
+function clearAuth(){
+ token="";me=null;localStorage.removeItem("mha_token");
+ $("workspace").style.display="none";$("authScreen").style.display="flex";
+}
+$("authForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const username=$("authUsername").value.trim();
+ const password=$("authPassword").value;
+ const confirm=$("authConfirm").value;
+ if(username.length<3||password.length<8){$("authMessage").textContent=tr("fillFields");return}
+ if(authMode==="register"&&password!==confirm){$("authMessage").textContent=tr("passwordMismatch");return}
+ const button=$("authSubmit");button.disabled=true;button.textContent=tr("wait");
+ try{
+  const endpoint=authMode==="register"?"/api/register":"/api/login";
+  const data=await api(endpoint,{method:"POST",body:JSON.stringify({username,password})});
+  if(!data.token||!data.user)throw new Error(data.message||tr("genericError"));
+  token=data.token;localStorage.setItem("mha_token",token);
+  showWorkspace(data.user);toast(authMode==="register"?tr("registerOk"):tr("loginOk"));
+ }catch(err){
+  $("authMessage").textContent=err.message||tr("genericError");
+ }finally{
+  button.disabled=false;button.textContent=authMode==="register"?tr("createAccount"):tr("login");
+ }
 });
 async function logout(){
-  try{
-    if(authToken){
-      await apiRequest("/api/logout",{method:"POST",body:"{}"});
-    }
-  }catch(e){}
-  clearSession();
+ try{if(token)await api("/api/logout",{method:"POST",body:"{}"})}catch(e){}
+ clearAuth();toast(tr("logoutOk"));
 }
 async function restoreSession(){
-  if(!authToken)return;
-  try{
-    const data=await apiRequest("/api/me",{method:"GET"});
-    if(data.user)showDashboard(data.user);
-    else clearSession();
-  }catch(e){clearSession();}
+ setLanguage(language);
+ if(!token)return;
+ try{
+  const data=await api("/api/me");
+  if(data.user)showWorkspace(data.user);else clearAuth();
+ }catch(e){clearAuth()}
 }
-applyLanguage();
-setMode("register");
+
+function requireAdmin(){
+ if(!me||me.role!=="admin"){toast(tr("adminOnly"));return false}
+ return true;
+}
+function escapeHTML(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function safeDate(value){
+ if(!value)return "—";
+ const d=new Date(value);return isNaN(d)?escapeHTML(value):d.toLocaleDateString();
+}
+function statusBadge(status){
+ const active=["active","online","published","فعال"].includes(String(status).toLowerCase());
+ return `<span class="badge ${active?"ok":"off"}">${escapeHTML(status||"—")}</span>`;
+}
+function rowActions(type,item){
+ const id=encodeURIComponent(item.id);
+ return `<div class="actions"><button class="btn secondary small" onclick="editEntity('${type}','${id}')">${tr("edit")}</button><button class="btn danger small" onclick="deleteEntity('${type}','${id}')">${tr("delete")}</button></div>`;
+}
+function fillTable(id,html,span){
+ $(id).innerHTML=html||`<tr><td colspan="${span}" class="empty">—</td></tr>`;
+}
+async function getList(path){
+ const data=await api(path);
+ return Array.isArray(data.items)?data.items:Array.isArray(data.data)?data.data:[];
+}
+async function loadDashboard(){
+ if(!me)return;
+ try{
+  const data=await api("/api/admin/overview");
+  const s=data.stats||data;
+  $("statUsers").textContent=s.users??"—";
+  $("statConfigs").textContent=s.configs??"—";
+  $("statServers").textContent=s.servers??"—";
+  $("statSubs").textContent=s.activeSubscriptions??s.subscriptions??"—";
+  $("connectionStatus").textContent=tr("connectionOk");
+  $("healthBar").style.width=(s.health??0)+"%";
+  $("recentActivity").textContent=(data.recentActivity||[]).map(x=>x.message).join(" • ")||tr("noActivity");
+ }catch(e){
+  $("connectionStatus").textContent=tr("connectionBad");
+  $("recentActivity").textContent=e.message;
+ }
+}
+async function loadUsers(){
+ if(!requireAdmin())return;
+ try{
+  const items=await getList("/api/admin/users");
+  fillTable("usersTable",items.map(x=>`<tr><td>${escapeHTML(x.id)}</td><td>${escapeHTML(x.username)}</td><td>${escapeHTML(x.role)}</td><td>${statusBadge(x.status)}</td><td>${safeDate(x.created_at)}</td><td>${rowActions("user",x)}</td></tr>`).join(""),6);
+ }catch(e){toast(e.message||tr("loadError"))}
+}
+async function loadConfigs(){
+ if(!requireAdmin())return;
+ try{
+  const items=await getList("/api/admin/configs");
+  fillTable("configsTable",items.map(x=>`<tr><td>${escapeHTML(x.id)}</td><td>${escapeHTML(x.name)}</td><td>${escapeHTML(x.protocol)}</td><td>${escapeHTML(x.server_name||x.server_id)}</td><td>${statusBadge(x.status)}</td><td>${rowActions("config",x)}</td></tr>`).join(""),6);
+ }catch(e){toast(e.message||tr("loadError"))}
+}
+async function loadServers(){
+ if(!requireAdmin())return;
+ try{
+  const items=await getList("/api/admin/servers");
+  fillTable("serversTable",items.map(x=>`<tr><td>${escapeHTML(x.id)}</td><td>${escapeHTML(x.name)}</td><td>${escapeHTML(x.country)}</td><td>${escapeHTML(x.address)}</td><td>${escapeHTML(x.capacity??"—")}</td><td>${statusBadge(x.status)}</td><td>${rowActions("server",x)}</td></tr>`).join(""),7);
+ }catch(e){toast(e.message||tr("loadError"))}
+}
+async function loadSubscriptions(){
+ if(!requireAdmin())return;
+ try{
+  const items=await getList("/api/admin/subscriptions");
+  fillTable("subscriptionsTable",items.map(x=>`<tr><td>${escapeHTML(x.id)}</td><td>${escapeHTML(x.username||x.user_id)}</td><td>${escapeHTML(x.volume_gb??"—")} GB</td><td>${escapeHTML(x.used_gb??"—")} GB</td><td>${safeDate(x.expires_at)}</td><td>${statusBadge(x.status)}</td><td>${rowActions("subscription",x)}</td></tr>`).join(""),7);
+ }catch(e){toast(e.message||tr("loadError"))}
+}
+async function loadUsage(){
+ if(!requireAdmin())return;
+ try{
+  const items=await getList("/api/admin/usage");
+  fillTable("usageTable",items.map(x=>`<tr><td>${escapeHTML(x.username)}</td><td>${escapeHTML(x.upload_gb??"—")} GB</td><td>${escapeHTML(x.download_gb??"—")} GB</td><td>${escapeHTML(x.used_gb??"—")} GB</td><td>${safeDate(x.updated_at)}</td></tr>`).join(""),5);
+ }catch(e){toast(e.message||tr("loadError"))}
+}
+function loadAll(){loadDashboard();if(me?.role==="admin"){loadUsers();loadConfigs();loadServers();loadSubscriptions();loadUsage()}}
+function filterTable(tableId,query){
+ const q=query.toLowerCase();
+ $(tableId).querySelectorAll("tr").forEach(row=>{
+  row.style.display=row.textContent.toLowerCase().includes(q)?"":"none";
+ });
+}
+
+const entityFields={
+ user:[
+  ["username","text","نام کاربری",true],["password","password","رمز عبور",true],
+  ["role","select","نقش",true,["user","admin"]],["status","select","وضعیت",true,["active","disabled"]]
+ ],
+ config:[
+  ["name","text","نام کانفیگ",true],["protocol","select","پروتکل",true,["VLESS","VMess","Trojan"]],
+  ["server_id","number","شناسه سرور",true],["config_uri","textarea","لینک کانفیگ",true],
+  ["status","select","وضعیت",true,["draft","published","disabled"]]
+ ],
+ server:[
+  ["name","text","نام سرور",true],["country","text","کشور",true],
+  ["address","text","آدرس سرور",true],["capacity","number","ظرفیت",false],
+  ["status","select","وضعیت",true,["online","offline","maintenance"]]
+ ],
+ subscription:[
+  ["user_id","number","شناسه کاربر",true],["volume_gb","number","حجم (GB)",true],
+  ["expires_at","date","تاریخ انقضا",true],["status","select","وضعیت",true,["active","expired","disabled"]]
+ ]
+};
+function openEntityModal(type){
+ if(!requireAdmin())return;
+ currentEntity=type;currentEditId=null;
+ $("modalTitle").textContent=({user:"کاربر جدید",config:"کانفیگ جدید",server:"سرور جدید",subscription:"اشتراک جدید"})[type];
+ renderEntityFields(type,{});
+ $("entityModal").classList.add("show");
+}
+function renderEntityFields(type,data){
+ const fields=entityFields[type]||[];
+ $("modalFields").innerHTML=fields.map(([name,kind,label,required,options])=>{
+  let control="";
+  if(kind==="select"){
+   control=`<select name="${name}" ${required?"required":""}>${options.map(v=>`<option value="${v}" ${data[name]===v?"selected":""}>${v}</option>`).join("")}</select>`;
+  }else if(kind==="textarea"){
+   control=`<textarea name="${name}" ${required?"required":""}>${escapeHTML(data[name]||"")}</textarea>`;
+  }else{
+   control=`<input name="${name}" type="${kind}" value="${escapeHTML(data[name]||"")}" ${required?"required":""} ${kind==="password"?"minlength='8'":""}>`;
+  }
+  return `<div class="field"><label>${label}</label>${control}</div>`;
+ }).join("");
+}
+function closeModal(){$("entityModal").classList.remove("show")}
+async function editEntity(type,id){
+ if(!requireAdmin())return;
+ try{
+  const data=await api(`/api/admin/${type}s/${id}`);
+  const item=data.item||data;
+  currentEntity=type;currentEditId=item.id;
+  $("modalTitle").textContent=tr("edit");
+  renderEntityFields(type,item);
+  $("entityModal").classList.add("show");
+ }catch(e){toast(e.message||tr("loadError"))}
+}
+async function deleteEntity(type,id){
+ if(!requireAdmin()||!confirm(tr("confirmDelete")))return;
+ try{
+  await api(`/api/admin/${type}s/${id}`,{method:"DELETE"});
+  toast(tr("delete")+" ✓");loadAll();
+ }catch(e){toast(e.message||tr("genericError"))}
+}
+$("entityForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(!requireAdmin())return;
+ const form=new FormData(e.target),payload=Object.fromEntries(form.entries());
+ const base=`/api/admin/${currentEntity}s`;
+ const path=currentEditId?`${base}/${encodeURIComponent(currentEditId)}`:base;
+ try{
+  await api(path,{method:currentEditId?"PUT":"POST",body:JSON.stringify(payload)});
+  closeModal();toast(tr("save")+" ✓");loadAll();
+ }catch(err){toast(err.message||tr("genericError"))}
+});
+async function copyText(text){
+ try{await navigator.clipboard.writeText(text);toast(tr("copy")+" ✓")}
+ catch(e){toast("Copy unavailable")}
+}
+setLanguage(language);
+setAuthMode("register");
 restoreSession();
 </script>
 </body>
