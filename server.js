@@ -27,12 +27,15 @@ const tokens = new Map();
 app.use(cors({
   origin: true,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.options('*', cors({
   origin: true,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
@@ -57,7 +60,7 @@ function getUserFromToken(req) {
 function requireAuth(req, res, next) {
   const user = getUserFromToken(req);
   if (!user) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ ok: false, message: 'Unauthorized' });
   }
   req.user = user;
   next();
@@ -71,16 +74,16 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ ok: true, status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-app.post('/api/auth/register', (req, res) => {
+function registerUser(req, res) {
   const { username, password } = req.body || {};
 
   if (!username || !password) {
-    return res.status(400).json({ message: 'نام کاربری و رمز عبور لازم است.' });
+    return res.status(400).json({ ok: false, message: 'نام کاربری و رمز عبور لازم است.' });
   }
 
   const exists = users.some((u) => u.username === username);
   if (exists) {
-    return res.status(409).json({ message: 'این نام کاربری قبلاً ثبت شده است.' });
+    return res.status(409).json({ ok: false, message: 'این نام کاربری قبلاً ثبت شده است.' });
   }
 
   const user = {
@@ -99,18 +102,18 @@ app.post('/api/auth/register', (req, res) => {
     token,
     user: { id: user.id, username: user.username, status: user.status }
   });
-});
+}
 
-app.post('/api/auth/login', (req, res) => {
+function loginUser(req, res) {
   const { username, password } = req.body || {};
 
   if (!username || !password) {
-    return res.status(400).json({ message: 'نام کاربری یا رمز عبور اشتباه است.' });
+    return res.status(400).json({ ok: false, message: 'نام کاربری یا رمز عبور اشتباه است.' });
   }
 
   const user = users.find((u) => u.username === username && u.password === password);
   if (!user) {
-    return res.status(401).json({ message: 'نام کاربری یا رمز عبور اشتباه است.' });
+    return res.status(401).json({ ok: false, message: 'نام کاربری یا رمز عبور اشتباه است.' });
   }
 
   const token = makeToken();
@@ -121,9 +124,12 @@ app.post('/api/auth/login', (req, res) => {
     token,
     user: { id: user.id, username: user.username, status: user.status }
   });
-});
+}
 
-app.post('/api/auth/logout', (req, res) => {
+app.post(['/api/auth/register', '/api/register'], registerUser);
+app.post(['/api/auth/login', '/api/login'], loginUser);
+
+app.post(['/api/auth/logout', '/api/logout'], (req, res) => {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
 
@@ -153,12 +159,12 @@ app.get('/api/users', requireAuth, (req, res) => {
 app.post('/api/users', requireAuth, (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) {
-    return res.status(400).json({ message: 'نام کاربری و رمز عبور لازم است.' });
+    return res.status(400).json({ ok: false, message: 'نام کاربری و رمز عبور لازم است.' });
   }
 
   const exists = users.some((u) => u.username === username);
   if (exists) {
-    return res.status(409).json({ message: 'کاربر از قبل وجود دارد.' });
+    return res.status(409).json({ ok: false, message: 'کاربر از قبل وجود دارد.' });
   }
 
   const user = {
@@ -169,7 +175,7 @@ app.post('/api/users', requireAuth, (req, res) => {
   };
 
   users.push(user);
-  return res.status(201).json({ message: 'کاربر ایجاد شد.', user: { id: user.id, username: user.username, status: user.status } });
+  return res.status(201).json({ ok: true, message: 'کاربر ایجاد شد.', user: { id: user.id, username: user.username, status: user.status } });
 });
 
 app.get('/api/servers', requireAuth, (req, res) => {
@@ -179,7 +185,7 @@ app.get('/api/servers', requireAuth, (req, res) => {
 app.post('/api/servers', requireAuth, (req, res) => {
   const { name, host, port } = req.body || {};
   if (!name || !host || !port) {
-    return res.status(400).json({ message: 'نام، آدرس و پورت سرور لازم است.' });
+    return res.status(400).json({ ok: false, message: 'نام، آدرس و پورت سرور لازم است.' });
   }
 
   const server = {
@@ -190,7 +196,7 @@ app.post('/api/servers', requireAuth, (req, res) => {
   };
 
   servers.push(server);
-  return res.status(201).json({ message: 'سرور ثبت شد.', server });
+  return res.status(201).json({ ok: true, message: 'سرور ثبت شد.', server });
 });
 
 app.get('/api/subscriptions', requireAuth, (req, res) => {
@@ -200,7 +206,7 @@ app.get('/api/subscriptions', requireAuth, (req, res) => {
 app.post('/api/subscriptions', requireAuth, (req, res) => {
   const { userId, volumeGB, days } = req.body || {};
   if (!userId || !volumeGB || !days) {
-    return res.status(400).json({ message: 'شناسه کاربر، حجم و مدت اشتراک لازم است.' });
+    return res.status(400).json({ ok: false, message: 'شناسه کاربر، حجم و مدت اشتراک لازم است.' });
   }
 
   const sub = {
@@ -212,7 +218,7 @@ app.post('/api/subscriptions', requireAuth, (req, res) => {
   };
 
   subscriptions.push(sub);
-  return res.status(201).json({ message: 'اشتراک ایجاد شد.', subscription: sub });
+  return res.status(201).json({ ok: true, message: 'اشتراک ایجاد شد.', subscription: sub });
 });
 
 app.get('/api/configs', requireAuth, (req, res) => {
@@ -222,7 +228,7 @@ app.get('/api/configs', requireAuth, (req, res) => {
 app.post('/api/configs', requireAuth, (req, res) => {
   const { name, userId, host, port, protocol } = req.body || {};
   if (!name || !userId || !host || !port || !protocol) {
-    return res.status(400).json({ message: 'تمام فیلدهای کانفیگ لازم است.' });
+    return res.status(400).json({ ok: false, message: 'تمام فیلدهای کانفیگ لازم است.' });
   }
 
   const cfg = {
@@ -236,11 +242,11 @@ app.post('/api/configs', requireAuth, (req, res) => {
   };
 
   configs.push(cfg);
-  return res.status(201).json({ message: 'کانفیگ ایجاد شد.', config: cfg });
+  return res.status(201).json({ ok: true, message: 'کانفیگ ایجاد شد.', config: cfg });
 });
 
 app.use((req, res) => {
-  res.status(404).json({ message: `Route not found: ${req.method} ${req.path}` });
+  res.status(404).json({ ok: false, message: `Route not found: ${req.method} ${req.path}` });
 });
 
 app.listen(PORT, () => {
