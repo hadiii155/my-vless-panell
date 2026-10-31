@@ -70,6 +70,20 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ ok: true, status: 'healthy', timestamp: new Date().toISOString() });
 });
 
+app.get('/api/dashboard', requireAuth, (req, res) => {
+  res.status(200).json({
+    ok: true,
+    stats: {
+      users: users.length,
+      activeUsers: users.filter((u) => u.status === 'active').length,
+      configs: configs.length,
+      servers: servers.length,
+      subscriptions: subscriptions.length,
+      activeSubscriptions: subscriptions.filter((s) => s.status === 'active').length
+    }
+  });
+});
+
 function registerUser(req, res) {
   const { username, password } = req.body || {};
 
