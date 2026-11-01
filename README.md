@@ -1,640 +1,1026 @@
-<!DOCTYPE html>
+
+const APP = "MHA.NET";
+
+/* =========================
+   DATABASE SCHEMA
+   هر جدول جداگانه ساخته می‌شود
+========================= */
+
+const SCHEMA = [
+`CREATE TABLE IF NOT EXISTS admins (
+ id INTEGER PRIMARY KEY,
+ username TEXT NOT NULL,
+ password_hash TEXT NOT NULL,
+ password_salt TEXT NOT NULL,
+ created_at TEXT DEFAULT CURRENT_TIMESTAMP
+)`,
+
+`CREATE TABLE IF NOT EXISTS users (
+ id TEXT PRIMARY KEY,
+ name TEXT NOT NULL,
+ note TEXT DEFAULT '',
+ created_at TEXT DEFAULT CURRENT_TIMESTAMP
+)`,
+
+`CREATE TABLE IF NOT EXISTS subscriptions (
+ id TEXT PRIMARY KEY,
+ user_id TEXT NOT NULL,
+ token TEXT UNIQUE NOT NULL,
+ volume_gb INTEGER NOT NULL,
+ used_bytes INTEGER DEFAULT 0,
+ days INTEGER NOT NULL,
+ expires_at TEXT NOT NULL,
+ status TEXT DEFAULT 'active',
+ created_at TEXT DEFAULT CURRENT_TIMESTAMP
+)`,
+
+`CREATE TABLE IF NOT EXISTS configs (
+ id TEXT PRIMARY KEY,
+ subscription_id TEXT NOT NULL,
+ protocol TEXT DEFAULT 'VLESS',
+ uuid TEXT NOT NULL,
+ server_id TEXT DEFAULT '',
+ status TEXT DEFAULT 'waiting_for_vps',
+ created_at TEXT DEFAULT CURRENT_TIMESTAMP
+)`,
+
+`CREATE TABLE IF NOT EXISTS settings (
+ key TEXT PRIMARY KEY,
+ value TEXT NOT NULL
+)`
+];
+
+/* =========================
+   HELPERS
+========================= */
+
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+function b64(bytes) {
+ return btoa(String.fromCharCode(...new Uint8Array(bytes)))
+  .replace(/\+/g, "-")
+  .replace(/\//g, "_")
+  .replace(/=+$/g, "");
+}
+
+function unb64(value) {
+ const base = value.replace(/-/g, "+").replace(/_/g, "/");
+ const padded = base + "=".repeat((4 - base.length % 4) % 4);
+ return Uint8Array.from(atob(padded), c => c.charCodeAt(0));
+}
+
+function json(data, status = 200, headers = {}) {
+ return new Response(JSON.stringify(data), {
+  status,
+  headers: {
+   "Content-Type": "application/json; charset=UTF-8",
+   "Cache-Control": "no-store",
+   ...headers
+  }
+ });
+}
+
+function uid() {
+ return crypto.randomUUID();
+}
+
+function randomToken() {
+ return b64(crypto.getRandomValues(new Uint8Array(32)));
+}
+
+async function digest(password, salt) {
+ const key = await crypto.subtle.importKey(
+  "raw",
+  enc.encode(password),
+  "PBKDF2",
+  false,
+  ["deriveBits"]
+ );
+
+ const bits = await crypto.subtle.deriveBits({
+  name: "PBKDF2",
+  salt: enc.encode(salt),
+  iterations: 150000,
+  hash: "SHA-256"
+ }, key, 256);
+
+ return b64(bits);
+}
+
+async function sign(value, secret) {
+ const key = await crypto.subtle.importKey(
+  "raw",
+  enc.encode(secret),
+  { name: "HMAC", hash: "SHA-256" },
+  false,
+  ["sign"]
+ );
+
+ return b64(await crypto.subtle.sign(
+  "HMAC",
+  key,
+  enc.encode(value)
+ ));
+}
+
+function safeEqual(a, b) {
+ if (typeof a !== "string" || typeof b !== "string") return false;
+ if (a.length !== b.length) return false;
+
+ let result = 0;
+ for (let i = 0; i < a.length; i++) {
+  result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+ }
+ return result === 0;
+}
+
+/* =========================
+   INITIALIZE DATABASE
+========================= */
+
+async function init(env) {
+ if (!env.DB) {
+  throw new Error("D1 binding DB is missing");
+ }
+
+ if (
+  !env.ADMIN_USERNAME ||
+  !env.ADMIN_PASSWORD ||
+  !env.SESSION_SECRET
+ ) {
+  throw new Error(
+   "ADMIN_USERNAME, ADMIN_PASSWORD and SESSION_SECRET must be configured"
+  );
+ }
+
+ for (const statement of SCHEMA) {
+  await env.DB.prepare(statement).run();
+ }
+
+ const existing = await env.DB.prepare(
+  "SELECT id FROM admins LIMIT 1"
+ ).first();
+
+ if (!existing) {
+  const salt = randomToken();
+  const hash = await digest(env.ADMIN_PASSWORD, salt);
+
+  await env.DB.prepare(
+   `INSERT INTO admins
+    (username, password_hash, password_salt)
+    VALUES (?, ?, ?)`
+  ).bind(
+   env.ADMIN_USERNAME,
+   hash,
+   salt
+  ).run();
+ }
+}
+
+/* =========================
+   SESSION
+========================= */
+
+function cookie(value, maxAge) {
+ return `mha_session=${value}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${maxAge}`;
+}
+
+async function createSession(username, env) {
+ const payload = b64(enc.encode(JSON.stringify({
+  username,
+  exp: Date.now() + 86400000
+ })));
+
+ const signature = await sign(payload, env.SESSION_SECRET);
+ return payload + "." + signature;
+}
+
+async function getSession(request, env) {
+ const cookieHeader = request.headers.get("Cookie") || "";
+ const match = cookieHeader.match(/(?:^|;\s*)mha_session=([^;]+)/);
+
+ if (!match) return false;
+
+ const parts = match[1].split(".");
+ if (parts.length !== 2) return false;
+
+ const [payload, signature] = parts;
+
+ const expected = await sign(payload, env.SESSION_SECRET);
+ if (!safeEqual(signature, expected)) return false;
+
+ try {
+  const data = JSON.parse(dec.decode(unb64(payload)));
+  if (!data.exp || data.exp <= Date.now()) return false;
+  return data;
+ } catch {
+  return false;
+ }
+}
+
+/* =========================
+   API
+========================= */
+
+async function api(request, env) {
+ const url = new URL(request.url);
+ const path = url.pathname;
+ const method = request.method;
+
+ if (method === "OPTIONS") {
+  return new Response(null, { status: 204 });
+ }
+
+ /* LOGIN */
+
+ if (method === "POST" && path === "/api/login") {
+  const body = await request.json();
+
+  const admin = await env.DB.prepare(
+   "SELECT * FROM admins LIMIT 1"
+  ).first();
+
+  if (
+   !admin ||
+   body.username !== admin.username ||
+   !safeEqual(
+    await digest(String(body.password || ""), admin.password_salt),
+    admin.password_hash
+   )
+  ) {
+   return json({
+    ok: false,
+    error: "نام کاربری یا رمز عبور اشتباه است"
+   }, 401);
+  }
+
+  const token = await createSession(admin.username, env);
+
+  return json({
+   ok: true,
+   username: admin.username
+  }, 200, {
+   "Set-Cookie": cookie(token, 86400)
+  });
+ }
+
+ /* LOGOUT */
+
+ if (method === "POST" && path === "/api/logout") {
+  return json({ ok: true }, 200, {
+   "Set-Cookie": cookie("", 0)
+  });
+ }
+
+ /* AUTHENTICATION */
+
+ const session = await getSession(request, env);
+
+ if (!session) {
+  return json({
+   ok: false,
+   error: "لطفاً ابتدا وارد پنل شوید"
+  }, 401);
+ }
+
+ /* CURRENT ADMIN */
+
+ if (method === "GET" && path === "/api/me") {
+  return json({
+   ok: true,
+   username: session.username
+  });
+ }
+
+ /* CHANGE PASSWORD */
+
+ if (method === "POST" && path === "/api/password") {
+  const body = await request.json();
+
+  const admin = await env.DB.prepare(
+   "SELECT * FROM admins LIMIT 1"
+  ).first();
+
+  if (!admin) {
+   return json({ error: "مدیر پیدا نشد" }, 404);
+  }
+
+  const oldHash = await digest(
+   String(body.oldPassword || ""),
+   admin.password_salt
+  );
+
+  if (!safeEqual(oldHash, admin.password_hash)) {
+   return json({ error: "رمز قبلی اشتباه است" }, 400);
+  }
+
+  if (
+   typeof body.newPassword !== "string" ||
+   body.newPassword.length < 12
+  ) {
+   return json({
+    error: "رمز جدید باید حداقل ۱۲ کاراکتر باشد"
+   }, 400);
+  }
+
+  const salt = randomToken();
+  const hash = await digest(body.newPassword, salt);
+
+  await env.DB.prepare(
+   `UPDATE admins
+    SET password_hash = ?, password_salt = ?
+    WHERE id = ?`
+  ).bind(hash, salt, admin.id).run();
+
+  return json({ ok: true, message: "رمز عبور تغییر کرد" });
+ }
+
+ /* DASHBOARD DATA */
+
+ if (method === "GET" && path === "/api/data") {
+  const [users, subs, configs, settings] = await Promise.all([
+   env.DB.prepare(
+    "SELECT * FROM users ORDER BY created_at DESC"
+   ).all(),
+
+   env.DB.prepare(
+    "SELECT * FROM subscriptions ORDER BY created_at DESC"
+   ).all(),
+
+   env.DB.prepare(
+    "SELECT * FROM configs ORDER BY created_at DESC"
+   ).all(),
+
+   env.DB.prepare(
+    "SELECT * FROM settings"
+   ).all()
+  ]);
+
+  return json({
+   ok: true,
+   users: users.results,
+   subscriptions: subs.results,
+   configs: configs.results,
+   settings: settings.results
+  });
+ }
+
+ /* CREATE USER */
+
+ if (method === "POST" && path === "/api/users") {
+  const body = await request.json();
+
+  const name = String(body.name || "").trim();
+
+  if (!name) {
+   return json({ error: "نام کاربر الزامی است" }, 400);
+  }
+
+  const id = uid();
+
+  await env.DB.prepare(
+   "INSERT INTO users (id, name, note) VALUES (?, ?, ?)"
+  ).bind(
+   id,
+   name.slice(0, 100),
+   String(body.note || "").slice(0, 500)
+  ).run();
+
+  return json({ ok: true, id });
+ }
+
+ /* CREATE SUBSCRIPTION */
+
+ if (method === "POST" && path === "/api/subscriptions") {
+  const body = await request.json();
+
+  const user = await env.DB.prepare(
+   "SELECT id FROM users WHERE id = ?"
+  ).bind(body.user_id).first();
+
+  const volume = Number(body.volume_gb);
+  const days = Number(body.days);
+
+  if (
+   !user ||
+   !Number.isInteger(volume) ||
+   volume < 1 ||
+   volume > 100000 ||
+   !Number.isInteger(days) ||
+   days < 1 ||
+   days > 3650
+  ) {
+   return json({
+    error: "اطلاعات اشتراک معتبر نیست"
+   }, 400);
+  }
+
+  const id = uid();
+  const token = randomToken();
+  const expires = new Date(
+   Date.now() + days * 86400000
+  ).toISOString();
+
+  await env.DB.prepare(
+   `INSERT INTO subscriptions
+    (id, user_id, token, volume_gb, days, expires_at)
+    VALUES (?, ?, ?, ?, ?, ?)`
+  ).bind(
+   id,
+   body.user_id,
+   token,
+   volume,
+   days,
+   expires
+  ).run();
+
+  return json({
+   ok: true,
+   id,
+   token,
+   expires_at: expires,
+   subscription_path: "/sub/" + token
+  });
+ }
+
+ /* CREATE CONFIG */
+
+ if (method === "POST" && path === "/api/configs") {
+  const body = await request.json();
+
+  const sub = await env.DB.prepare(
+   "SELECT id FROM subscriptions WHERE id = ?"
+  ).bind(body.subscription_id).first();
+
+  if (!sub) {
+   return json({ error: "اشتراک پیدا نشد" }, 404);
+  }
+
+  const id = uid();
+  const uuid = uid();
+
+  await env.DB.prepare(
+   `INSERT INTO configs
+    (id, subscription_id, protocol, uuid, status)
+    VALUES (?, ?, ?, ?, ?)`
+  ).bind(
+   id,
+   body.subscription_id,
+   "VLESS",
+   uuid,
+   "waiting_for_vps"
+  ).run();
+
+  return json({
+   ok: true,
+   id,
+   uuid,
+   status: "waiting_for_vps",
+   message: "رکورد ساخته شد؛ فعال‌سازی اتصال واقعی به VPS نیاز دارد."
+  });
+ }
+
+ /* SAVE SETTINGS */
+
+ if (method === "POST" && path === "/api/settings") {
+  const body = await request.json();
+
+  const allowed = ["theme", "language"];
+
+  if (!allowed.includes(body.key)) {
+   return json({ error: "تنظیم نامعتبر است" }, 400);
+  }
+
+  await env.DB.prepare(
+   `INSERT INTO settings (key, value)
+    VALUES (?, ?)
+    ON CONFLICT(key)
+    DO UPDATE SET value = excluded.value`
+  ).bind(
+   body.key,
+   String(body.value || "").slice(0, 30)
+  ).run();
+
+  return json({ ok: true });
+ }
+
+ /* DELETE USER / SUBSCRIPTION / CONFIG */
+
+ const remove = path.match(
+  /^\/api\/(users|subscriptions|configs)\/([a-f0-9-]+)$/i
+ );
+
+ if (method === "DELETE" && remove) {
+  const type = remove[1];
+  const id = remove[2];
+
+  if (type === "users") {
+   await env.DB.prepare(
+    "DELETE FROM configs WHERE subscription_id IN (SELECT id FROM subscriptions WHERE user_id = ?)"
+   ).bind(id).run();
+
+   await env.DB.prepare(
+    "DELETE FROM subscriptions WHERE user_id = ?"
+   ).bind(id).run();
+  }
+
+  if (type === "subscriptions") {
+   await env.DB.prepare(
+    "DELETE FROM configs WHERE subscription_id = ?"
+   ).bind(id).run();
+  }
+
+  const tables = {
+   users: "users",
+   subscriptions: "subscriptions",
+   configs: "configs"
+  };
+
+  await env.DB.prepare(
+   `DELETE FROM ${tables[type]} WHERE id = ?`
+  ).bind(id).run();
+
+  return json({ ok: true });
+ }
+
+ return json({
+  ok: false,
+  error: "API route not found"
+ }, 404);
+}
+
+/* =========================
+   SUBSCRIPTION PAGE
+========================= */
+
+async function subscriptionPage(request, env) {
+ const url = new URL(request.url);
+ const token = url.pathname.slice(5);
+
+ if (!token) {
+  return new Response("Subscription not found", { status: 404 });
+ }
+
+ const sub = await env.DB.prepare(
+  `SELECT id, volume_gb, used_bytes, days, expires_at, status
+   FROM subscriptions WHERE token = ?`
+ ).bind(token).first();
+
+ if (!sub) {
+  return new Response("Subscription not found", { status: 404 });
+ }
+
+ return json({
+  app: APP,
+  subscription: sub,
+  note: "اتصال واقعی پس از راه‌اندازی VPS و Xray فعال می‌شود."
+ });
+}
+
+/* =========================
+   ADMIN PANEL UI
+========================= */
+
+const PAGE = `<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#140d20">
-<title>MHA.NET | VPN Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MHA.NET Admin</title>
 <style>
-:root{--bg:#100b19;--bg2:#180f26;--panel:#1d142b;--panel-2:#20172f;--border:#3c2b4b;--orange:#ff702b;--red:#ef345e;--purple:#823cff;--purple-2:#9d6af8;--text:#f7f1ff;--muted:#b9a9c9;--green:#1fbf8f;--gray:#3b3347;--shadow:0 18px 40px rgba(0,0,0,.35)}
-*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:radial-gradient(circle at top, rgba(130,60,255,.18), transparent 30%), linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:Tahoma,Segoe UI,sans-serif}a{text-decoration:none;color:inherit}.shell{display:flex;max-width:1400px;margin:0 auto;padding:20px;gap:18px}.shell nav{width:250px;background:rgba(24,15,38,.8);border:1px solid var(--border);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(10px);box-shadow:var(--shadow)}.shell nav button{border:none;background:transparent;color:var(--text);padding:12px 16px;border-radius:12px;font-size:15px;text-align:right;cursor:pointer;transition:.2s ease}.shell nav button:hover,.shell nav button.active{background:linear-gradient(135deg,rgba(130,60,255,.26),rgba(255,112,43,.17));border:1px solid rgba(130,60,255,.5)}main{flex:1;padding:10px 0}main .page{display:none;animation:fade .2s ease}.page.active{display:block}.panel,.card{background:rgba(29,20,43,.92);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:var(--shadow)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-top:16px}.card{display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,rgba(29,20,43,.95),rgba(19,14,28,.95));min-height:130px}.metric{font-size:2rem;font-weight:700;color:var(--purple-2)}button{cursor:pointer}.logout-btn{display:none}header{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;background:rgba(18,12,26,.6);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}.logo{display:flex;align-items:center;gap:10px;font-size:1.5rem;font-weight:800;letter-spacing:.08em}.logo small{font-size:.7rem;color:var(--muted);letter-spacing:.2em}.menu{display:none}.actions,form,.form{display:flex;flex-wrap:wrap;gap:12px}.actions button{padding:11px 18px;border-radius:12px;border:1px solid transparent;background:linear-gradient(135deg,var(--purple),var(--purple-2));color:var(--text);font-weight:700}.gray{background:#2d2737!important;border-color:var(--border)!important;color:var(--text)!important}.green{background:linear-gradient(135deg,#0d9f74,#1fbf8f)!important}.red{background:linear-gradient(135deg,#a32558,#ef345e)!important}.warning{margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,112,43,.4);background:rgba(255,112,43,.1);color:#f8d7b0}.muted{color:var(--muted)}input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);outline:none}.auth-shell{display:flex;justify-content:center;align-items:center;min-height:76vh;padding:20px 0}.auth-header{display:flex;justify-content:center;margin-bottom:18px}.tab-toggle{display:inline-flex;background:rgba(255,255,255,.04);padding:5px;border:1px solid var(--border);border-radius:999px}.tab-toggle button{border:none;background:transparent;padding:10px 22px;border-radius:999px;color:var(--muted);font-weight:700}.tab-toggle button.active{background:linear-gradient(135deg,var(--purple),var(--purple-2));color:var(--text)}.auth-card{max-width:420px;width:100%}.mini{font-size:.82rem;color:var(--muted)}.tablewrap{overflow:auto}.tablewrap table{width:100%;border-collapse:collapse}.tablewrap th,.tablewrap td{padding:12px 10px;text-align:right;border-bottom:1px solid var(--border)}.tablewrap th{color:var(--muted);font-weight:600}#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:12px 18px;background:rgba(19,14,28,.95);border:1px solid var(--border);border-radius:999px;display:none;box-shadow:var(--shadow);z-index:20}footer{padding:20px;text-align:center;color:var(--muted)}@media (max-width:900px){.shell{flex-direction:column}.shell nav{width:100%;display:none}.shell nav.open{display:flex}.menu{display:block;background:transparent;border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px}header{padding:14px 18px}main{padding-top:0}}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+*{box-sizing:border-box}
+body{margin:0;background:#10091b;color:#f5edff;font-family:Tahoma,Arial}
+button,input,select{font:inherit}
+button{cursor:pointer;border:0;border-radius:9px;padding:11px 16px;background:#7900bd;color:white}
+button:hover{filter:brightness(1.2)}
+input,select{width:100%;padding:12px;background:#1b1028;color:white;border:1px solid #60328a;border-radius:8px;margin:6px 0 14px}
+.login{max-width:390px;margin:12vh auto;padding:25px;background:#1b1028;border:1px solid #8a27ce;border-radius:18px}
+.layout{display:none;min-height:100vh}
+aside{width:230px;background:#190d27;padding:20px;position:fixed;inset:0 0 0 auto;border-left:1px solid #54247b;min-height:100vh}
+main{margin-right:230px;padding:25px;max-width:1300px}
+.logo{font-size:27px;font-weight:bold;color:#ff7819;margin:15px 0 35px}
+nav button{display:block;width:100%;text-align:right;margin:8px 0;background:#29143d}
+nav button:hover,.active{background:#7500a8}
+.card{background:#1d112b;border:1px solid #542777;padding:18px;border-radius:13px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+h2{color:#ff8a28}
+.small{color:#bda9d1;font-size:12px;line-height:1.8}
+table{width:100%;border-collapse:collapse;display:block;overflow:auto}
+td,th{text-align:right;padding:11px;border-bottom:1px solid #40234e;white-space:nowrap}
+.form{max-width:550px}
+.hidden{display:none!important}
+.danger{background:#9b172e}
+.copy{background:#246b49}
+.status{color:#ffb15c}
+a{color:#ff9b45;overflow-wrap:anywhere}
+@media(max-width:700px){
+ aside{position:relative;width:100%;inset:auto;min-height:auto}
+ main{margin:0;padding:12px}
+ nav{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+ nav button{margin:3px 0;font-size:12px;padding:10px 5px}
+ .logo{margin:5px 0 15px}
+}
 </style>
 </head>
 <body>
 
-<header>
-<button class="menu" onclick="toggleMenu()" aria-label="منو">☰</button>
-<div class="logo">🦁 MHA.NET<small>VPN MANAGEMENT PANEL</small></div>
-<button class="gray logout-btn" onclick="logout()">خروج</button>
-</header>
+<section class="login" id="login">
+<h1 class="logo">🦁 MHA.NET</h1>
+<h2>ورود مدیر</h2>
+<form id="loginForm">
+<label>نام کاربری</label>
+<input id="username" autocomplete="username" required>
+<label>رمز عبور</label>
+<input id="password" type="password" autocomplete="current-password" required>
+<button style="width:100%">ورود به پنل</button>
+<p id="loginError" class="small"></p>
+</form>
+</section>
 
-<div class="shell">
-<nav id="nav">
-<button class="active" onclick="page('dashboard',this)">🏠 داشبورد</button>
-<button onclick="page('configs',this)">🔗 کانفیگ‌ها</button>
-<button onclick="page('users',this)">👥 کاربران</button>
-<button onclick="page('servers',this)">🌐 سرورها</button>
-<button onclick="page('subs',this)">📦 اشتراک‌ها</button>
-<button onclick="page('security',this)">🛡️ امنیت</button>
-<button onclick="page('settings',this)">⚙️ تنظیمات</button>
-<button onclick="page('account',this)">👤 حساب کاربری</button>
+<div class="layout" id="app">
+<aside>
+<div class="logo">🦁 MHA.NET</div>
+<nav>
+<button onclick="show('home')">داشبورد</button>
+<button onclick="show('users')">مدیریت کاربران</button>
+<button onclick="show('subs')">سابسکریپشن</button>
+<button onclick="show('configs')">ساخت کانفیگ</button>
+<button onclick="show('settings')">تنظیمات و ظاهر</button>
+<button onclick="show('passwordPage')">تغییر رمز</button>
+<button onclick="window.open('https://t.me/m_hadiii46333','_blank')">پشتیبانی تلگرام</button>
+<button class="danger" onclick="logout()">خروج</button>
 </nav>
+<p class="small">MHA.NET © 2026</p>
+</aside>
 
 <main>
-<section id="auth" class="page">
-<div class="logo">🦁 MHA.NET</div>
-<div class="panel auth-card">
-<div class="auth-shell">
-<div class="auth-header">
-<div class="tab-toggle">
-<button id="loginTabBtn" class="active" onclick="switchAuthMode('login')">ورود</button>
-<button id="registerTabBtn" onclick="switchAuthMode('register')">ثبت‌نام</button>
-</div>
+<h2 id="heading">داشبورد مدیریت</h2>
+
+<div id="home" class="page">
+ <div class="grid">
+  <div class="card">کاربران<h2 id="uc">0</h2></div>
+  <div class="card">اشتراک‌ها<h2 id="sc">0</h2></div>
+  <div class="card">کانفیگ‌ها<h2 id="cc">0</h2></div>
+ </div>
+ <div class="card">
+  وضعیت VPS: <b class="status">هنوز متصل نشده</b>
+  <p class="small">برای ساخت اتصال واقعی VLESS باید VPS و Xray راه‌اندازی شوند.</p>
+ </div>
 </div>
 
-<div id="loginForm">
-<h2 id="authTitle">ورود به پنل</h2>
-<p class="muted">به پنل مدیریت MHA.NET خوش آمدی.</p>
-<label>نام کاربری</label>
-<input id="loginUser" autocomplete="username" placeholder="نام کاربری">
-<label>رمز عبور</label>
-<input id="loginPass" type="password" autocomplete="current-password" placeholder="رمز عبور">
-<div class="actions">
-<button onclick="login()">ورود</button>
-</div>
-<p class="mini">نام کاربری پیش‌فرض: admin | رمز عبور: 123456</p>
+<div id="users" class="page hidden">
+ <div class="card form">
+  <h3>افزودن کاربر</h3>
+  <input id="newUser" placeholder="نام کاربر">
+  <input id="userNote" placeholder="توضیحات اختیاری">
+  <button onclick="addUser()">ایجاد کاربر</button>
+ </div>
+ <div class="card">
+  <h3>کاربران</h3>
+  <div id="userList"></div>
+ </div>
 </div>
 
-<div id="registerForm" style="display:none;">
-<h2>ثبت‌نام در پنل</h2>
-<p class="muted">حساب جدید بساز و به داشبورد دسترسی پیدا کن.</p>
-<label>نام کاربری</label>
-<input id="regUser" autocomplete="username" placeholder="نام کاربری جدید">
-<label>رمز عبور</label>
-<input id="regPass" type="password" autocomplete="new-password" placeholder="رمز عبور جدید">
-<div class="actions">
-<button onclick="register()">ثبت‌نام</button>
+<div id="subs" class="page hidden">
+ <div class="card form">
+  <h3>ساخت اشتراک</h3>
+  <label>انتخاب کاربر</label>
+  <select id="subUser"></select>
+  <label>حجم به GB</label>
+  <input id="volume" type="number" min="1" value="10">
+  <label>اعتبار به روز</label>
+  <input id="days" type="number" min="1" value="30">
+  <button onclick="addSub()">ایجاد اشتراک</button>
+ </div>
+ <div class="card">
+  <h3>اشتراک‌ها</h3>
+  <div id="subList"></div>
+ </div>
 </div>
-</div>
-</div>
-</div>
-</section>
 
-<section id="dashboard" class="page active">
-<h2>داشبورد مدیریت</h2>
-<p class="muted">مدیریت سرویس‌های MHA.NET</p>
-<div class="grid">
-<div class="card">👥 کاربران<div class="metric" id="usersCount">—</div></div>
-<div class="card">🔗 کانفیگ‌ها<div class="metric" id="configsCount">—</div></div>
-<div class="card">🌐 سرورها<div class="metric" id="serversCount">—</div></div>
-<div class="card">📦 اشتراک‌ها<div class="metric" id="subsCount">—</div></div>
+<div id="configs" class="page hidden">
+ <div class="card form">
+  <h3>ساخت کانفیگ</h3>
+  <select id="configSub"></select>
+  <button onclick="addConfig()">ساخت کانفیگ</button>
+  <p class="small">فعلاً UUID و رکورد کانفیگ در دیتابیس ساخته می‌شود. اتصال VLESS تا راه‌اندازی VPS فعال نیست.</p>
+ </div>
+ <div class="card">
+  <h3>کانفیگ‌ها</h3>
+  <div id="configList"></div>
+ </div>
 </div>
-<div class="panel">
-<h3>وضعیت اتصال</h3>
-<p id="connectionStatus" class="muted">API هنوز تنظیم نشده است.</p>
-<div class="warning">اگر بک‌اند وجود ندارد، پنل به‌صورت localStorage به‌صورت خودکار کار می‌کند. اگر API واقعی داشته باشی، آدرس آن را در تنظیمات وارد کن.</div>
-</div>
-<div class="panel">
-<h3>پشتیبانی MHA.NET</h3>
-<button class="green" onclick="support()">✈️ پشتیبانی تلگرام</button>
-</div>
-</section>
 
-<section id="configs" class="page">
-<h2>کانفیگ‌های VLESS</h2>
-<div class="panel">
-<div class="form">
-<div><label>نام کانفیگ</label><input id="cName" placeholder="مثلاً VLESS-01"></div>
-<div><label>شناسه کاربر</label><input id="cUser" placeholder="شناسه کاربر"></div>
-<div><label>آدرس سرور</label><input id="cHost" placeholder="server.example.com"></div>
-<div><label>پورت</label><input id="cPort" type="number" placeholder="443"></div>
+<div id="settings" class="page hidden">
+ <div class="card form">
+  <h3>تنظیمات پنل</h3>
+  <label>زبان</label>
+  <select id="language">
+   <option value="fa">فارسی</option>
+   <option value="tr">Türkçe</option>
+   <option value="en">English</option>
+  </select>
+  <label>تم</label>
+  <select id="theme">
+   <option value="dark">تاریک</option>
+   <option value="purple">بنفش</option>
+  </select>
+  <button onclick="saveSettings()">ذخیره تنظیمات</button>
+ </div>
 </div>
-<div class="actions"><button onclick="apiAction('POST','/api/configs',{name:val('cName'),userId:val('cUser'),host:val('cHost'),port:Number(val('cPort')),protocol:'vless'})">ایجاد کانفیگ</button><button class="gray" onclick="loadResource('configs')">بارگذاری مجدد</button></div>
-</div>
-<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>پروتکل</th><th>وضعیت</th></tr></thead><tbody id="configRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
-</section>
 
-<section id="users" class="page">
-<h2>مدیریت کاربران</h2>
-<div class="panel">
-<div class="form">
-<div><label>نام کاربری</label><input id="uName" placeholder="username"></div>
-<div><label>رمز عبور موقت</label><input id="uPass" type="password" placeholder="رمز امن"></div>
+<div id="passwordPage" class="page hidden">
+ <div class="card form">
+  <h3>تغییر رمز مدیر</h3>
+  <input id="oldPassword" type="password" placeholder="رمز فعلی">
+  <input id="newPassword" type="password" placeholder="رمز جدید، حداقل ۱۲ کاراکتر">
+  <button onclick="changePassword()">تغییر رمز</button>
+ </div>
 </div>
-<div class="actions"><button onclick="apiAction('POST','/api/users',{username:val('uName'),password:val('uPass')})">ایجاد کاربر</button><button class="gray" onclick="loadResource('users')">بارگذاری مجدد</button></div>
-</div>
-<div class="panel tablewrap"><table><thead><tr><th>شناسه</th><th>نام کاربری</th><th>وضعیت</th></tr></thead><tbody id="userRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
-</section>
 
-<section id="servers" class="page">
-<h2>مدیریت سرورها</h2>
-<div class="panel">
-<div class="form">
-<div><label>نام سرور</label><input id="sName" placeholder="سرور اصلی"></div>
-<div><label>آدرس سرور</label><input id="sHost" placeholder="IP یا دامنه"></div>
-<div><label>پورت اتصال</label><input id="sPort" type="number" placeholder="443"></div>
-</div>
-<div class="actions"><button onclick="apiAction('POST','/api/servers',{name:val('sName'),host:val('sHost'),port:Number(val('sPort'))})">ثبت سرور</button><button class="gray" onclick="loadResource('servers')">بارگذاری مجدد</button></div>
-</div>
-<div class="panel tablewrap"><table><thead><tr><th>نام</th><th>آدرس</th><th>پورت</th></tr></thead><tbody id="serverRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
-</section>
-
-<section id="subs" class="page">
-<h2>مدیریت اشتراک‌ها</h2>
-<div class="panel">
-<div class="form">
-<div><label>شناسه کاربر</label><input id="subUser" placeholder="شناسه کاربر"></div>
-<div><label>حجم (GB)</label><input id="subVolume" type="number" min="1" placeholder="50"></div>
-<div><label>مدت (روز)</label><input id="subDays" type="number" min="1" placeholder="30"></div>
-</div>
-<div class="actions"><button onclick="apiAction('POST','/api/subscriptions',{userId:val('subUser'),volumeGB:Number(val('subVolume')),days:Number(val('subDays'))})">ایجاد اشتراک</button><button class="gray" onclick="loadResource('subscriptions')">بارگذاری مجدد</button></div>
-</div>
-<div class="panel tablewrap"><table><thead><tr><th>شناسه</th><th>کاربر</th><th>وضعیت</th></tr></thead><tbody id="subRows"><tr><td colspan="3">API متصل نشده است.</td></tr></tbody></table></div>
-</section>
-
-<section id="security" class="page">
-<h2>امنیت</h2>
-<div class="panel">
-<p>🔐 احراز هویت سمت بک‌اند انجام می‌شود.</p>
-<p class="muted">کلید API، رمز عبور مدیر و اطلاعات حساس سرور را در HTML قرار نده.</p>
-<p class="muted">در نسخه نهایی باید سطح دسترسی مدیر و کاربر، اعتبارسنجی ورودی و ثبت رخدادها در سمت سرور پیاده‌سازی شود.</p>
-</div>
-</section>
-
-<section id="settings" class="page">
-<h2>تنظیمات اتصال</h2>
-<div class="panel">
-<label>آدرس API بک‌اند</label>
-<input id="apiBase" placeholder="https://your-worker.workers.dev">
-<p class="muted">اگر بک‌اند وجود ندارد، پنل به حالت localStorage می‌رود. برای API واقعی، آدرس Worker یا localhost:3000 را وارد کن.</p>
-<div class="actions"><button onclick="saveApi()">ذخیره آدرس API</button><button class="gray" onclick="testApi()">بررسی اتصال</button></div>
-</div>
-</section>
-
-<section id="account" class="page">
-<h2>حساب کاربری</h2>
-<div class="panel">
-<p class="muted" id="accountInfo">وضعیت ورود و حساب کاربری از API دریافت خواهد شد.</p>
-<button class="red" onclick="logout()">خروج از پنل</button>
-</div>
-</section>
-<footer>MHA.NET © VPN MANAGEMENT</footer>
+<p id="message" class="small"></p>
 </main>
 </div>
 
-<button class="support" onclick="support()" aria-label="پشتیبانی">✈</button>
-<div id="toast"></div>
-
 <script>
-const API_KEY = 'mha_api_base';
-const AUTH_KEY = 'mha_net_token';
-const USER_KEY = 'mha_net_user';
-const DEFAULT_LOCAL_API = 'http://localhost:3000';
-let API_BASE = '';
-let CURRENT_USER = null;
-let authMode = 'login';
+let data={users:[],subscriptions:[],configs:[]};
 
-const STORAGE_KEYS = {
-  users: 'mha_net_users',
-  servers: 'mha_net_servers',
-  subscriptions: 'mha_net_subs',
-  configs: 'mha_net_configs'
+const $=id=>document.getElementById(id);
+
+async function call(path,method="GET",body){
+ const r=await fetch(path,{
+  method,
+  credentials:"same-origin",
+  headers:{"Content-Type":"application/json"},
+  body:body?JSON.stringify(body):undefined
+ });
+
+ const d=await r.json().catch(()=>({error:"پاسخ نامعتبر از سرور"}));
+
+ if(!r.ok) throw Error(d.error||"خطا در درخواست");
+ return d;
+}
+
+function msg(text){
+ $("message").textContent=text;
+}
+
+function esc(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[c]));
+}
+
+$("loginForm").onsubmit=async e=>{
+ e.preventDefault();
+ $("loginError").textContent="";
+
+ try{
+  await call("/api/login","POST",{
+   username:$("username").value,
+   password:$("password").value
+  });
+  await start();
+ }catch(err){
+  $("loginError").textContent=err.message;
+ }
 };
 
-function defaultData() {
-  return {
-    users: [{ id: 1, username: 'admin', password: '123456', status: 'active' }],
-    servers: [{ id: 1, name: 'سرور اصلی', host: 'localhost', port: 443, status: 'online' }],
-    subscriptions: [{ id: 1, userId: 1, status: 'active', volumeGB: 50, days: 30 }],
-    configs: [{ id: 1, name: 'VLESS-01', protocol: 'vless', status: 'active', userId: 1 }]
-  };
+async function start(){
+ await call("/api/me");
+ $("login").style.display="none";
+ $("app").style.display="block";
+ await refresh();
 }
 
-function readStore(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : fallback;
-  } catch (e) {
-    return fallback;
-  }
+async function refresh(){
+ data=await call("/api/data");
+
+ $("uc").textContent=data.users.length;
+ $("sc").textContent=data.subscriptions.length;
+ $("cc").textContent=data.configs.length;
+
+ $("userList").innerHTML=data.users.map(x=>
+  '<p>'+esc(x.name)+' — '+esc(x.note)+
+  ' <button class="danger" onclick="del(\\'users\\',\\''+x.id+'\\')">حذف</button></p>'
+ ).join("") || '<p class="small">هنوز کاربری ثبت نشده است.</p>';
+
+ $("subUser").innerHTML=data.users.map(x=>
+  '<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>'
+ ).join("");
+
+ $("configSub").innerHTML=data.subscriptions.map(x=>
+  '<option value="'+esc(x.id)+'">'+esc(x.id.slice(0,8))+
+  ' — '+esc(x.volume_gb)+'GB</option>'
+ ).join("");
+
+ $("subList").innerHTML=data.subscriptions.map(x=>
+  '<div class="card">'+
+  '<p>حجم: '+esc(x.volume_gb)+'GB | اعتبار: '+esc(x.days)+' روز</p>'+
+  '<p>وضعیت: '+esc(x.status)+'</p>'+
+  '<p>انقضا: '+esc(x.expires_at)+'</p>'+
+  '<p>لینک اشتراک: <a href="/sub/'+encodeURIComponent(x.token)+'" target="_blank">مشاهده لینک</a></p>'+
+  '<button class="copy" onclick="copyText(\\''+location.origin+'/sub/'+x.token+'\\')">کپی لینک</button> '+
+  '<button class="danger" onclick="del(\\'subscriptions\\',\\''+x.id+'\\')">حذف</button>'+
+  '</div>'
+ ).join("") || '<p class="small">هنوز اشتراکی ساخته نشده است.</p>';
+
+ $("configList").innerHTML=data.configs.map(x=>
+  '<div class="card">'+
+  '<p>پروتکل: '+esc(x.protocol)+'</p>'+
+  '<p>UUID: '+esc(x.uuid)+'</p>'+
+  '<p>وضعیت: '+esc(x.status)+'</p>'+
+  '<button class="danger" onclick="del(\\'configs\\',\\''+x.id+'\\')">حذف</button>'+
+  '</div>'
+ ).join("") || '<p class="small">هنوز کانفیگی ساخته نشده است.</p>';
+
+ const settings=Object.fromEntries(
+  data.settings.map(x=>[x.key,x.value])
+ );
+
+ if(settings.language) $("language").value=settings.language;
+ if(settings.theme) $("theme").value=settings.theme;
 }
 
-function writeStore(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {}
-}
-
-function ensureDemoData() {
-  const seed = defaultData();
-  Object.entries(STORAGE_KEYS).forEach(([key, storeKey]) => {
-    const current = readStore(storeKey, seed[key]);
-    writeStore(storeKey, current);
+async function addUser(){
+ try{
+  await call("/api/users","POST",{
+   name:$("newUser").value,
+   note:$("userNote").value
   });
+
+  $("newUser").value="";
+  $("userNote").value="";
+  await refresh();
+  msg("کاربر ذخیره شد");
+ }catch(e){
+  msg(e.message);
+ }
 }
 
-function normalizeApiBase(value) {
-  if (!value || typeof value !== 'string') return '';
-  return value.trim().replace(/\/+$/, '');
+async function addSub(){
+ try{
+  if(!$("subUser").value){
+   msg("ابتدا یک کاربر ایجاد کنید");
+   return;
+  }
+
+  const result=await call("/api/subscriptions","POST",{
+   user_id:$("subUser").value,
+   volume_gb:$("volume").value,
+   days:$("days").value
+  });
+
+  await refresh();
+  msg("اشتراک ایجاد شد. لینک: "+location.origin+result.subscription_path);
+ }catch(e){
+  msg(e.message);
+ }
 }
 
-function getDefaultApiBase() {
-  const fromQuery = new URLSearchParams(window.location.search).get('api');
-  if (fromQuery) return normalizeApiBase(fromQuery);
-
-  try {
-    const saved = localStorage.getItem(API_KEY);
-    if (saved) return normalizeApiBase(saved);
-  } catch (e) {}
-
-  const host = window.location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
-    return DEFAULT_LOCAL_API;
+async function addConfig(){
+ try{
+  if(!$("configSub").value){
+   msg("ابتدا یک اشتراک ایجاد کنید");
+   return;
   }
 
-  return '';
+  const result=await call("/api/configs","POST",{
+   subscription_id:$("configSub").value,
+   protocol:"VLESS"
+  });
+
+  await refresh();
+  msg("رکورد ساخته شد. UUID: "+result.uuid+" | فعال‌سازی نیازمند VPS است.");
+ }catch(e){
+  msg(e.message);
+ }
 }
 
-function val(id){return document.getElementById(id).value.trim()}
+async function del(type,id){
+ if(!confirm("از حذف این مورد مطمئن هستید؟"))return;
 
-function notify(message){
-  const el=document.getElementById('toast');
-  el.textContent=message;
-  el.style.display='block';
-  clearTimeout(window.noticeTimer);
-  window.noticeTimer=setTimeout(()=>el.style.display='none',3000);
+ try{
+  await call("/api/"+type+"/"+id,"DELETE");
+  await refresh();
+  msg("حذف انجام شد");
+ }catch(e){
+  msg(e.message);
+ }
 }
 
-function switchAuthMode(mode){
-  authMode = mode;
-  const loginForm = document.getElementById('loginForm');
-  const registerForm = document.getElementById('registerForm');
-  const loginTab = document.getElementById('loginTabBtn');
-  const regTab = document.getElementById('registerTabBtn');
-  const title = document.getElementById('authTitle');
+async function changePassword(){
+ try{
+  await call("/api/password","POST",{
+   oldPassword:$("oldPassword").value,
+   newPassword:$("newPassword").value
+  });
 
-  if(mode === 'register'){
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'block';
-    title.textContent = 'ثبت‌نام در پنل';
-    loginTab.classList.remove('active');
-    regTab.classList.add('active');
-  } else {
-    loginForm.style.display = 'block';
-    registerForm.style.display = 'none';
-    title.textContent = 'ورود به پنل';
-    regTab.classList.remove('active');
-    loginTab.classList.add('active');
-  }
+  msg("رمز تغییر کرد؛ دوباره وارد شوید");
+  await logout();
+ }catch(e){
+  msg(e.message);
+ }
 }
 
-function toggleMenu(){
-  document.getElementById('nav').classList.toggle('open');
-}
+async function saveSettings(){
+ try{
+  await call("/api/settings","POST",{
+   key:"language",
+   value:$("language").value
+  });
 
-function page(id,button){
-  const loggedIn = !!CURRENT_USER;
-  if(!loggedIn && id !== 'auth'){
-    notify('لطفاً ابتدا وارد شوید.');
-    renderAuthState('auth');
-    return;
-  }
-  document.querySelectorAll('main .page').forEach(x=>x.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
-  if(button)button.classList.add('active');
-  document.getElementById('nav').classList.remove('open');
-}
+  await call("/api/settings","POST",{
+   key:"theme",
+   value:$("theme").value
+  });
 
-function support(){
-  window.open('https://t.me/m_hadiii46333','_blank','noopener');
-}
-
-function saveApi(){
-  API_BASE = normalizeApiBase(val('apiBase'));
-  if (API_BASE && !API_BASE.startsWith('http://') && !API_BASE.startsWith('https://')) {
-    notify('آدرس API باید با http:// یا https:// شروع شود.');
-    return false;
-  }
-  try{localStorage.setItem(API_KEY,API_BASE)}catch(e){}
-  notify(API_BASE ? 'آدرس API ذخیره شد.' : 'حالت LocalStorage فعال شد.');
-  return true;
-}
-
-function saveAuth(token, user){
-  CURRENT_USER = user;
-  localStorage.setItem(AUTH_KEY, token);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-}
-
-function clearAuth(){
-  CURRENT_USER = null;
-  localStorage.removeItem(AUTH_KEY);
-  localStorage.removeItem(USER_KEY);
-}
-
-function renderAuthState(forcePage = null){
-  const loggedIn = !!CURRENT_USER;
-  const authPage = document.getElementById('auth');
-  const dashboardPage = document.getElementById('dashboard');
-  const logoutBtn = document.querySelector('.logout-btn');
-
-  if (logoutBtn) logoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
-  if (authPage) authPage.style.display = loggedIn ? 'none' : 'block';
-  if (dashboardPage) dashboardPage.style.display = loggedIn ? 'block' : 'none';
-
-  const activePage = forcePage || (loggedIn ? 'dashboard' : 'auth');
-  page(activePage);
-
-  const accountText = document.getElementById('accountInfo');
-  if (accountText) {
-    accountText.textContent = loggedIn
-      ? `وضعیت: وارد شده‌اید | نام کاربری: ${CURRENT_USER.username}`
-      : 'وضعیت ورود و حساب کاربری از API دریافت خواهد شد.';
-  }
-}
-
-function generateToken() {
-  return 'local_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
-function localFallbackRequest(path, method='GET', body=null) {
-  ensureDemoData();
-
-  let users = readStore(STORAGE_KEYS.users, defaultData().users);
-  let servers = readStore(STORAGE_KEYS.servers, defaultData().servers);
-  let subscriptions = readStore(STORAGE_KEYS.subscriptions, defaultData().subscriptions);
-  let configs = readStore(STORAGE_KEYS.configs, defaultData().configs);
-
-  if (path === '/api/health') {
-    return { ok: true, service: 'MHA.NET API (local fallback)', time: new Date().toISOString() };
-  }
-
-  if (path === '/api/auth/register' && method === 'POST') {
-    const { username, password } = body || {};
-    if (!username || !password) throw new Error('Username and password are required.');
-    if (users.some(u => u.username === username)) throw new Error('Username already exists.');
-    const user = { id: Date.now(), username, password, status: 'active' };
-    users.push(user);
-    writeStore(STORAGE_KEYS.users, users);
-    const token = generateToken();
-    saveAuth(token, { id: user.id, username: user.username, status: user.status });
-    return { message: 'Register successful.', token, user: { id: user.id, username: user.username, status: user.status } };
-  }
-
-  if (path === '/api/auth/login' && method === 'POST') {
-    const { username, password } = body || {};
-    if (!username || !password) throw new Error('Username and password are required.');
-    const user = users.find(u => u.username === username && u.password === password);
-    if (!user) throw new Error('Invalid username or password.');
-    const token = generateToken();
-    saveAuth(token, { id: user.id, username: user.username, status: user.status });
-    return { message: 'Login successful.', token, user: { id: user.id, username: user.username, status: user.status } };
-  }
-
-  if (path === '/api/auth/logout' && method === 'POST') {
-    clearAuth();
-    return { message: 'Logged out successfully.' };
-  }
-
-  if (path === '/api/me' && method === 'GET') {
-    const savedUser = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
-    if (!savedUser) throw new Error('Unauthorized');
-    return { id: savedUser.id, username: savedUser.username, status: savedUser.status };
-  }
-
-  if (path === '/api/users' && method === 'GET') {
-    return users.map(u => ({ id: u.id, username: u.username, status: u.status }));
-  }
-
-  if (path === '/api/users' && method === 'POST') {
-    const { username, password } = body || {};
-    if (!username || !password) throw new Error('Username and password are required.');
-    if (users.some(u => u.username === username)) throw new Error('Username already exists.');
-    const user = { id: Date.now(), username, password, status: 'active' };
-    users.push(user);
-    writeStore(STORAGE_KEYS.users, users);
-    return { message: 'User created successfully.', user: { id: user.id, username: user.username, status: user.status } };
-  }
-
-  if (path === '/api/servers' && method === 'GET') return servers;
-  if (path === '/api/servers' && method === 'POST') {
-    const { name, host, port } = body || {};
-    if (!name || !host || !port) throw new Error('All server fields are required.');
-    const server = { id: Date.now(), name, host, port, status: 'active' };
-    servers.push(server);
-    writeStore(STORAGE_KEYS.servers, servers);
-    return { message: 'Server created successfully.', server };
-  }
-
-  if (path === '/api/subscriptions' && method === 'GET') return subscriptions;
-  if (path === '/api/subscriptions' && method === 'POST') {
-    const { userId, volumeGB, days } = body || {};
-    if (!userId || !volumeGB || !days) throw new Error('userId, volumeGB and days are required.');
-    const sub = { id: Date.now(), userId, volumeGB, days, status: 'active' };
-    subscriptions.push(sub);
-    writeStore(STORAGE_KEYS.subscriptions, subscriptions);
-    return { message: 'Subscription created successfully.', subscription: sub };
-  }
-
-  if (path === '/api/configs' && method === 'GET') return configs;
-  if (path === '/api/configs' && method === 'POST') {
-    const { name, userId, host, port, protocol } = body || {};
-    if (!name || !userId || !host || !port || !protocol) throw new Error('All config fields are required.');
-    const config = { id: Date.now(), name, userId, host, port, protocol, status: 'active' };
-    configs.push(config);
-    writeStore(STORAGE_KEYS.configs, configs);
-    return { message: 'Config created successfully.', config };
-  }
-
-  throw new Error('API endpoint not found.');
-}
-
-async function request(path,method='GET',body=null){
-  if(!API_BASE){
-    API_BASE = getDefaultApiBase();
-  }
-
-  if(!API_BASE){
-    return localFallbackRequest(path, method, body);
-  }
-
-  const token = localStorage.getItem(AUTH_KEY);
-  const options={method,headers:{'Content-Type':'application/json'},credentials:'include'};
-  if(token) options.headers.Authorization = 'Bearer ' + token;
-  if(body!==null)options.body=JSON.stringify(body);
-
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(()=>controller.abort(),15000);
-    const response=await fetch(API_BASE + path, { ...options, signal: controller.signal });
-    clearTimeout(timeout);
-    const contentType = response.headers.get('content-type') || '';
-    let data = {};
-    if (contentType.includes('application/json')) {
-      data = await response.json().catch(() => ({}));
-    } else {
-      const text = await response.text().catch(() => '');
-      data = { message: text || 'Request completed.' };
-    }
-
-    if(!response.ok) {
-      throw new Error(data.message || `HTTP ${response.status}`);
-    }
-
-    return data;
-  } catch (e) {
-    const msg = e && e.message ? e.message : '';
-    if (e && e.name === 'AbortError') {
-      return localFallbackRequest(path, method, body);
-    }
-    if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('HTTP 404')) {
-      return localFallbackRequest(path, method, body);
-    }
-    throw e;
-  }
-}
-
-async function testApi(){
-  try{
-    const result=await request('/api/health');
-    document.getElementById('connectionStatus').textContent='پاسخ API: '+JSON.stringify(result);
-    notify('پاسخ از API دریافت شد.');
-  }catch(e){
-    document.getElementById('connectionStatus').textContent='ارتباط با API برقرار نشد. آدرس فعلی: ' + API_BASE;
-    notify(e.message || 'اتصال برقرار نشد.');
-  }
-}
-
-async function apiAction(method,path,data){
-  for(const [key,value] of Object.entries(data||{})){
-    if(value===''||value===null||value===undefined){
-      notify('لطفاً تمام اطلاعات لازم را وارد کن.');
-      return;
-    }
-  }
-  try{
-    const result=await request(path,method,data);
-    const msg = result && result.message ? result.message : 'درخواست توسط بک‌اند پردازش شد.';
-    notify(msg);
-    if(path === '/api/users' || path === '/api/servers' || path === '/api/subscriptions' || path === '/api/configs'){
-      const key = path.replace('/api/','').replace(/s$/, '');
-      await loadResource(key.toLowerCase());
-    }
-  }catch(e){
-    notify('عملیات انجام نشد: '+(e.message || 'خطای نامشخص'));
-  }
-}
-
-async function loadResource(resource){
-  const paths={
-    users:['/api/users','userRows',['id','username','status']],
-    servers:['/api/servers','serverRows',['name','host','port']],
-    subscriptions:['/api/subscriptions','subRows',['id','userId','status']],
-    configs:['/api/configs','configRows',['name','protocol','status']]
-  };
-  const config=paths[resource];
-  if(!config)return;
-  try{
-    const result=await request(config[0]);
-    const rows=Array.isArray(result)?result:(result.data||[]);
-    const body=document.getElementById(config[1]);
-    body.replaceChildren();
-    rows.forEach(item=>{
-      const tr=document.createElement('tr');
-      config[2].forEach(key=>{
-        const td=document.createElement('td');
-        td.textContent=item[key]??'—';
-        tr.appendChild(td);
-      });
-      body.appendChild(tr);
-    });
-  }catch(e){
-    notify('دریافت اطلاعات ناموفق بود: '+(e.message || 'خطای نامشخص'));
-  }
-}
-
-async function register(){
-  const username = val('regUser');
-  const password = val('regPass');
-
-  if(!username || !password){
-    notify('نام کاربری و رمز عبور را وارد کن.');
-    return;
-  }
-
-  try{
-    const result = await request('/api/auth/register','POST',{ username, password });
-    if(result && result.token && result.user){
-      saveAuth(result.token, result.user);
-      notify('ثبت‌نام موفق بود.');
-      renderAuthState('dashboard');
-      await loadResource('users');
-      await loadResource('servers');
-      await loadResource('subscriptions');
-      await loadResource('configs');
-    } else {
-      notify(result && result.message ? result.message : 'ثبت‌نام ناموفق بود.');
-    }
-  }catch(e){
-    notify(e.message || 'ثبت‌نام ناموفق بود.');
-  }
-}
-
-async function login(){
-  if(!val('loginUser')||!val('loginPass')){
-    notify('نام کاربری و رمز عبور را وارد کن.');
-    return;
-  }
-  try{
-    const result=await request('/api/auth/login','POST',{ username:val('loginUser'), password:val('loginPass') });
-    if(result && result.token && result.user){
-      saveAuth(result.token, result.user);
-      notify('ورود موفق بود.');
-      renderAuthState('dashboard');
-      await loadResource('users');
-      await loadResource('servers');
-      await loadResource('subscriptions');
-      await loadResource('configs');
-    } else {
-      notify(result && result.message ? result.message : 'ورود ناموفق بود.');
-    }
-  }catch(e){
-    notify(e.message || 'ورود ناموفق بود.');
-  }
+  msg("تنظیمات ذخیره شد");
+ }catch(e){
+  msg(e.message);
+ }
 }
 
 async function logout(){
-  try{
-    await request('/api/auth/logout','POST',{});
-  }catch(e){}
-  clearAuth();
-  switchAuthMode('login');
-  renderAuthState('auth');
-  notify('خارج شدید.');
+ try{
+  await call("/api/logout","POST");
+ }catch{}
+
+ location.reload();
 }
 
-async function initApp(){
-  ensureDemoData();
-  try{
-    API_BASE = normalizeApiBase(localStorage.getItem(API_KEY) || getDefaultApiBase());
-    document.getElementById('apiBase').value = API_BASE;
-  }catch(e){
-    API_BASE = getDefaultApiBase();
-  }
+function show(id){
+ document.querySelectorAll(".page").forEach(x=>
+  x.classList.add("hidden")
+ );
 
-  try{
-    const savedUser = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
-    if(savedUser) CURRENT_USER = savedUser;
-    if(CURRENT_USER){
-      await request('/api/me');
-      renderAuthState('dashboard');
-      await loadResource('users');
-      await loadResource('servers');
-      await loadResource('subscriptions');
-      await loadResource('configs');
-    }else{
-      renderAuthState('auth');
-    }
-  }catch(e){
-    clearAuth();
-    renderAuthState('auth');
-  }
+ $(id).classList.remove("hidden");
+
+ const titles={
+  home:"داشبورد مدیریت",
+  users:"مدیریت کاربران",
+  subs:"مدیریت اشتراک‌ها",
+  configs:"مدیریت کانفیگ‌ها",
+  settings:"تنظیمات پنل",
+  passwordPage:"تغییر رمز مدیر"
+ };
+
+ $("heading").textContent=titles[id]||"MHA.NET";
 }
 
-initApp();
+async function copyText(text){
+ try{
+  await navigator.clipboard.writeText(text);
+  msg("لینک کپی شد");
+ }catch{
+  msg("کپی خودکار انجام نشد؛ لینک را دستی کپی کنید");
+ }
+}
+
+start().catch(()=>{
+ $("login").style.display="block";
+ $("app").style.display="none";
+});
 </script>
 </body>
-</html>
+</html>`;
+
+/* =========================
+   WORKER ENTRY
+========================= */
+
+export default {
+ async fetch(request, env) {
+  try {
+   await init(env);
+
+   const url = new URL(request.url);
+
+   if (url.pathname.startsWith("/api/")) {
+    return await api(request, env);
+   }
+
+   if (url.pathname.startsWith("/sub/")) {
+    return await subscriptionPage(request, env);
+   }
+
+   return new Response(PAGE, {
+    headers: {
+     "Content-Type": "text/html; charset=UTF-8",
+     "Cache-Control": "no-store"
+    }
+   });
+
+  } catch (error) {
+   return json({
+    ok: false,
+    error: error.message || "Internal server error"
+   }, 500);
+  }
+ }
+};
